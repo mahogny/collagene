@@ -1,0 +1,217 @@
+package gui.paneRestriction;
+
+import gui.ProjectWindow;
+import gui.digest.SimulatedDigestWindow;
+import gui.resource.ImgResource;
+import gui.sequenceWindow.SeqViewSettingsMenu;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import restrictionEnzyme.RestrictionEnzyme;
+import seq.AnnotatedSequence;
+import seq.RestrictionSite;
+
+import com.trolltech.qt.core.QModelIndex;
+import com.trolltech.qt.core.Qt;
+import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
+import com.trolltech.qt.gui.QGroupBox;
+import com.trolltech.qt.gui.QHeaderView.ResizeMode;
+import com.trolltech.qt.gui.QGridLayout;
+import com.trolltech.qt.gui.QIcon;
+import com.trolltech.qt.gui.QLabel;
+import com.trolltech.qt.gui.QPushButton;
+import com.trolltech.qt.gui.QTableWidget;
+import com.trolltech.qt.gui.QTableWidgetItem;
+import com.trolltech.qt.gui.QVBoxLayout;
+import com.trolltech.qt.gui.QWidget;
+
+/**
+ * 
+ * Pane: Show list of restriction enzymes
+ * 
+ * @author Johan Henriksson
+ *
+ */
+public class PaneEnzymeList extends QWidget
+	{
+	QVBoxLayout layInfo=new QVBoxLayout();
+
+	QGridLayout glay=new QGridLayout();
+
+	private QPushButton bDigest=new QPushButton(tr("Digest"));
+	private WidgetCutSite pcutsite=new WidgetCutSite();
+	private QTableWidget tableAvailableEnzymes=new QTableWidget();
+//	private QTableWidget tableChosenEnzymes=new QTableWidget();
+	
+	private QPushButton bMenu=new QPushButton(new QIcon(ImgResource.imgSettings),"");
+	private SeqViewSettingsMenu menuSettings=new SeqViewSettingsMenu();
+	
+	private AnnotatedSequence seq=new AnnotatedSequence();
+	private QGroupBox layInfo2=new QGroupBox("");
+	
+	
+	private QLabel labTempIncubation=new QLabel();
+	private QLabel labTempInactivation=new QLabel();
+	private ProjectWindow projwindow;
+	
+	/**
+	 * Set current sequence
+	 */
+	public void setSequence(AnnotatedSequence seq)
+		{
+		this.seq=seq;
+		
+		updateView();
+
+		}
+	
+	public void updateView()
+		{
+		//Fill table with enzymes
+		int currow=0;
+		
+		while(tableAvailableEnzymes.rowCount()>0)
+			tableAvailableEnzymes.removeRow(0);
+		
+		for(RestrictionEnzyme enz:projwindow.restrictionEnzymes.enzymes)
+			{
+			LinkedList<RestrictionSite> sites=seq.restrictionSites.get(enz);
+			if(sites==null)
+				sites=new LinkedList<RestrictionSite>();
+			if(menuSettings.allowsRestrictionSiteCount(enz, sites.size()))
+				{
+				tableAvailableEnzymes.setRowCount(currow+1);
+				QTableWidgetItem it=new QTableWidgetItem(enz.name);
+				it.setData(Qt.ItemDataRole.UserRole, enz);
+				
+				tableAvailableEnzymes.setItem(currow, 0, it);
+				tableAvailableEnzymes.setItem(currow, 1, new QTableWidgetItem(""+sites.size()));
+				
+				currow++;
+				}
+			}
+		}
+
+
+	/**
+	 * Constructor
+	 */
+	public PaneEnzymeList(ProjectWindow projwindow)
+		{
+		this.projwindow=projwindow;
+		
+		tableAvailableEnzymes.setColumnCount(2);
+		tableAvailableEnzymes.verticalHeader().hide();
+		tableAvailableEnzymes.setHorizontalHeaderLabels(Arrays.asList(tr("Enzyme"),tr("#Cuts")));
+		tableAvailableEnzymes.setSelectionBehavior(SelectionBehavior.SelectRows);
+		tableAvailableEnzymes.horizontalHeader().setResizeMode(ResizeMode.ResizeToContents);
+		tableAvailableEnzymes.horizontalHeader().setStretchLastSection(true);		
+		
+		
+		layInfo.addWidget(pcutsite);
+		layInfo.addWidget(labTempIncubation);
+		layInfo.addWidget(labTempInactivation);
+		layInfo.addLayout(glay);
+		//TODO a link to neb?
+
+		layInfo2.setLayout(layInfo);
+
+		
+		bMenu.setMenu(menuSettings);
+		menuSettings.signalSettingsChanged.connect(this,"updateView()");
+		
+		QVBoxLayout lay=new QVBoxLayout();
+		lay.addWidget(bMenu);
+		lay.addWidget(tableAvailableEnzymes);
+		lay.addWidget(layInfo2);
+		lay.addWidget(bDigest);
+		setLayout(lay);
+		
+		
+		
+		tableAvailableEnzymes.selectionModel().selectionChanged.connect(this,"actionSelectedEnzyme()");
+		
+		bDigest.clicked.connect(this,"actionDigest()");
+		
+		setMinimumWidth(150);
+		}
+
+	LinkedList<QWidget> oldg=new LinkedList<QWidget>();
+	
+	/**
+	 * Action: An enzyme was selected
+	 */
+	public void actionSelectedEnzyme()
+		{
+		for(QModelIndex i:tableAvailableEnzymes.selectionModel().selectedRows())
+			{
+			RestrictionEnzyme enz=(RestrictionEnzyme)tableAvailableEnzymes.item(i.row(),0).data(Qt.ItemDataRole.UserRole);
+			pcutsite.setEnzyme(enz);
+			layInfo2.setTitle("Enzyme "+enz.name);
+			labTempInactivation.setText("Inactivation: "+formatTemp(enz.tempInactivation));
+			labTempIncubation.setText("Incubation: "+formatTemp(enz.tempIncubation));
+
+			for(QWidget w:oldg)
+				{
+				w.hide();
+				glay.removeWidget(w);
+				}
+			oldg.clear();
+
+			int c=0;
+			for(String buf:enz.bufferEfficiency.keySet())
+				{
+				QLabel a=new QLabel("<b>"+buf+"</b>");
+				QLabel b=new QLabel(""+enz.bufferEfficiency.get(buf));
+				glay.addWidget(a,0,c);
+				glay.addWidget(b,1,c);
+				oldg.add(a);
+				oldg.add(b);
+				c++;
+				}
+			
+			break;
+			}
+		}
+	
+	private String formatTemp(Double t)
+		{
+		if(t==null)
+			return "-";
+		else
+			return ""+t+"°C";
+		}
+	
+	/**
+	 * Get currently selected enzymes.
+	 * TODO rewrite fully!
+	 */
+	public LinkedList<RestrictionEnzyme> getSelectedEnzymes()
+		{
+		LinkedList<RestrictionEnzyme> list=new LinkedList<RestrictionEnzyme>();
+		for(QModelIndex i:tableAvailableEnzymes.selectionModel().selectedRows())
+			{
+			RestrictionEnzyme enz=(RestrictionEnzyme)tableAvailableEnzymes.item(i.row(),0).data(Qt.ItemDataRole.UserRole);
+			list.add(enz); 
+			}
+		return list;
+		}
+	
+	/**
+	 * Action: Digest button
+	 */
+	public void actionDigest()
+		{
+		if(!getSelectedEnzymes().isEmpty())
+			{
+			SimulatedDigestWindow d=new SimulatedDigestWindow(projwindow);
+			
+			
+			d.setSequence(seq, getSelectedEnzymes());
+			
+			d.setMinimumSize(400, 400);
+			d.show();
+			}
+		}
+	}

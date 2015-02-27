@@ -1,0 +1,22 @@
+Invitrogen 1 Kb Plus Ladder
+12000
+11000
+10000
+9000
+8000
+7000
+5000
+4000
+3000
+2000
+1650
+#1.65 contains 8% of mass
+1000
+850
+650
+500
+400
+300
+200
+100
+#should just invent masses here!
