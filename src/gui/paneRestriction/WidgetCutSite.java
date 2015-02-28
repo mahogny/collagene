@@ -39,6 +39,9 @@ public class WidgetCutSite extends QGraphicsView
     setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);  
     setVerticalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);
 
+    int height=60;
+    setMaximumHeight(height);
+    setMinimumHeight(height);
 		}
 
 
@@ -64,67 +67,68 @@ public class WidgetCutSite extends QGraphicsView
 			font.setFamily("Courier");
 			font.setPointSize(10);
 
+			int ymid=27;
+			int yArrowUp=1;
+			int yArrowLow=42;
+			int yTextLower=24;
+
 			
+			String rev=NucleotideUtil.complement(enz.sequence);
 			for(int i=0;i<enz.sequence.length();i++)
 				{
 				QGraphicsTextItem tiUpper=new QGraphicsTextItem();
 				tiUpper.setPlainText(""+enz.sequence.charAt(i));
 				tiUpper.setFont(font);
-				tiUpper.setPos(10+charw*i, 10);
+				tiUpper.setPos(10+charw*i, 5);
 				scene.addItem(tiUpper);
-				}
-			String rev=NucleotideUtil.complement(enz.sequence);
-			for(int i=0;i<enz.sequence.length();i++)
-				{
+				
 				QGraphicsTextItem tiLower=new QGraphicsTextItem();
 				tiLower.setPlainText(""+rev.charAt(i));
 				tiLower.setFont(font);
-				tiLower.setPos(10+charw*i, 30);
+				tiLower.setPos(10+charw*i, yTextLower);
 				scene.addItem(tiLower);
 				}
 
+
+			int arrowSize=6;
 			
 			for(RestrictionEnzymeCut cut:enz.cuts)
 				{
-				int arrowSize=6;
-				int ymid=30;
 				Integer xup=null;
 				if(cut.upper!=null)
 					{
 					xup=midpos(cut.upper);
-					int y1=10;
 					
 					QGraphicsPolygonItem pi=new QGraphicsPolygonItem();
 					QPolygonF po=new QPolygonF();
-					po.add(xup, y1+arrowSize);
-					po.add(xup+arrowSize, y1);
-					po.add(xup-arrowSize, y1);
+					po.add(xup, yArrowUp+arrowSize);
+					po.add(xup+arrowSize, yArrowUp);
+					po.add(xup-arrowSize, yArrowUp);
 					pi.setPolygon(po);
 					pi.setBrush(brush);
 					scene.addItem(pi);
 					
 					QGraphicsLineItem li=new QGraphicsLineItem();
 					li.setPen(penSelect);
-					li.setLine(xup, y1+arrowSize, xup, ymid);
+					li.setLine(xup, yArrowUp+arrowSize, xup, ymid);
 					scene.addItem(li);
 					}
 				Integer xlow=null;
 				if(cut.lower!=null)
 					{
 					xlow=midpos(cut.lower);
-					int y1=50;
 					QGraphicsPolygonItem pi=new QGraphicsPolygonItem();
 					QPolygonF po=new QPolygonF();
-					po.add(xlow, y1);
-					po.add(xlow+arrowSize, y1+arrowSize);
-					po.add(xlow-arrowSize, y1+arrowSize);
+					po.add(xlow, yArrowLow);
+					po.add(xlow+arrowSize, yArrowLow+arrowSize);
+					po.add(xlow-arrowSize, yArrowLow+arrowSize);
 					pi.setPolygon(po);
 					pi.setBrush(brush);
 					scene.addItem(pi);
 					
 					QGraphicsLineItem li=new QGraphicsLineItem();
 					li.setPen(penSelect);
-					li.setLine(xlow, y1, xlow, ymid);
+					li.setLine(xlow, yArrowLow, xlow, ymid);
 					scene.addItem(li);
 					}
 				

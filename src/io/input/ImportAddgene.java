@@ -103,6 +103,14 @@ public class ImportAddgene
 	 */
 	public static AnnotatedSequence get(String url) throws IOException
 		{
+		//Get the title of the sequence from the first page.
+		//ex. <title>Addgene pBABE GFP - Analyze Sequence</title>
+		String htmlContent=downloadAsString(url);
+		htmlContent.substring(htmlContent.indexOf("<title>")+"<title>Addgene ".length());
+		String seqName=htmlContent.substring(0, htmlContent.indexOf(" - Analyze sequence"));
+		
+		
+		//Construct URL to giraffe database for the features
 		if(!url.endsWith("/"))
 			url=url+"/";
 		String giraffeID=downloadAsString(url+"giraffe-analyze/");
@@ -159,8 +167,8 @@ public class ImportAddgene
 					
 					seq.addAnnotation(annot);
 					}
-				//TODO the sequence!!!
 				}
+			seq.name=seqName;
 			return seq;
 			}
 		catch (ParseException e)

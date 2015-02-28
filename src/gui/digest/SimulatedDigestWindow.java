@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 import ladder.DNALadder;
 import ladder.DNALadderSet;
+import restrictionEnzyme.DigestSimulator;
+import restrictionEnzyme.RestrictionDigestFragment;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 
@@ -147,11 +149,11 @@ public class SimulatedDigestWindow extends QWidget
 			{
 			RestrictionDigestFragment r=d.cutregions.get(i);
 			
-			QTableWidgetItem it=new QTableWidgetItem(""+r.upper.from);
+			QTableWidgetItem it=new QTableWidgetItem(""+r.getUpperFrom());
 			it.setData(Qt.ItemDataRole.UserRole, r);
 			
 			tableSeqs.setItem(i, 0, it);
-			tableSeqs.setItem(i, 1, new QTableWidgetItem(""+r.upper.to));
+			tableSeqs.setItem(i, 1, new QTableWidgetItem(""+r.getUpperTo()));
 			tableSeqs.setItem(i, 2, new QTableWidgetItem(""+r.getUpperLength()));
 			}
 		

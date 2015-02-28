@@ -19,6 +19,24 @@ public class SeqAnnotation
 
 	
 	
+	public SeqAnnotation()
+		{
+		}
+	
+	public SeqAnnotation(SeqAnnotation annot)
+		{
+		name=annot.name;
+		note=annot.note;
+		from=annot.from;
+		to=annot.to;
+		orientation=annot.orientation;
+		colorR=annot.colorR;
+		colorG=annot.colorG;
+		colorB=annot.colorB;
+		}
+
+
+
 	public boolean isOverlapping(SeqAnnotation o)
 		{
 		return from<=o.to && to>=o.from;  //TODO likely a >= here

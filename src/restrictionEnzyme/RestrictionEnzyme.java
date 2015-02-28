@@ -1,5 +1,7 @@
 package restrictionEnzyme;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
@@ -92,4 +94,31 @@ public class RestrictionEnzyme
 			return false;
 		return true;
 		}
+	
+
+	/**
+	 * Find the best common buffer
+	 */
+	public static TreeMap<String, Double> getCommonBufferEfficiency(Collection<RestrictionEnzyme> enz)
+		{
+		TreeMap<String, Double> map=new TreeMap<String, Double>();
+		Iterator<RestrictionEnzyme> it=enz.iterator();
+		if(it.hasNext())
+			{
+			map.putAll(it.next().bufferEfficiency);
+			for(RestrictionEnzyme e:enz)
+				{
+				map.keySet().retainAll(e.bufferEfficiency.keySet());
+				for(String buf:e.bufferEfficiency.keySet())
+					{
+					double eff=e.bufferEfficiency.get(buf);
+					if(map.get(buf)==null || map.get(buf)>eff)
+						map.put(buf,eff);
+					}
+				}
+			}
+		return map;
+		}
+	
+	
 	}

@@ -21,11 +21,13 @@ public class RestrictionEnzymeSet
 
 	/**
 	 * Find restriction sites
+		//TODO handle circular sequences. Easiest way is to pad sequence with itself, 30bp or so. then exclude overlaps
 	 */
 	public List<RestrictionSite> findRestrictionSites(String sequence)
 		{
 		LinkedList<RestrictionSite> list=new LinkedList<RestrictionSite>();
 		sequence=sequence.toUpperCase();
+		
 		
 		
 		//To make the search fast, one should really build a trie structure first.
@@ -49,8 +51,9 @@ public class RestrictionEnzymeSet
 					site.cuttingUpperPos=cut.upper+m.start();
 					site.cuttingLowerPos=cut.lower+m.start();
 					
-					list.add(site);
-					//TODO handle multiple cut sites
+					if(Math.min(site.cuttingUpperPos,site.cuttingLowerPos)<sequence.length() &&
+							Math.max(site.cuttingUpperPos,site.cuttingLowerPos)>0)
+						list.add(site);
 					}
 //				System.out.println(e+" "+p+" "+m.);
 //				p=m.regionStart()+1;

@@ -153,25 +153,7 @@ lupdate:
 gitaddall:
 	git add \
 	*/*java \
-	org/ecobima/labnote/qtclient/*/*html \
-	org/ecobima/labnote/qtclient/resource/*png \
-	org/ecobima/labnote/qtclient/resource/*mp3 \
-	org/eclipse/* \
-	org/ecobima/*/*.R \
-	org/ecobima/*/*.txt \
-	org/ecobima/*/*java \
-	org/ecobima/*/*/*.csl \
-	org/ecobima/*/*/*.txt \
-	org/ecobima/*/*/*.css \
-	org/ecobima/*/*/*java \
-	org/ecobima/*/*/*/*.txt \
-	org/ecobima/*/*/*/*.css \
-	org/ecobima/*/*/*/*java \
-	org/ecobima/*/*/*/*/*java \
-	org/ecobima/*/*/*/*/*/*java \
-	R/*.R R/*/*.R
-
-	cd ../labnoteAndroid; make gitaddall
+	*/*/*java 
 
 
 testrest:

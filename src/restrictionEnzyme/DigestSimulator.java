@@ -1,10 +1,9 @@
-package gui.digest;
+package restrictionEnzyme;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
-import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.RestrictionSite;
 
@@ -21,7 +20,6 @@ public class DigestSimulator
 
 	public void simulate(AnnotatedSequence seq, LinkedList<RestrictionEnzyme> enzymes)
 		{
-		
 		//Collect a list of cutting positions
 		LinkedList<RestrictionSite> sites=new LinkedList<RestrictionSite>();
 		for(RestrictionEnzyme e:enzymes)
@@ -43,8 +41,8 @@ public class DigestSimulator
 			{
 			RestrictionDigestFragment r=new RestrictionDigestFragment();
 			r.origseq=seq;
-			r.upper.from=sites.get(i).cuttingUpperPos;
-			r.upper.to=sites.get(i+1).cuttingUpperPos;
+			r.fromSite=sites.get(i);
+			r.toSite=sites.get(i);
 			cutregions.add(r);
 			}
 		if(!sites.isEmpty())
@@ -54,8 +52,8 @@ public class DigestSimulator
 				RestrictionDigestFragment r=new RestrictionDigestFragment();
 				r.origseq=seq;
 				int n=sites.size()-1;
-				r.upper.from=sites.get(n).cuttingUpperPos;
-				r.upper.to=sites.get(0).cuttingUpperPos;
+				r.fromSite=sites.get(n);
+				r.toSite=sites.get(0);
 				cutregions.add(r);
 				}
 			else
@@ -63,14 +61,14 @@ public class DigestSimulator
 				//Keep first and last fragment
 				RestrictionDigestFragment r1=new RestrictionDigestFragment();
 				r1.origseq=seq;
-				r1.upper.from=0;
-				r1.upper.to=sites.get(0).cuttingUpperPos;
+				r1.fromSite=null;
+				r1.toSite=sites.get(0);
 				cutregions.add(r1);
 				
 				RestrictionDigestFragment r2=new RestrictionDigestFragment();
 				r2.origseq=seq;
-				r2.upper.from=sites.get(sites.size()-1).cuttingUpperPos;
-				r2.upper.to=seq.getLength();
+				r2.fromSite=sites.get(sites.size()-1);
+				r2.toSite=null;
 				cutregions.add(r2);
 				}
 			
