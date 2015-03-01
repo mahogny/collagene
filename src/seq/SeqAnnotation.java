@@ -11,7 +11,7 @@ public class SeqAnnotation
 	public String name;
 	public String note;
 	
-	public int from, to; //It hurts, but best to stick the convention of starting from 1. and it is <= x <= 
+	public int from, to; //starting from 0, in format [from,to)
 	
 	public Orientation orientation=Orientation.FORWARD;
 	
@@ -61,4 +61,17 @@ public class SeqAnnotation
 			return s;
 		}
 
+	@Override
+	public String toString()
+		{
+		return "("+from+","+to+")";
+		}
+
+	public int length(AnnotatedSequence seq)
+		{
+		if(seq.isCircular)
+			return seq.getLength()-to-from;
+		else
+			return to-from;
+		}
 	}

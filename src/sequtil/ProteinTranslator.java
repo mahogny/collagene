@@ -85,5 +85,16 @@ public class ProteinTranslator
 		return sb.toString();
 		}
 
+
+	public String translate(String sequence)
+		{
+		StringBuilder sb=new StringBuilder();
+		for(int i=0;i<sequence.length()-2;i+=3)
+			{
+			sb.append(tripletToAminoLetter(sequence.substring(i,i+3)));
+			}
+		return sb.toString();
+		}
+
 	
 	}

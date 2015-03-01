@@ -15,6 +15,8 @@ import seq.AnnotatedSequence;
 
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
+import com.trolltech.qt.core.Qt.ItemFlag;
+import com.trolltech.qt.core.Qt.ItemFlags;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
 import com.trolltech.qt.gui.QComboBox;
 import com.trolltech.qt.gui.QHBoxLayout;
@@ -63,13 +65,14 @@ public class SimulatedDigestWindow extends QWidget
 			comboLadder.addItem(lad.name, lad);
 		comboLadder.currentIndexChanged.connect(this,"actionChooseLadder()");
 		
-		tableSeqs.setColumnCount(3);
+		tableSeqs.setColumnCount(5);
 		tableSeqs.verticalHeader().hide();
-		tableSeqs.setHorizontalHeaderLabels(Arrays.asList(tr("From"),tr("To"),tr("Length")));
+		tableSeqs.setHorizontalHeaderLabels(Arrays.asList(tr("From"),tr("To"),tr("Length"),tr("Enzyme 1"),tr("Enzyme 2")));
 		tableSeqs.setSelectionBehavior(SelectionBehavior.SelectRows);
 		tableSeqs.horizontalHeader().setResizeMode(ResizeMode.ResizeToContents);
 		tableSeqs.horizontalHeader().setStretchLastSection(true);		
-
+		tableSeqs.doubleClicked.connect(this,"actionPick()");
+		
 		bClose.clicked.connect(this,"close()");
 		bPickSequence.clicked.connect(this,"actionPick()");
 
@@ -90,6 +93,7 @@ public class SimulatedDigestWindow extends QWidget
 		totlay.addLayout(layButtons);
 		setLayout(totlay);
 
+		setMinimumWidth(500);
 		updategraphics();
 		}
 	
@@ -149,18 +153,27 @@ public class SimulatedDigestWindow extends QWidget
 			{
 			RestrictionDigestFragment r=d.cutregions.get(i);
 			
-			QTableWidgetItem it=new QTableWidgetItem(""+r.getUpperFrom());
+			QTableWidgetItem it=roItem(""+r.getUpperFrom());
 			it.setData(Qt.ItemDataRole.UserRole, r);
 			
 			tableSeqs.setItem(i, 0, it);
-			tableSeqs.setItem(i, 1, new QTableWidgetItem(""+r.getUpperTo()));
-			tableSeqs.setItem(i, 2, new QTableWidgetItem(""+r.getUpperLength()));
+			tableSeqs.setItem(i, 1, roItem(""+r.getUpperTo()));
+			tableSeqs.setItem(i, 2, roItem(""+r.getUpperLength()));
+
+			tableSeqs.setItem(i, 3, roItem(r.fromSite==null ? "N/A" : r.fromSite.enzyme.name));
+			tableSeqs.setItem(i, 4, roItem(r.toSite==null ? "N/A" : r.toSite.enzyme.name));
 			}
 		
 		
 		updategraphics();
 		}
 	
+	private QTableWidgetItem roItem(String s)
+		{
+		QTableWidgetItem it=new QTableWidgetItem(s);
+		it.setFlags(new ItemFlags(ItemFlag.ItemIsSelectable, ItemFlag.ItemIsEnabled));
+		return it;
+		}
 
 	/**
 	 * 

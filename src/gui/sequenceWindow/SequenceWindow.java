@@ -11,6 +11,7 @@ import gui.resource.ImgResource;
 
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import melting.CalcTmSanta98;
 import melting.TmException;
@@ -20,6 +21,7 @@ import seq.SeqAnnotation;
 import seq.SequenceRange;
 import sequtil.CRISPRsuggester;
 import sequtil.NucleotideUtil;
+import sequtil.OrfFinder;
 
 import com.trolltech.qt.core.QUrl;
 import com.trolltech.qt.gui.QApplication;
@@ -273,6 +275,7 @@ public class SequenceWindow extends QMainWindow
 		
 		//Find all restriction sites
 		Collection<RestrictionSite> sites=projwindow.restrictionEnzymes.findRestrictionSites(seq.getSequence());
+		seq.restrictionSites.clear();
 		for(RestrictionSite s:sites)
 			seq.addRestrictionSite(s);
 
@@ -378,6 +381,7 @@ public class SequenceWindow extends QMainWindow
 		mseq.addSeparator();
 		mseq.addAction("BLAST (NCBI)", this, "blastNCBI()");
 		mseq.addAction("Add annotation", this, "addAnnotation()");
+		mseq.addAction("Find ORFs", this, "actionFindORFs()");
 		mseq.addAction("CRISPR design", this, "crispr()");
 //		mseq.addAction("Import protein as random DNA", this, "importProteinDNA()");
 		mseq.addSeparator();
@@ -394,34 +398,13 @@ public class SequenceWindow extends QMainWindow
 		statusbar.addPermanentWidget(labelTm);
 		statusbar.addPermanentWidget(labelLength);
 		
-		/*
-		try
-			{
-			seq=ImportGenbank.loadFile(new File("/home/mahogny/Dropbox/benchling/benchling_export.gb"));
-			}
-		catch (IOException e)
-			{
-			e.printStackTrace();
-			}
-			*/
-		
-		
-		
-		
-		
-//		viewProtein.setMinimumHeight(90);
-		
 		QHBoxLayout lay=new QHBoxLayout();
 		lay.addWidget(viewLinear);
 		lay.addWidget(viewCircular);
 		lay.addWidget(viewEnz);
 		
-
-		
 		QVBoxLayout vlay=new QVBoxLayout();
 		vlay.addLayout(lay);
-		//vlay.addWidget(viewProtein);
-		
 		
 		resize(1200, 600);
 		
@@ -439,6 +422,26 @@ public class SequenceWindow extends QMainWindow
 		tabw.addTab(viewInfo, tr("Summary"));
 
 		setCentralWidget(tabw);
+		}
+
+	public void actionFindORFs()
+		{
+		OrfFinder f=new OrfFinder();
+		LinkedList<SeqAnnotation> annots=f.find(getSequence());
+		int i=1;
+		for(SeqAnnotation a:annots)
+			{
+			a.name="ORF "+i;
+			getSequence().addAnnotation(a);
+			i++;
+			//Different colors?
+			}
+		setSequence(seq);
+		}
+
+	public AnnotatedSequence getSequence()
+		{
+		return seq;
 		}
 	
 	
