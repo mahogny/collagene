@@ -17,7 +17,6 @@ import seq.RestrictionSite;
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
-import com.trolltech.qt.gui.QGroupBox;
 import com.trolltech.qt.gui.QHeaderView.ResizeMode;
 import com.trolltech.qt.gui.QIcon;
 import com.trolltech.qt.gui.QLabel;
@@ -36,8 +35,6 @@ import com.trolltech.qt.gui.QWidget;
  */
 public class PaneEnzymeList extends QWidget
 	{
-	private QVBoxLayout layInfo=new QVBoxLayout();
-
 	BufferEfficiencyWidget bufOne=new BufferEfficiencyWidget();
 	BufferEfficiencyWidget bufCommon=new BufferEfficiencyWidget();
 	
@@ -49,7 +46,8 @@ public class PaneEnzymeList extends QWidget
 	private SeqViewSettingsMenu menuSettings=new SeqViewSettingsMenu();
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
-	private QGroupBox layInfo2=new QGroupBox("");
+	//private QGroupBox layInfo2=new QGroupBox("");
+	private QLabel lEnzName=new QLabel();
 	
 	
 	private QLabel labTempIncubation=new QLabel();
@@ -109,15 +107,11 @@ public class PaneEnzymeList extends QWidget
 		tableAvailableEnzymes.horizontalHeader().setStretchLastSection(true);		
 		
 		
-		layInfo.addWidget(pcutsite);
-		layInfo.addWidget(labTempIncubation);
-		layInfo.addWidget(labTempInactivation);
-		layInfo.addWidget(bufOne);
 		
 		
 		//TODO a link to neb?
 
-		layInfo2.setLayout(layInfo);
+//		layInfo2.setLayout(layInfo);
 
 		
 		bMenu.setMenu(menuSettings);
@@ -126,7 +120,13 @@ public class PaneEnzymeList extends QWidget
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(bMenu);
 		lay.addWidget(tableAvailableEnzymes);
-		lay.addWidget(layInfo2);
+		
+		lay.addWidget(lEnzName);
+		lay.addWidget(pcutsite);
+		lay.addWidget(labTempIncubation);
+		lay.addWidget(labTempInactivation);
+		lay.addWidget(bufOne);
+
 		lay.addWidget(bDigest);
 		lay.addWidget(new QLabel(tr("Common buffers")));
 		lay.addWidget(bufCommon);
@@ -141,7 +141,9 @@ public class PaneEnzymeList extends QWidget
 		setMinimumWidth(150);
 		}
 
-	
+	/**
+	 * Get currently selected enzyme
+	 */
 	public RestrictionEnzyme getCurrentEnzyme()
 		{
 		for(QModelIndex i:tableAvailableEnzymes.selectionModel().selectedRows())
@@ -161,7 +163,7 @@ public class PaneEnzymeList extends QWidget
 		if(enz!=null)
 			{
 			pcutsite.setEnzyme(enz);
-			layInfo2.setTitle("Enzyme "+enz.name);
+			lEnzName.setText("Enzyme "+enz.name);
 			labTempInactivation.setText("Inactivation: "+formatTemp(enz.tempInactivation));
 			labTempIncubation.setText("Incubation: "+formatTemp(enz.tempIncubation));
 

@@ -1,5 +1,6 @@
 package gui.sequenceWindow;
 
+import gui.IndexUtil;
 import gui.ProjectWindow;
 import gui.QtProgramInfo;
 import gui.paneCircular.PaneCircularSequence;
@@ -337,7 +338,7 @@ public class SequenceWindow extends QMainWindow
 				}
 			
 			//Update region
-			labelLength.setText("From: "+range.getLower()+"  To: "+range.getUpper()+"  Length: "+range.getSize()+" bp");
+			labelLength.setText("From: "+IndexUtil.fromTogui(range.getLower())+"  To: "+IndexUtil.toTogui(range.getUpper())+"  Length: "+range.getSize()+" bp");
 			}
 		}
 	

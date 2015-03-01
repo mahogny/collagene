@@ -77,7 +77,7 @@ public class ImportGenbank implements SequenceImporter
 						String sfrom=line.substring(0,doti);
 						String sto=line.substring(doti+2);
 						//System.out.println(sfrom+"  "+sto);
-						annot.from=Integer.parseInt(sfrom);
+						annot.from=Integer.parseInt(sfrom)-1;
 						annot.to=Integer.parseInt(sto);
 						
 						

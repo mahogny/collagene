@@ -1,5 +1,6 @@
 package gui.sequenceWindow;
 
+import gui.IndexUtil;
 import gui.qt.QTutil;
 
 import java.util.LinkedList;
@@ -69,8 +70,8 @@ public class AnnotationWindow extends QDialog
 	public void actionOK()
 		{
 		annot.name=tfName.text();
-		annot.from=spFrom.value();
-		annot.to=spTo.value();
+		annot.from=IndexUtil.fromTointernal(spFrom.value());
+		annot.to=IndexUtil.toTointernal(spTo.value());
 		annot.orientation=orientations.get(comboOrientation.currentIndex());
 		close();
 		}
@@ -85,8 +86,8 @@ public class AnnotationWindow extends QDialog
 		{
 		annot=a;
 		tfName.setText(a.name);
-		spFrom.setValue(a.from);
-		spTo.setValue(a.to);
+		spFrom.setValue(IndexUtil.fromTogui(a.from));
+		spTo.setValue(IndexUtil.toTogui(a.to));
 		comboOrientation.setCurrentIndex(orientations.indexOf(a.orientation));
 		}
 

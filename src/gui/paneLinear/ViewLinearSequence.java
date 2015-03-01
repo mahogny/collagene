@@ -402,10 +402,10 @@ public class ViewLinearSequence extends QGraphicsView
 						selectionItems.add(li);
 						}
 					if(selectTo>cposRight)
-						x2=mapCharToX(charsPerLine);
+						x2=mapCharToX(charsPerLine)-1;
 					else
 						{
-						x2=mapCharToX(selectTo-cposLeft);
+						x2=mapCharToX(selectTo-cposLeft)-1;
 						int ly2=ly+5;
 						QGraphicsLineItem li=new QGraphicsLineItem();
 						li.setPen(penSelect);

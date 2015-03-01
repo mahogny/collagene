@@ -4,6 +4,12 @@
 
 This is a simple piece of software for cloning, written in Java+QT
 
+## About the sequence indices and ranges
+
+Sequence ranges inside the code are 0-based and of the form [a,b). In other words, [0,1) selects the first base in a sequence and is of length 1. This choice is for practicality. It's simply faster and much less error prone in any modern programming language which also
+have arrays starting with position 0.
+
+The user-interface can view these indices in the form of 1-index [a,b] depending on user-preference (default is to use the internal format). This is to make it easy to compare positions within the software to those displayed by other programs. 
 
 
 ## License
