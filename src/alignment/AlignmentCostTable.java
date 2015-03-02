@@ -24,6 +24,11 @@ public class AlignmentCostTable
 		setDNA(5, -2);
 		}
 	
+	public AlignmentCostTable(InputStream is) throws IOException
+		{
+		readFrom(is);
+		}
+
 	/**
 	 * Turn characters into indices
 	 */

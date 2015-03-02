@@ -291,6 +291,7 @@ public class SequenceWindow extends QMainWindow
 		viewEnz.setSequence(seq);
 		viewInfo.setSequence(seq);
 		setWindowTitle(QtProgramInfo.programName+" - "+seq.name);
+		projwindow.updateView();
 		}
 	
 	/**

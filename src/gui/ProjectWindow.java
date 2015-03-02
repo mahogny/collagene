@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import restrictionEnzyme.NEBparser;
@@ -19,9 +20,14 @@ import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
 import gui.qt.QTutil;
 import gui.sequenceWindow.SequenceWindow;
+import alignment.PairwiseAlignment;
+import alignment.emboss.EmbossCost;
 
 import com.trolltech.qt.core.QCoreApplication;
+import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
+import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
+import com.trolltech.qt.gui.QAbstractItemView.SelectionMode;
 import com.trolltech.qt.gui.QApplication;
 import com.trolltech.qt.gui.QClipboard;
 import com.trolltech.qt.gui.QCloseEvent;
@@ -76,11 +82,14 @@ public class ProjectWindow extends QMainWindow
 
 		
 		wtree.header().setVisible(false);
+//		wtree.setSelectionBehavior(SelectionBehavior.SelectRows);
+		wtree.setSelectionMode(SelectionMode.ExtendedSelection);
 		wtree.doubleClicked.connect(this,"actionOpenSequence()");		
 		
 		QPushButton bNewSequence=new QPushButton(tr("New sequence"));
 		QPushButton bAnnealOligos=new QPushButton(tr("Anneal"));
 		QPushButton bDeleteSequence=new QPushButton(tr("Delete sequence"));
+		QPushButton bAlign=new QPushButton(tr("Align"));
 		
 		setMenuBar(menubar);
 		QMenu mfile=menubar.addMenu("File");
@@ -106,12 +115,14 @@ public class ProjectWindow extends QMainWindow
 		bNewSequence.clicked.connect(this,"actionNewSequence()");
 		bAnnealOligos.clicked.connect(this,"actionAnnealOligos()");
 		bDeleteSequence.clicked.connect(this,"actionDeleteSequence()");
+		bAlign.clicked.connect(this,"actionAlign()");
 		
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(wtree);
 		lay.addWidget(bNewSequence);
 		lay.addWidget(bDeleteSequence);
 		lay.addWidget(bAnnealOligos);
+		lay.addWidget(bAlign);
 		
 		QWidget w=new QWidget();
 		w.setLayout(lay);
@@ -140,6 +151,28 @@ public class ProjectWindow extends QMainWindow
 		showSequence(seq);
 		}
 
+	
+	public void actionAlign()
+		{
+		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
+		if(seqs.size()==2)
+			{
+			PairwiseAlignment al=new PairwiseAlignment();
+			al.costtable=EmbossCost.tableBlosum62;
+			al.isLocal=false;
+			al.align(seqs.get(0).getSequence(), seqs.get(1).getSequence());
+			
+			AnnotatedSequence seq=new AnnotatedSequence();
+			seq.setSequence(al.alignedSequenceA, al.alignedSequenceB);
+
+			giveNewName(seq);
+			addSequenceToProject(seq);
+			showSequence(seq);
+			}
+		else
+			QTutil.showNotice(this, "select 2");
+		}
+	
 	/**
 	 * Action: Anneal two oligos
 	 */
@@ -154,6 +187,17 @@ public class ProjectWindow extends QMainWindow
 			addSequenceToProject(seq);
 			showSequence(seq);
 			}
+		}
+
+	public LinkedList<AnnotatedSequence> getSelectedSequences()
+		{
+		LinkedList<AnnotatedSequence> seqs=new LinkedList<AnnotatedSequence>();
+		for(QModelIndex ind:wtree.selectionModel().selectedIndexes())
+			{
+			AnnotatedSequence seq=(AnnotatedSequence)ind.data(Qt.ItemDataRole.UserRole);
+			seqs.add(seq);
+			}
+		return seqs;
 		}
 	
 	
@@ -304,26 +348,28 @@ public class ProjectWindow extends QMainWindow
 	public void actionImportFile()
 		{
 		QFileDialog dia=new QFileDialog();
-		dia.setFileMode(FileMode.ExistingFile);
+		dia.setFileMode(FileMode.ExistingFiles);
 		dia.setDirectory(lastDirectory.getAbsolutePath());
 		dia.setNameFilter(tr("Sequence files (*.seqfile *.gb *.fasta)"));
 		if(dia.exec()!=0)
 			{
-			File f=new File(dia.selectedFiles().get(0));
-			lastDirectory=f.getParentFile();
 			try
 				{
-				SequenceImporter importer=SequenceFileHandlers.getImporter(f);
-				if(importer!=null)
+				for(String sf:dia.selectedFiles())
 					{
-					FileInputStream fis=new FileInputStream(f);
-					AnnotatedSequence seq=importer.load(fis).get(0);
-					fis.close();
-					addSequenceToProject(seq); //TODO name?
+					File f=new File(sf);
+					lastDirectory=f.getParentFile();
+					SequenceImporter importer=SequenceFileHandlers.getImporter(f);
+					if(importer!=null)
+						{
+						FileInputStream fis=new FileInputStream(f);
+						AnnotatedSequence seq=importer.load(fis).get(0);
+						fis.close();
+						addSequenceToProject(seq); //TODO name?
+						}
+					else
+						QTutil.showNotice(this, tr("Unknown file format"));
 					}
-				else
-					QTutil.showNotice(this, tr("Unknown file format"));
-
 				}
 			catch (IOException e)
 				{
@@ -422,32 +468,37 @@ public class ProjectWindow extends QMainWindow
 	 */
 	public void actionExportFile()
 		{
-		QFileDialog dia=new QFileDialog();
-		dia.setFileMode(FileMode.AnyFile);
-		dia.setAcceptMode(AcceptMode.AcceptSave);
-		dia.setDirectory(lastDirectory.getAbsolutePath());
-		dia.setDefaultSuffix("gb");
-		dia.setNameFilter(tr("Sequence files (*.gb *.fasta)"));
-		if(dia.exec()!=0)
+		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
+		if(seqs.size()>0)
 			{
-			File f=new File(dia.selectedFiles().get(0));
-			
-			SequenceExporter exp=SequenceFileHandlers.getExporter(f);
-			if(exp!=null)
+			QFileDialog dia=new QFileDialog();
+			dia.setFileMode(FileMode.AnyFile);
+			dia.setAcceptMode(AcceptMode.AcceptSave);
+			dia.setDirectory(lastDirectory.getAbsolutePath());
+			dia.setDefaultSuffix("gb");
+			dia.setNameFilter(tr("Sequence files (*.gb *.fasta)"));
+			if(dia.exec()!=0)
 				{
-				try
+				File f=new File(dia.selectedFiles().get(0));
+				
+				
+				SequenceExporter exp=SequenceFileHandlers.getExporter(f);
+				if(exp!=null)
 					{
-					SequenceFileHandlers.save(exp, f, proj.sequenceLinkedList);
-					lastDirectory=f.getParentFile();
+					try
+						{
+						SequenceFileHandlers.save(exp, f, seqs);
+						lastDirectory=f.getParentFile();
+						}
+					catch (IOException e)
+						{
+						e.printStackTrace();
+						QTutil.showNotice(this, tr("Failed to export")+"; "+e.getMessage());
+						}
 					}
-				catch (IOException e)
-					{
-					e.printStackTrace();
-					QTutil.showNotice(this, tr("Failed to export")+"; "+e.getMessage());
-					}
+				else
+					QTutil.showNotice(this, tr("Unknown file format"));
 				}
-			else
-				QTutil.showNotice(this, tr("Unknown file format"));
 			}
 		}
 
