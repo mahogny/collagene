@@ -57,10 +57,11 @@ public class ExportGenbank implements SequenceExporter
 		//The sequence
 		pw.println("ORIGIN");
 		int colsize=10;
-		for(int start=0;start<seq.getLength();start+=60)
+		int perline=60;
+		for(int start=0;start<seq.getLength();start+=perline)
 			{
 			pw.print("          ");  //TODO position, formatted
-			for(int j=0;j<60;j+=colsize)
+			for(int j=0;j<perline;j+=colsize)
 				{
 				int s1=Math.min(seq.getLength(), start+j);
 				int end=Math.min(seq.getLength(), start+j+colsize);

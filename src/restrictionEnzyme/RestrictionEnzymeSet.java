@@ -1,12 +1,15 @@
 package restrictionEnzyme;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import seq.AnnotatedSequence;
 import seq.RestrictionSite;
+import sequtil.NucleotideUtil;
 
 /**
  * 
@@ -21,9 +24,39 @@ public class RestrictionEnzymeSet
 
 	/**
 	 * Find restriction sites
-		//TODO handle circular sequences. Easiest way is to pad sequence with itself, 30bp or so. then exclude overlaps
 	 */
-	public List<RestrictionSite> findRestrictionSites(String sequence)
+	public Collection<RestrictionSite> findRestrictionSites(AnnotatedSequence sequence)
+		{
+		List<RestrictionSite> list=findRestrictionSitesOneway(sequence.getSequence());
+		List<RestrictionSite> list2=findRestrictionSitesOneway(NucleotideUtil.revcomplement(sequence.getSequence()));
+		
+		if(sequence.isCircular)
+			{
+			//TODO handle circular sequences. Easiest way is to pad sequence with itself, 30bp or so. then exclude overlaps
+			}
+		
+		//Transform cut-site for lower strand into upper strand
+		for(RestrictionSite s:list2)
+			{
+			if(s.cuttingUpperPos!=null)
+				s.cuttingUpperPos=sequence.getLength()-s.cuttingUpperPos;
+			if(s.cuttingLowerPos!=null)
+				s.cuttingLowerPos=sequence.getLength()-s.cuttingLowerPos;
+			Integer temp=s.cuttingLowerPos;
+			s.cuttingLowerPos=s.cuttingUpperPos;
+			s.cuttingUpperPos=temp;
+			}
+		
+		//Use a hashset to omit those found twice - in particular symmetric palindromic cutters
+		HashSet<RestrictionSite> sites=new HashSet<RestrictionSite>();
+		sites.addAll(list);
+		sites.addAll(list2);
+		
+//		list.addAll(list2);
+		return sites;
+		}
+
+	private List<RestrictionSite> findRestrictionSitesOneway(String sequence)
 		{
 		LinkedList<RestrictionSite> list=new LinkedList<RestrictionSite>();
 		sequence=sequence.toUpperCase();
@@ -41,7 +74,6 @@ public class RestrictionEnzymeSet
 			{
 			Pattern pa=Pattern.compile(e.getRegexp());
 			Matcher m=pa.matcher(sequence);
-	//		int p=0;
 			while(m.find())
 				{
 				for(RestrictionEnzymeCut cut:e.cuts)
@@ -51,17 +83,14 @@ public class RestrictionEnzymeSet
 					site.cuttingUpperPos=cut.upper+m.start();
 					site.cuttingLowerPos=cut.lower+m.start();
 					
-					if(Math.min(site.cuttingUpperPos,site.cuttingLowerPos)<sequence.length() &&
-							Math.max(site.cuttingUpperPos,site.cuttingLowerPos)>0)
+					if(Math.min(site.cuttingUpperPos,site.cuttingLowerPos)<=sequence.length() &&
+							Math.max(site.cuttingUpperPos,site.cuttingLowerPos)>=0)  //This test is very blunt
 						list.add(site);
 					}
-//				System.out.println(e+" "+p+" "+m.);
-//				p=m.regionStart()+1;
 				}
 			}
 		return list;
 		}
-		
 	
 	/**
 	 * Return a subset of enzymes matching the given names

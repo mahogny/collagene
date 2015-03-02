@@ -274,7 +274,7 @@ public class SequenceWindow extends QMainWindow
 		this.seq=seq;
 		
 		//Find all restriction sites
-		Collection<RestrictionSite> sites=projwindow.restrictionEnzymes.findRestrictionSites(seq.getSequence());
+		Collection<RestrictionSite> sites=projwindow.restrictionEnzymes.findRestrictionSites(seq);
 		seq.restrictionSites.clear();
 		for(RestrictionSite s:sites)
 			seq.addRestrictionSite(s);
@@ -365,31 +365,33 @@ public class SequenceWindow extends QMainWindow
 		//Build menus
 		QMenuBar menubar=new QMenuBar();
 		
-		QMenu mseq=menubar.addMenu("Sequence");
-		QMenu mcopy=menubar.addMenu(tr("Copy"));
+		QMenu mseq=menubar.addMenu(tr("Sequence"));
+		QMenu mannotation=menubar.addMenu(tr("Annotation"));
 		
-		
-		
-		mcopy.addAction("Copy upper 5-3' as-is", this, "copyUpperOrig()");
-		mcopy.addAction("Copy upper 5-3' reversed", this, "copyUpperRev()");
-		mcopy.addAction("Copy upper 5-3' complemented", this, "copyUpperComp()");
-		mcopy.addAction("Copy upper 5-3' reverse-complemented", this, "copyUpperRevComp()");
-		mcopy.addSeparator();
-		mcopy.addAction("Copy lower 5-3' as-is", this, "copyLowerOrig()");
-		mcopy.addAction("Copy lower 5-3' reversed", this, "copyLowerRev()");
-		mcopy.addAction("Copy lower 5-3' complemented", this, "copyLowerComp()");
-		mcopy.addAction("Copy lower 5-3' reverse-complemented", this, "copyLowerRevComp()");
 		
 		mseq.addAction(tr("Select everything"), this, "actionSelectAll()");
 		mseq.addSeparator();
+		mseq.addAction("Copy upper 5-3' as-is", this, "copyUpperOrig()");
+		mseq.addAction("Copy upper 5-3' reversed", this, "copyUpperRev()");
+		mseq.addAction("Copy upper 5-3' complemented", this, "copyUpperComp()");
+		mseq.addAction("Copy upper 5-3' reverse-complemented", this, "copyUpperRevComp()");
+		mseq.addSeparator();
+		mseq.addAction("Copy lower 5-3' as-is", this, "copyLowerOrig()");
+		mseq.addAction("Copy lower 5-3' reversed", this, "copyLowerRev()");
+		mseq.addAction("Copy lower 5-3' complemented", this, "copyLowerComp()");
+		mseq.addAction("Copy lower 5-3' reverse-complemented", this, "copyLowerRevComp()");
+		mseq.addSeparator();
 		mseq.addAction("BLAST (NCBI)", this, "blastNCBI()");
-		mseq.addAction("Add annotation", this, "addAnnotation()");
-		mseq.addAction("Find ORFs", this, "actionFindORFs()");
 		mseq.addAction("CRISPR design", this, "crispr()");
-//		mseq.addAction("Import protein as random DNA", this, "importProteinDNA()");
 		mseq.addSeparator();
 		mseq.addAction(tr("Close"), this, "close()");
 
+		mannotation.addAction("Add", this, "addAnnotation()");
+		mannotation.addAction("Delete", this, "actionDeleteAnnotation()");
+		mannotation.addAction("Edit", this, "actionEditAnnotation()");
+		mannotation.addSeparator();
+		mannotation.addAction("Find ORFs", this, "actionFindORFs()");
+		
 		viewLinear.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
 		viewLinear.signalUpdated.connect(this,"updateSequence()");
 		viewInfo.signalUpdated.connect(this,"updateSequence()");
@@ -457,6 +459,15 @@ public class SequenceWindow extends QMainWindow
 		viewCircular.updatecirc();
 		}
 
+	
+	public void actionDeleteAnnotation()
+		{
+		
+		}
+	public void actionEditAnnotation()
+		{
+		
+		}
 	
 	
 	}

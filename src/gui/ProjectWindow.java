@@ -26,6 +26,7 @@ import com.trolltech.qt.gui.QApplication;
 import com.trolltech.qt.gui.QClipboard;
 import com.trolltech.qt.gui.QCloseEvent;
 import com.trolltech.qt.gui.QFileDialog;
+import com.trolltech.qt.gui.QFileDialog.AcceptMode;
 import com.trolltech.qt.gui.QInputDialog;
 import com.trolltech.qt.gui.QMainWindow;
 import com.trolltech.qt.gui.QMenu;
@@ -403,6 +404,7 @@ public class ProjectWindow extends QMainWindow
 		{
 		QFileDialog dia=new QFileDialog();
 		dia.setFileMode(FileMode.AnyFile);
+		dia.setAcceptMode(AcceptMode.AcceptSave);
 		dia.setDirectory(lastDirectory.getAbsolutePath());
 		dia.setDefaultSuffix("madgene");
 		dia.setNameFilter(tr("Project files (*.madgene)"));
@@ -422,6 +424,7 @@ public class ProjectWindow extends QMainWindow
 		{
 		QFileDialog dia=new QFileDialog();
 		dia.setFileMode(FileMode.AnyFile);
+		dia.setAcceptMode(AcceptMode.AcceptSave);
 		dia.setDirectory(lastDirectory.getAbsolutePath());
 		dia.setDefaultSuffix("gb");
 		dia.setNameFilter(tr("Sequence files (*.gb *.fasta)"));

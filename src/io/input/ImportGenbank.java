@@ -119,10 +119,12 @@ public class ImportGenbank implements SequenceImporter
 					{
 					if(line.startsWith(" "))
 						{
-						line=line.trim();
-						line=line.substring(line.indexOf(' ')).trim();
-						line=line.replace(" ", "");
-						sb.append(line);
+//						line=line.trim();
+//						line=line.substring(line.indexOf(' ')).trim();
+//						line=line.replace(" ", "");
+						for(char c:line.toCharArray())
+							if(" 0123456789".indexOf(c)==-1)
+								sb.append(c);
 						}
 					else
 						{

@@ -71,10 +71,12 @@ public class RestrictionEnzyme
 				int ind=seq.indexOf("/");
 				int ind2=seq.indexOf('(');
 				int ind3=seq.indexOf(')');
+
+				String motif=seq.substring(0,ind2);
 				
 				RestrictionEnzymeCut cut=new RestrictionEnzymeCut();
-				cut.upper=Integer.parseInt(seq.substring(ind2+1,ind));
-				cut.lower=Integer.parseInt(seq.substring(ind+1,ind3));
+				cut.upper=motif.length() + Integer.parseInt(seq.substring(ind2+1,ind));
+				cut.lower=motif.length() + Integer.parseInt(seq.substring(ind+1,ind3));
 				seq=seq.substring(0,ind2) + seq.substring(ind3+1);
 				cuts.add(cut);
 				}
