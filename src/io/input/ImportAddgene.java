@@ -106,9 +106,10 @@ public class ImportAddgene
 		//Get the title of the sequence from the first page.
 		//ex. <title>Addgene pBABE GFP - Analyze Sequence</title>
 		String htmlContent=downloadAsString(url);
-		htmlContent.substring(htmlContent.indexOf("<title>")+"<title>Addgene ".length());
-		String seqName=htmlContent.substring(0, htmlContent.indexOf(" - Analyze sequence"));
-		
+		htmlContent=htmlContent.substring(htmlContent.indexOf("<title>")+"<title>Addgene ".length());
+		System.out.println(htmlContent);
+		String seqName=htmlContent.substring(0, htmlContent.indexOf(" - Analyze Sequence"));
+		System.out.println(seqName);
 		
 		//Construct URL to giraffe database for the features
 		if(!url.endsWith("/"))
@@ -169,6 +170,7 @@ public class ImportAddgene
 					}
 				}
 			seq.name=seqName;
+			seq.isCircular=true;
 			return seq;
 			}
 		catch (ParseException e)

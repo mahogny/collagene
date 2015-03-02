@@ -69,9 +69,19 @@ public class SeqAnnotation
 
 	public int length(AnnotatedSequence seq)
 		{
-		if(seq.isCircular)
-			return seq.getLength()-to-from;
-		else
-			return to-from;
+		SequenceRange r=new SequenceRange();
+		r.from=from;
+		r.to=to;
+		return r.getSize(seq);
+		}
+	
+	public int getFrom()
+		{
+		return from;
+		}
+	
+	public int getTo()
+		{
+		return to;
 		}
 	}

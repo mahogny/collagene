@@ -37,12 +37,12 @@ public class DigestSimulator
 			});
 
 		//Create the fragments
-		for(int i=1;i<sites.size()-1;i++)
+		for(int i=0;i<sites.size()-1;i++)
 			{
 			RestrictionDigestFragment r=new RestrictionDigestFragment();
 			r.origseq=seq;
 			r.fromSite=sites.get(i);
-			r.toSite=sites.get(i);
+			r.toSite=sites.get(i+1);
 			cutregions.add(r);
 			}
 		if(!sites.isEmpty())
@@ -73,6 +73,7 @@ public class DigestSimulator
 				}
 			
 			}
+		System.out.println("# fragments "+cutregions+"   from #sites "+sites.size());
 		}
 
 	}

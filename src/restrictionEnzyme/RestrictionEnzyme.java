@@ -87,7 +87,8 @@ public class RestrictionEnzyme
 			sequence=seq.replace("/", "");
 			
 			RestrictionEnzymeCut cut=new RestrictionEnzymeCut();
-			cut.upper=cut.lower=ind;
+			cut.upper=ind;
+			cut.lower=sequence.length()-ind;
 			cuts.add(cut);
 			}
 		else

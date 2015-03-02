@@ -341,7 +341,10 @@ public class SequenceWindow extends QMainWindow
 				}
 			
 			//Update region
-			labelLength.setText("From: "+IndexUtil.fromTogui(range.getLower())+"  To: "+IndexUtil.toTogui(range.getUpper())+"  Length: "+range.getSize()+" bp");
+			labelLength.setText(
+					"From: "+IndexUtil.fromTogui(range.getLower())+
+					"  To: "+IndexUtil.toTogui(range.getUpper())+
+					"  Length: "+range.getSize(getSequence())+" bp");
 			}
 		}
 	

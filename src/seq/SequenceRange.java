@@ -3,6 +3,8 @@ package seq;
 /**
  * A selection range over a sequence
  * 
+ * TODO. range should always proceed forwards. get rid of upper and lower!
+ * 
  * @author Johan Henriksson
  *
  */
@@ -18,9 +20,12 @@ public class SequenceRange
 		{
 		return Math.max(from,to);
 		}
-	public int getSize()
+	public int getSize(AnnotatedSequence seq)
 		{
-		return Math.abs(from-to);
+		if(seq.isCircular && to<from)
+			return seq.getLength()-from+to;
+		else
+			return to-from;
 		}
 
 	}

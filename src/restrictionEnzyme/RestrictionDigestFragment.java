@@ -3,6 +3,7 @@ package restrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.RestrictionSite;
 import seq.SeqAnnotation;
+import seq.SequenceRange;
 
 /**
  * One fragment from digest
@@ -37,10 +38,10 @@ public class RestrictionDigestFragment
 	
 	public int getUpperLength()
 		{
-		if(isCircular())
-			return origseq.getLength()-getUpperTo()-getUpperFrom();
-		else
-			return getUpperTo()-getUpperFrom();
+		SequenceRange r=new SequenceRange();
+		r.from=getUpperFrom();
+		r.to=getUpperTo();
+		return r.getSize(origseq);
 		}
 
 	public AnnotatedSequence getFragmentSequence()
