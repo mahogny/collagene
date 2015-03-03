@@ -39,9 +39,9 @@ public class ExportOneXML
 			eAnnot.setAttribute("from",""+a.from);
 			eAnnot.setAttribute("to",""+a.to);
 
-			eAnnot.setAttribute("colr",""+a.colorR);
-			eAnnot.setAttribute("colg",""+a.colorG);
-			eAnnot.setAttribute("colb",""+a.colorB);
+			eAnnot.setAttribute("colr",""+a.col.r);
+			eAnnot.setAttribute("colg",""+a.col.g);
+			eAnnot.setAttribute("colb",""+a.col.b);
 
 			if(a.orientation==Orientation.FORWARD)
 				eAnnot.setAttribute("orientation","fwd");

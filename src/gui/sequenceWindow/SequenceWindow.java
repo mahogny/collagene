@@ -3,6 +3,7 @@ package gui.sequenceWindow;
 import gui.IndexUtil;
 import gui.ProjectWindow;
 import gui.QtProgramInfo;
+import gui.colors.QColorCombo;
 import gui.paneCircular.PaneCircularSequence;
 import gui.paneLinear.PaneLinearSequence;
 import gui.paneRestriction.PaneEnzymeList;
@@ -58,7 +59,7 @@ public class SequenceWindow extends QMainWindow
 	private PaneEnzymeList viewEnz;
 	private PaneInfo viewInfo=new PaneInfo();
 	
-	ProjectWindow projwindow;
+	private ProjectWindow projwindow;
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	
@@ -70,6 +71,7 @@ public class SequenceWindow extends QMainWindow
 	private QLabel labelGC=new QLabel("");
 	private QLabel labelLength=new QLabel("");
 		
+	
 	
 	public void actionSelectAll()
 		{
@@ -394,22 +396,33 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction("Find ORFs", this, "actionFindORFs()");
 		
 		viewLinear.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
+		viewCircular.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
+		
 		viewLinear.signalUpdated.connect(this,"updateSequence()");
 		viewInfo.signalUpdated.connect(this,"updateSequence()");
+
+		QHBoxLayout layToolbar=new QHBoxLayout();
+
+		QColorCombo colorcombo=new QColorCombo();
+		layToolbar.addStretch();
+		layToolbar.addWidget(colorcombo);
 		
 		
 		setMenuBar(menubar);
 		
 		setStatusBar(statusbar);
 		statusbar.addPermanentWidget(labelTm);
+		statusbar.addPermanentWidget(labelGC);
 		statusbar.addPermanentWidget(labelLength);
 		
 		QHBoxLayout lay=new QHBoxLayout();
 		lay.addWidget(viewLinear);
 		lay.addWidget(viewCircular);
 		lay.addWidget(viewEnz);
-		
+
+
 		QVBoxLayout vlay=new QVBoxLayout();
+		vlay.addLayout(layToolbar);
 		vlay.addLayout(lay);
 		
 		resize(1200, 600);

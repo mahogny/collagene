@@ -26,7 +26,6 @@ import alignment.emboss.EmbossCost;
 import com.trolltech.qt.core.QCoreApplication;
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
-import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionMode;
 import com.trolltech.qt.gui.QApplication;
 import com.trolltech.qt.gui.QClipboard;

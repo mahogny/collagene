@@ -66,9 +66,9 @@ public class ImportOneXML implements SequenceImporter
 				annot.from=e.getAttribute("from").getIntValue();
 				annot.to=e.getAttribute("to").getIntValue();
 
-				annot.colorR=e.getAttribute("colr").getDoubleValue();
-				annot.colorG=e.getAttribute("colg").getDoubleValue();
-				annot.colorB=e.getAttribute("colb").getDoubleValue();
+				annot.col.r=e.getAttribute("colr").getIntValue();
+				annot.col.g=e.getAttribute("colg").getIntValue();
+				annot.col.b=e.getAttribute("colb").getIntValue();
 				
 				String o=e.getAttributeValue("orientation");
 				if(o.equals("fwd"))

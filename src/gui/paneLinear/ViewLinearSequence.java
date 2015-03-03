@@ -61,7 +61,8 @@ public class ViewLinearSequence extends QGraphicsView
 	
 	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
 
-	
+	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
+
 	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
 
@@ -127,7 +128,6 @@ public class ViewLinearSequence extends QGraphicsView
 
 	
 	
-	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
 
 	
 	/**
@@ -320,7 +320,7 @@ public class ViewLinearSequence extends QGraphicsView
 					
 					QBrush brush=new QBrush();
 					brush.setStyle(BrushStyle.SolidPattern);
-					brush.setColor(QColor.fromRgbF(annot.colorR, annot.colorG, annot.colorB));
+					brush.setColor(QColor.fromRgb(annot.col.r, annot.col.g, annot.col.b));
 					
 					QGraphicsPolygonItem pi=new QGraphicsPolygonItem();
 					pi.setPolygon(poly);

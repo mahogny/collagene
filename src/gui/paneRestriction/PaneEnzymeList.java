@@ -14,6 +14,7 @@ import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.RestrictionSite;
 
+import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
@@ -53,6 +54,8 @@ public class PaneEnzymeList extends QWidget
 	private QLabel labTempIncubation=new QLabel();
 	private QLabel labTempInactivation=new QLabel();
 	private ProjectWindow projwindow;
+
+	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
 	
 	/**
 	 * Set current sequence
@@ -174,6 +177,15 @@ public class PaneEnzymeList extends QWidget
 		Collection<RestrictionEnzyme> selEnzymes=getSelectedEnzymes();
 		TreeMap<String,Double> commonEfficiencies=RestrictionEnzyme.getCommonBufferEfficiency(selEnzymes);
 		bufCommon.fill(commonEfficiencies);
+		
+		signalEnzymeChanged.emit(getSelection());
+		}
+	
+	private SelectedRestrictionEnzyme getSelection()
+		{
+		SelectedRestrictionEnzyme e=new SelectedRestrictionEnzyme();
+		e.enzymes=getSelectedEnzymes();
+		return e;
 		}
 	
 	private String formatTemp(Double t)

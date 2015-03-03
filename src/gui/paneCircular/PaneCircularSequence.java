@@ -30,7 +30,7 @@ public class PaneCircularSequence extends QWidget
 
 	private CircView view=new CircView();
 	
-	public QSignalEmitter.Signal0 signalSelectionChanged=new Signal0();
+	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	
 	
 	public PaneCircularSequence()
@@ -64,10 +64,17 @@ public class PaneCircularSequence extends QWidget
 		lay.addWidget(view);
 
 		view.settings.signalSettingsChanged.connect(this,"updatecirc()");  //train wreck
+		view.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
 		
 		updatecirc();
 		}
+
 	
+	public void onSelectionChanged(SequenceRange r)
+		{
+		signalSelectionChanged.emit(r);
+		updatecirc();
+		}
 	
 	public void updatecirc()
 		{

@@ -15,7 +15,7 @@ public class SeqAnnotation
 	
 	public Orientation orientation=Orientation.FORWARD;
 	
-	public double colorR=1, colorG=0, colorB=0;
+	public SeqColor col=new SeqColor(1,0,0);
 
 	
 	
@@ -30,9 +30,7 @@ public class SeqAnnotation
 		from=annot.from;
 		to=annot.to;
 		orientation=annot.orientation;
-		colorR=annot.colorR;
-		colorG=annot.colorG;
-		colorB=annot.colorB;
+		col=new SeqColor(annot.col);
 		}
 
 
@@ -44,22 +42,6 @@ public class SeqAnnotation
 
 
 
-	public String getColorAsRGBstring()
-		{
-		return to2hex(colorR)+to2hex(colorG)+to2hex(colorB);
-		}
-	
-	private String to2hex(double d)
-		{
-		int i=(int)(255*d);
-		if(i>255)
-			i=255;
-		String s=Integer.toHexString(i);
-		if(s.length()==1)
-			return "0"+s;
-		else
-			return s;
-		}
 
 	@Override
 	public String toString()

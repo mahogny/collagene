@@ -1,5 +1,7 @@
 package io.input;
 
+import gui.colors.ColorSet;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +15,7 @@ import net.minidev.json.parser.ParseException;
 import seq.AnnotatedSequence;
 import seq.Orientation;
 import seq.SeqAnnotation;
+import seq.SeqColor;
 
 /**
  * 
@@ -103,6 +106,9 @@ public class ImportAddgene
 	 */
 	public static AnnotatedSequence get(String url) throws IOException
 		{
+		ColorSet colorset=ColorSet.colorset;
+		int curcol=0;
+		
 		//Get the title of the sequence from the first page.
 		//ex. <title>Addgene pBABE GFP - Analyze Sequence</title>
 		String htmlContent=downloadAsString(url);
@@ -164,13 +170,16 @@ public class ImportAddgene
 					annot.from=(Integer)ob.get("start");
 					annot.to=(Integer)ob.get("end");
 					annot.orientation=(Boolean)ob.get("clockwise") ? Orientation.FORWARD : Orientation.REVERSE;
-					System.out.println(ob);
+
+					curcol=(curcol+1)%colorset.size();
+					annot.col=new SeqColor(colorset.get(curcol));
 					
 					seq.addAnnotation(annot);
 					}
 				}
 			seq.name=seqName;
 			seq.isCircular=true;
+
 			return seq;
 			}
 		catch (ParseException e)

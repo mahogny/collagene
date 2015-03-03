@@ -16,7 +16,7 @@ import seq.RestrictionSite;
 import seq.SeqAnnotation;
 import seq.SequenceRange;
 
-import com.trolltech.qt.core.QPoint;
+import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
 import com.trolltech.qt.core.Qt.MouseButton;
@@ -35,7 +35,6 @@ import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QResizeEvent;
 import com.trolltech.qt.gui.QSizePolicy;
 import com.trolltech.qt.gui.QTransform;
-import com.trolltech.qt.gui.QWheelEvent;
 
 
 /**
@@ -54,8 +53,10 @@ public class CircView extends QGraphicsView
 
 	private QFont emittedTextFont=new QFont();
 	private LinkedList<String> emittedText=new LinkedList<String>();
-	double emittedAngle;
+	private double emittedAngle;
 	private LinkedList<QRectF> emittedTextRegions=new LinkedList<QRectF>();
+
+	private boolean isSelecting=false;
 
 	
 	public double circPan=0; //From 0 to 1
@@ -63,14 +64,16 @@ public class CircView extends QGraphicsView
 
 	
 	protected QPointF currentViewCenter = new QPointF();
-	private QPoint LastPanPoint = new QPoint();
-	private boolean isFinalView=false;
 
 	
 	private Collection<QGraphicsEllipseItem> selectionItems=new LinkedList<QGraphicsEllipseItem>();
 	private SequenceRange selection=null;
 
 	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
+	
+	
+	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
+
 	
 	public void setSelection(SequenceRange r)
 		{
@@ -131,9 +134,6 @@ public class CircView extends QGraphicsView
 
 		setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);
 
-		emittedTextFont.setPointSize(4);
-		emittedTextFont.setFamily("Arial");
-
 		setSceneRect(-10000000, -10000000, 10000000*2, 10000000*2);
 		setScene(new QGraphicsScene());
 		setCameraFromCirc();
@@ -142,27 +142,6 @@ public class CircView extends QGraphicsView
 	
 	public void setCameraFromCirc()
 		{
-		/*
-		//Set the right scale
-		double sWidth=circZoom*width()/(double)(cr*2);
-		double sHeight=circZoom*height()/(double)(cr*2);
-		double scale=Math.min(sWidth, sHeight);
-		
-		QTransform trans=QTransform.fromScale(scale,scale);
-		setTransform(trans,false);
-
-		double y = (height() - cr*scale)*scale;
-		if(y>0)
-			y=0;
-		System.out.println("aou "+y);
-			
-		//Center on mid point
-		setViewCenter(new QPointF(0,  y));
-
-		
-		*/
-		
-		
 		//Set the right scale
 		double sWidth=width()/(double)(plasmidRadius*2);
 		double sHeight=height()/(double)(plasmidRadius*2);
@@ -294,7 +273,10 @@ public class CircView extends QGraphicsView
 		QGraphicsScene scene=scene();
 		scene.clear();
 		selectionItems.clear();
-		
+
+		emittedTextFont.setPointSizeF(2.0/circZoom);
+		emittedTextFont.setFamily("Arial");
+
 		//Note - it is good to have a separate scene builder class, for making PDFs
 		
 		
@@ -392,7 +374,6 @@ public class CircView extends QGraphicsView
 			int thish=0;
 			for(int j=0;j<i;)
 				{
-				
 				if(it.isOverlapping(annotlist[j]))
 					{
 					//TODO2 - on the lower half it makes sense to turn the text
@@ -414,47 +395,6 @@ public class CircView extends QGraphicsView
 	
 	
 	
-	/**
-	 * Center and scale view to show the given rectangle
-	 */
-	/*
-	private void centerOnRect(QRectF bb, double scaleExtra)
-		{
-		if(bb!=null && bb.width()!=0 && bb.height()!=0)
-			{
-			//Set the right scale
-			double sWidth=scaleExtra*width()/(double)bb.width();
-			double sHeight=scaleExtra*height()/(double)bb.height();
-			double scale=Math.min(sWidth, sHeight);
-			QTransform trans=QTransform.fromScale(scale,scale);
-			setTransform(trans,false);
-			
-			//Center on mid point
-			setViewCenter(new QPointF((bb.left()+bb.right())/2,  (bb.top()+bb.bottom())/2));
-			}
-		else
-			{
-			//Center on mid point
-			setViewCenter(new QPointF(0,0));
-			}
-		}
-	*/
-	
-	/**
-	 * Rescale to show all objects
-	 */
-	/*
-	public void centerOnAllObjects()
-		{
-		//Fit on all objects, if there are any
-		centerOnRect(calcBoundingBox(),0.8);
-		}
-	*/
-	
-	
-	
-	// http://www.qtcentre.org/wiki/index.php?title=QGraphicsView:_Smooth_Panning_and_Zooming
-
 
 	public void setViewCenter(QPointF centerPoint)
 		{
@@ -492,23 +432,14 @@ public class CircView extends QGraphicsView
 
 				// We need to clamp the center. The centerPoint is too large
 				if (centerPoint.x()>bounds.x()+bounds.width())
-					{
 					currentViewCenter.setX(bounds.x()+bounds.width());
-					}
 				else if (centerPoint.x()<bounds.x())
-					{
 					currentViewCenter.setX(bounds.x());
-					}
 
 				if (centerPoint.y()>bounds.y()+bounds.height())
-					{
 					currentViewCenter.setY(bounds.y()+bounds.height());
-					}
 				else if (centerPoint.y()<bounds.y())
-					{
 					currentViewCenter.setY(bounds.y());
-					}
-
 				}
 			}
 
@@ -517,15 +448,30 @@ public class CircView extends QGraphicsView
 		}
 
 	
+	double getAngle(QMouseEvent event)
+		{
+		QPointF p = mapToScene(event.pos());
+		double angle=Math.atan2(p.y(), p.x());
+		if(angle<0)
+			angle+=Math.PI*2;
+		return angle;
+		}
+	
 	/**
 	 * Handle mouse button pressed events 
 	 */
 	public void mousePressEvent(QMouseEvent event)
 		{
-		if(!isFinalView)
+		if(event.button()==MouseButton.LeftButton)
 			{
-			if(event.button()==MouseButton.RightButton && !isFinalView)
-				LastPanPoint = event.pos();
+			isSelecting=true;
+			double angle=getAngle(event);
+			
+			selection=new SequenceRange();
+			selection.from=selection.to=(int)(seq.getLength()*angle/(Math.PI*2));
+			signalSelectionChanged.emit(selection);
+
+			updateSelectionGraphics();
 			}
 		}
 
@@ -534,11 +480,7 @@ public class CircView extends QGraphicsView
 	 */
 	public void mouseReleaseEvent(QMouseEvent event)
 		{
-		if(!isFinalView)
-			{
-			//Stop panning
-			LastPanPoint = new QPoint();
-			}
+		isSelecting=false;
 		}
 
 
@@ -548,49 +490,17 @@ public class CircView extends QGraphicsView
 	 */
 	public void mouseMoveEvent(QMouseEvent event)
 		{
-		//QPointF spos=mapToScene(event.pos());
-
-		if (!LastPanPoint.isNull())
+		if(isSelecting)
 			{
-			// Get how much we panned
-			QPointF delta = mapToScene(LastPanPoint).subtract(mapToScene(event.pos()));
-			LastPanPoint = event.pos();
+			double angle=getAngle(event);
 
-			// Update the center ie. do the pan
-			setViewCenter(currentViewCenter.add(delta));
+			selection.to=(int)(seq.getLength()*(angle)/(Math.PI*2));
+			signalSelectionChanged.emit(selection);
+
+			updateSelectionGraphics();
 			}
 		}
 	
-
-	/**
-	 * Handle mouse wheel events
-	 */
-	public void wheelEvent(QWheelEvent event)
-		{
-		if(!isFinalView)
-			{
-			// Get the position of the mouse before scaling, in scene coords
-			QPointF pointBeforeScale = mapToScene(event.pos());
-
-			// Zoom
-			double scaleFactor = 1.15;
-			if (event.delta()>0)
-				scale(scaleFactor, scaleFactor);
-			else
-				scale(1.0/scaleFactor, 1.0/scaleFactor);
-
-			// Get the position after scaling, in scene coords
-			QPointF pointAfterScale = mapToScene(event.pos());
-
-			// Get the offset of how the screen moved
-			QPointF offset = pointBeforeScale.subtract(pointAfterScale);
-
-			// Adjust to the new center for correct zooming
-			setViewCenter(currentViewCenter.add(offset));			
-			}
-		else
-			event.ignore();
-		}
 
 	
 	/**
@@ -598,10 +508,6 @@ public class CircView extends QGraphicsView
 	 */
 	public void resizeEvent(QResizeEvent event)
 		{
-		/*
-		if(isFinalView)
-			centerOnAllObjects();
-		*/
 		// Get the rectangle of the visible area in scene coords
 		QRectF visibleArea = mapToScene(rect()).boundingRect();
 		setViewCenter(visibleArea.center());

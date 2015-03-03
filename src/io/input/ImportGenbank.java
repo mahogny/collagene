@@ -94,9 +94,9 @@ public class ImportGenbank implements SequenceImporter
 								else if(line.startsWith("ApEinfo_revcolor="))
 									{
 									String c=line.substring("ApEinfo_revcolor=#".length());
-									annot.colorR=Integer.parseInt(c.substring(0,2), 16)/255.0;
-									annot.colorG=Integer.parseInt(c.substring(2,4), 16)/255.0;
-									annot.colorB=Integer.parseInt(c.substring(4,6), 16)/255.0;
+									annot.col.r=Integer.parseInt(c.substring(0,2), 16);
+									annot.col.g=Integer.parseInt(c.substring(2,4), 16);
+									annot.col.b=Integer.parseInt(c.substring(4,6), 16);
 									}
 								
 								System.out.println("++++ "+line);

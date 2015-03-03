@@ -61,7 +61,7 @@ public class PairwiseAlignment
 		for(int i=0;i<seqB.length();i++)
 			{
 			cost[0][i+1]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
-			traj[0][i+1]=TRAJ_UP;
+			traj[0][i+1]=TRAJ_LEFT;
 			}
 		cost[0][0]=0;
 		traj[0][0]=TRAJ_END;

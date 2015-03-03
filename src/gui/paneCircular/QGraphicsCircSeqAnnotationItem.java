@@ -29,52 +29,59 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	public AnnotatedSequence seq;
 	public CircView view;
 	
-//	private int r;
 	public int height;
 	
 	
-	private int getRadius()
+	private double getZoom()
 		{
-		return 70-15*height;
+		return Math.max(1.5,view.circZoom);
+		}
+	
+	private double getRadius()
+		{
+		return 90-11*height/getZoom();
 		}
 	
 	public void paint(QPainter painter, QStyleOptionGraphicsItem option, QWidget widget) 
 		{
-		int r=getRadius();
+		double circZoom=getZoom();
+		double r=getRadius();
 		
 		double ang1=(double)annot.from/seq.getLength()+view.circPan;
 		double ang2=(double)annot.to/seq.getLength()+view.circPan;
 
 		QColor bordercolor=QColor.fromRgb(0,0,0);
-		QColor bgcolor=QColor.fromRgb((int)(255*annot.colorR),(int)(255*annot.colorG),(int)(255*annot.colorB));
+		QColor bgcolor=QColor.fromRgb(annot.col.r,annot.col.g,annot.col.b);
 		
 		QPen pen=new QPen();
 		
-		double radw=8;
+		double radw=8.0/circZoom;
+		double arrowsize=0.01;
 		
 		QPolygonF poly=new QPolygonF();
-		for(int i=0;i<=100;i++)
+		int numdiv=10;
+		for(int i=0;i<=numdiv;i++)
 			{
 			double rad=r+radw;
-			double ang=ang1 + (ang2-ang1)*i/100.0;
+			double ang=ang1 + (ang2-ang1)*i/(double)numdiv;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		if(annot.orientation==Orientation.FORWARD)
 			{
 			double rad=r+radw/2;
-			double ang=ang2+0.01;
+			double ang=ang2+arrowsize/circZoom;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
-		for(int i=100;i>=0;i--)
+		for(int i=numdiv;i>=0;i--)
 			{
 			double rad=r;
-			double ang=ang1 + (ang2-ang1)*i/100.0;
+			double ang=ang1 + (ang2-ang1)*i/(double)numdiv;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		if(annot.orientation==Orientation.REVERSE)
 			{
 			double rad=r+radw/2;
-			double ang=ang1-0.01;
+			double ang=ang1-arrowsize/circZoom;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		QBrush brush=new QBrush();
@@ -92,18 +99,19 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		painter.setPen(pen);
 		
 		QFont font=new QFont();
-		font.setPointSize(4);
+		font.setPointSizeF(4.0/circZoom);
 		font.setFamily("Arial");
 		painter.setFont(font);
 
+		
 		double totalTextWidth=painter.fontMetrics().width(annot.name);
 		
-		int textoffset=3;
+		double textoffset=3.0/circZoom;
 		
-		double textRadius=r+2;
+		double textRadius=r+2.0/circZoom;
 		double curang=ang1+textoffset/(2*Math.PI*textRadius);
 		if(totalTextWidth+textoffset>(ang2-ang1)*2*Math.PI*textRadius) //If the text does not fit then draw it afterwards
-			curang=ang2+0.01;
+			curang=ang2+0.01/circZoom;
 		
 		for(int i=0;i<annot.name.length();i++)
 			{
@@ -122,14 +130,14 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		{
 		return o.height==height &&
 				annot.from-50<=o.annot.to+50 && annot.to+50>=o.annot.from-50;
-				//TODO do proper
+				//TODO do proper. and check text!
 		}
 
 	
 	@Override
 	public QRectF boundingRect()
 		{
-		int r=100;
+		int r=100;  //this could be improved
 		return new QRectF(-r,-r,2*r,2*r);
 		}
 
