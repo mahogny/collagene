@@ -147,6 +147,7 @@ public class ViewLinearSequence extends QGraphicsView
 		
 		fontSequence.setFamily("Courier");
 		fontSequence.setPointSizeF(charWidth);
+		charHeight=fontSequence.pointSizeF()*2;
 		
 		QFont fontAnnotation=new QFont();
 		fontAnnotation.setPointSizeF(10);
@@ -435,7 +436,7 @@ public class ViewLinearSequence extends QGraphicsView
 			double localUpper=mapCharToX(hoveringRestrictionSite.cuttingUpperPos-cposLeft);
 			
 			QPen penSelect=new QPen();
-			penSelect.setColor(new QColor(0,0,255));
+			penSelect.setColor(new QColor(255,50,50));
 			penSelect.setWidth(2);
 
 			double y1=sequenceLineY.get(lineIndex);

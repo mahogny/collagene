@@ -19,8 +19,11 @@ public class SeqViewSettingsMenu extends QMenu
 
 	private boolean showNickEnzymes=true;
 	private QAction cbNickSites=new QAction(tr("Single-cutters"),this);
+	private QAction cbSkyline=new QAction(tr("Skyline sequence"),this);
 	
 	public QSignalEmitter.Signal0 signalSettingsChanged=new Signal0();
+
+	public boolean showSkyline=false;
 	
 	public void setRestrictionSite0()
 		{
@@ -77,10 +80,16 @@ public class SeqViewSettingsMenu extends QMenu
 		addAction("All",this,"setRestrictionSiteAll()");
 		addSeparator();
 		addAction(cbNickSites);
+		addSeparator();
+		addAction(cbSkyline);
 		
 		cbNickSites.setCheckable(true);
 		cbNickSites.setChecked(showNickEnzymes);
 		cbNickSites.triggered.connect(this,"updateSettings()");
+		
+		cbSkyline.setCheckable(true);
+		cbSkyline.setChecked(showSkyline);
+		cbSkyline.triggered.connect(this,"updateSettings()");
 		}
 	
 	
@@ -88,6 +97,7 @@ public class SeqViewSettingsMenu extends QMenu
 	public void updateSettings()
 		{
 		showNickEnzymes=cbNickSites.isChecked();
+		showSkyline=cbSkyline.isChecked();
 		signalSettingsChanged.emit();
 		}
 	

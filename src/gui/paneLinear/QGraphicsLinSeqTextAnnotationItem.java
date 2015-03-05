@@ -26,6 +26,8 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 		{
 		int charsPerLine=view.charsPerLine;
 		
+		SkylineDNArenderer p=new SkylineDNArenderer();
+		
 		//Draw the sequence text
 		for(int i=0;i<charsPerLine;i++)
 			{
@@ -35,12 +37,19 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 			char letterUpper=seq.getSequence().charAt(cpos);
 			char letterLower=seq.getSequenceLower().charAt(cpos);
 
-
 			painter.setFont(view.fontSequence);
-			painter.drawText(new QPointF(view.mapCharToX(i), currentY+view.charHeight), ""+letterUpper);
-			
-			painter.setFont(view.fontSequence);
-			painter.drawText(new QPointF(view.mapCharToX(i), currentY+view.charHeight*2-2), ""+letterLower);
+			if(view.settings.showSkyline)
+				{
+				double w=view.fontSequence.pointSizeF();
+				double h=view.fontSequence.pointSizeF()*1.5;
+				p.draw(painter, w, h, new QPointF(view.mapCharToX(i), currentY+view.charHeight), letterUpper);
+				p.draw(painter, w, h, new QPointF(view.mapCharToX(i), currentY+view.charHeight*2-2), letterLower);
+				}
+			else
+				{
+				painter.drawText(new QPointF(view.mapCharToX(i), currentY+view.charHeight), ""+letterUpper);
+				painter.drawText(new QPointF(view.mapCharToX(i), currentY+view.charHeight*2-2), ""+letterLower);
+				}
 			}
 
 		
