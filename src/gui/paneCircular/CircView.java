@@ -263,6 +263,8 @@ public class CircView extends QGraphicsView
 	 */
 	private void addAnnotationText(double ang, RestrictionEnzyme enz)
 		{
+		double minang=0.01/circZoom;
+		
 		EmittedText txt=new EmittedText();
 		txt.txt=enz.name;
 		if(selectedEnz.enzymes.contains(enz))
@@ -270,11 +272,14 @@ public class CircView extends QGraphicsView
 		else
 			txt.col=QColor.fromRgb(0,0,0);
 		
+		System.out.println(ang);
+		if(Math.abs(emittedAngle-ang)>minang)
+			emitAnnotationText();
+		
 		if(emittedText.isEmpty())
 			emittedAngle=ang;
 		emittedText.add(txt);
-		if(Math.abs(emittedAngle-ang)>0.01)
-			emitAnnotationText();
+
 		}
 	
 	/**
