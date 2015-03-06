@@ -474,7 +474,8 @@ public class CircView extends QGraphicsView
 		{
 		QPointF p = mapToScene(event.pos());
 		double angle=Math.atan2(p.y(), p.x());
-		if(angle<0)
+		angle-=circPan*2*Math.PI;
+		while(angle<0)
 			angle+=Math.PI*2;
 		return angle;
 		}
