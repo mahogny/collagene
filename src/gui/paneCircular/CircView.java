@@ -2,7 +2,7 @@ package gui.paneCircular;
 
 
 
-import gui.resource.LabnoteUtil;
+import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.util.Collection;
@@ -51,8 +51,14 @@ public class CircView extends QGraphicsView
 	
 	public AnnotatedSequence seq=new AnnotatedSequence();
 
+	public class EmittedText
+		{
+		String txt;
+		QColor col;
+		}
+	
 	private QFont emittedTextFont=new QFont();
-	private LinkedList<String> emittedText=new LinkedList<String>();
+	private LinkedList<EmittedText> emittedText=new LinkedList<EmittedText>();
 	private double emittedAngle;
 	private LinkedList<QRectF> emittedTextRegions=new LinkedList<QRectF>();
 
@@ -73,6 +79,8 @@ public class CircView extends QGraphicsView
 	
 	
 	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
+
+	SelectedRestrictionEnzyme selectedEnz=new SelectedRestrictionEnzyme();
 
 	
 	public void setSelection(SequenceRange r)
@@ -184,17 +192,24 @@ public class CircView extends QGraphicsView
 		{
 		if(!emittedText.isEmpty())
 			{
-			String tottext=LabnoteUtil.commaSeparateLowlevel(emittedText);
-
+			StringBuilder tottext=new StringBuilder();
+//			String tottext=LabnoteUtil.commaSeparateLowlevel(emittedText);
+			for(EmittedText t:emittedText)
+				{
+				if(tottext.length()>0)
+					tottext.append(",");
+				tottext.append("<font color=\""+t.col.name()+"\">"+t.txt+"</font>");
+				}
+			
 			QPen pen=new QPen();
 			pen.setColor(new QColor(0,0,0));
 
 			double rad=plasmidRadius+5;
 			emittedAngle=emittedAngle-(int)(emittedAngle);
-			
+
 			QGraphicsTextItem itemt=new QGraphicsTextItem();
 			itemt.setFont(emittedTextFont);
-			itemt.setPlainText(tottext);
+			itemt.setHtml(tottext.toString());
 			scene().addItem(itemt);
 
 			QPointF textPos=new QPointF(rad*Math.cos(emittedAngle*2*Math.PI), rad*Math.sin(emittedAngle*2*Math.PI));
@@ -248,9 +263,16 @@ public class CircView extends QGraphicsView
 	 */
 	private void addAnnotationText(double ang, RestrictionEnzyme enz)
 		{
+		EmittedText txt=new EmittedText();
+		txt.txt=enz.name;
+		if(selectedEnz.enzymes.contains(enz))
+			txt.col=QColor.fromRgb(255,0,0);
+		else
+			txt.col=QColor.fromRgb(0,0,0);
+		
 		if(emittedText.isEmpty())
 			emittedAngle=ang;
-		emittedText.add(enz.name);
+		emittedText.add(txt);
 		if(Math.abs(emittedAngle-ang)>0.01)
 			emitAnnotationText();
 		}
@@ -316,7 +338,7 @@ public class CircView extends QGraphicsView
 		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
 			{
 			Collection<RestrictionSite> sites=seq.restrictionSites.get(enz);
-			if(settings.allowsRestrictionSiteCount(enz,sites.size()))
+			if(settings.allowsRestrictionSiteCount(enz,sites.size()) || selectedEnz.enzymes.contains(enz))
 				totSites.addAll(sites);
 			}
 

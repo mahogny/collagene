@@ -1,6 +1,7 @@
 package gui.paneLinear;
 
 import gui.paneCircular.CircView;
+import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.sequenceWindow.AnnotationWindow;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
@@ -178,7 +179,7 @@ public class ViewLinearSequence extends QGraphicsView
 			for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
 				{
 				Collection<RestrictionSite> sites=seq.restrictionSites.get(enz);
-				if(settings.allowsRestrictionSiteCount(enz,sites.size()))
+				if(settings.allowsRestrictionSiteCount(enz,sites.size()) || selectedEnz.enzymes.contains(enz))
 					{
 					for(RestrictionSite site:sites)
 						if(site.cuttingUpperPos>=cposLeft && site.cuttingUpperPos<=cposRight)
@@ -204,7 +205,11 @@ public class ViewLinearSequence extends QGraphicsView
 			for(RestrictionSite site:rsites)
 				{
 				QGraphicsTextItem it=new QGraphicsTextItem();
-				it.setFont(fontAnnotation);
+				it.setFont(fontRestriction);
+				if(selectedEnz.enzymes.contains(site.enzyme))
+					it.setDefaultTextColor(QColor.fromRgb(255,0,0));
+				else
+					it.setDefaultTextColor(QColor.fromRgb(0,0,0));
 				it.setPlainText(site.enzyme.name);
 				it.setPos(mapCharToX(site.cuttingUpperPos-cposLeft)+siteDx, currentY);
 				
@@ -255,7 +260,8 @@ public class ViewLinearSequence extends QGraphicsView
 			titem.view=this;
 			scene.addItem(titem);
 			
-			currentY+=charHeight/2; ///??????
+			currentY+=titem.boundingRect().height();
+			currentY-=20;
 			
 			//Draw annotation
 			int currentAnnotationHeight=0;
@@ -628,6 +634,10 @@ public class ViewLinearSequence extends QGraphicsView
 		}
 
 	private RestrictionSite hoveringRestrictionSite=null;
+
+	SelectedRestrictionEnzyme selectedEnz=new SelectedRestrictionEnzyme();
+
+	public boolean showProteinTranslation=true;
 
 
 	/**

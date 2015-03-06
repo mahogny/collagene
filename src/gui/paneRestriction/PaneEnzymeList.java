@@ -227,4 +227,8 @@ public class PaneEnzymeList extends QWidget
 			d.show();
 			}
 		}
+
+	public void setRestrictionEnzyme(SelectedRestrictionEnzyme enz)
+		{
+		}
 	}

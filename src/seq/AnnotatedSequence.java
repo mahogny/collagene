@@ -123,4 +123,7 @@ public class AnnotatedSequence
 		//TODO range checks might be needed
 		return sequenceLower.substring(range.getLower(), range.getUpper());
 		}
+	
+	
+	
 	}

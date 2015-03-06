@@ -3,10 +3,12 @@ package gui.sequenceWindow;
 import gui.IndexUtil;
 import gui.ProjectWindow;
 import gui.QtProgramInfo;
+import gui.colors.ColorSet;
 import gui.colors.QColorCombo;
 import gui.paneCircular.PaneCircularSequence;
 import gui.paneLinear.PaneLinearSequence;
 import gui.paneRestriction.PaneEnzymeList;
+import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.qt.QTutil;
 import gui.resource.ImgResource;
 
@@ -17,8 +19,10 @@ import java.util.LinkedList;
 import melting.CalcTmSanta98;
 import melting.TmException;
 import seq.AnnotatedSequence;
+import seq.Orientation;
 import seq.RestrictionSite;
 import seq.SeqAnnotation;
+import seq.SeqColor;
 import seq.SequenceRange;
 import sequtil.CRISPRsuggester;
 import sequtil.NucleotideUtil;
@@ -252,6 +256,7 @@ public class SequenceWindow extends QMainWindow
 		{
 		AnnotationWindow w=new AnnotationWindow();
 		SeqAnnotation a=new SeqAnnotation();
+		a.col=new SeqColor(ColorSet.colorset.getRandomColor());
 		SequenceRange r=getSelection();
 		if(r!=null)
 			{
@@ -304,6 +309,13 @@ public class SequenceWindow extends QMainWindow
 		viewLinear.setSelection(range);
 		viewCircular.setSelection(range);
 		updateTm();
+		}
+	
+	public void onEnzymeChanged(SelectedRestrictionEnzyme enz)
+		{
+		viewLinear.setRestrictionEnzyme(enz);
+		viewCircular.setRestrictionEnzyme(enz);
+		viewEnz.setRestrictionEnzyme(enz);
 		}
 	
 	/**
@@ -387,6 +399,8 @@ public class SequenceWindow extends QMainWindow
 		mseq.addAction("BLAST (NCBI)", this, "blastNCBI()");
 		mseq.addAction("CRISPR design", this, "crispr()");
 		mseq.addSeparator();
+		mseq.addAction("Reverse plasmid", this, "actionReverseSequence()");
+		mseq.addSeparator();
 		mseq.addAction(tr("Close"), this, "close()");
 
 		mannotation.addAction("Add", this, "addAnnotation()");
@@ -394,7 +408,9 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction("Edit", this, "actionEditAnnotation()");
 		mannotation.addSeparator();
 		mannotation.addAction("Find ORFs", this, "actionFindORFs()");
-		
+
+		viewEnz.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
+
 		viewLinear.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
 		viewCircular.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
 		
@@ -483,5 +499,30 @@ public class SequenceWindow extends QMainWindow
 		
 		}
 	
+	
+	
+	public void actionReverseSequence()
+		{
+		String upper=seq.getSequence();
+		String lower=seq.getSequenceLower();
+		
+		seq.setSequence(
+				NucleotideUtil.reverse(lower),
+				NucleotideUtil.reverse(upper));
+		for(SeqAnnotation a:seq.annotations)
+			{
+			int to=seq.getLength()-a.from;
+			int from=seq.getLength()-a.to;
+			a.to=to;
+			a.from=from;
+			
+			if(a.orientation==Orientation.FORWARD)
+				a.orientation=Orientation.REVERSE;
+			else if(a.orientation==Orientation.REVERSE)
+				a.orientation=Orientation.FORWARD;
+			}
+		seq.restrictionSites.clear();
+		setSequence(seq);
+		}
 	
 	}

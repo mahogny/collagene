@@ -1,5 +1,6 @@
 package gui.paneCircular;
 
+import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.resource.ImgResource;
 import seq.AnnotatedSequence;
 import seq.SequenceRange;
@@ -92,5 +93,12 @@ public class PaneCircularSequence extends QWidget
 	public void setSelection(SequenceRange range)
 		{
 		view.setSelection(range);
+		}
+
+
+	public void setRestrictionEnzyme(SelectedRestrictionEnzyme enz)
+		{
+		view.selectedEnz=enz;
+		updatecirc();
 		}
 	}

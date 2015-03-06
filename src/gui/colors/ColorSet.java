@@ -64,5 +64,12 @@ public class ColorSet
 		{
 		return colors.size();
 		}
+
+
+
+	public SeqColor getRandomColor()
+		{
+		return colors.get((int)(Math.random()*colors.size()));
+		}
 	
 	}
