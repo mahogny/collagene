@@ -75,8 +75,8 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 						double x1=view.mapCharToX(i-1)+1;
 						double x2=view.mapCharToX(i+2)-1;
 						painter.fillRect(new QRectF(
-								x1, currentY+(view.charHeight-1)*(2+frame)+5, 
-								x2-x1, view.charHeight-3), QColor.fromRgb(200,200,255));
+								x1, currentY+fonth()*(2+frame)+5, 
+								x2-x1, fonth()-2), QColor.fromRgb(200,200,255));
 						
 						String triplet=seq.getSequence().substring(cpos,cpos2);
 						painter.drawText(new QPointF(view.mapCharToX(i), currentY+fonth()*(3+frame)), ptrans.tripletToAminoLetter(triplet));
@@ -92,7 +92,7 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 		{
 		double h=fonth()*2;
 		if(view.showProteinTranslation)
-			h+=fonth()*3;
+			h+=fonth()*3+5;
 		return new QRectF(0,currentY, 100000, h);
 		}
 	}

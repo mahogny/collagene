@@ -19,6 +19,7 @@ import seq.AnnotatedSequence;
 import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
 import gui.qt.QTutil;
+import gui.resource.ImgResource;
 import gui.sequenceWindow.SequenceWindow;
 import alignment.PairwiseAlignment;
 import alignment.emboss.EmbossCost;
@@ -69,6 +70,7 @@ public class ProjectWindow extends QMainWindow
 	 */
 	public ProjectWindow()
 		{
+		ImgResource.setWindowIcon(this);
 		//Read list of enzymes
 		try
 			{
@@ -249,7 +251,7 @@ public class ProjectWindow extends QMainWindow
 	public void actionNewSequence()
 		{
 		AnnotatedSequence seq=new AnnotatedSequence();
-		seq.setSequence("ATACTatcggtatcagactgacagcagacgatcatatatatatataaaatacgaccacagacgtaa".toUpperCase());
+//		seq.setSequence("ATACTatcggtatcagactgacagcagacgatcatatatatatataaaatacgaccacagacgtaa".toUpperCase());
 
 		giveNewName(seq);
 		addSequenceToProject(seq);
@@ -458,6 +460,7 @@ public class ProjectWindow extends QMainWindow
 			File f=new File(dia.selectedFiles().get(0));
 			lastDirectory=f.getParentFile();
 			currentProjectFile=f;
+			actionSaveProject();
 			}
 		}
 

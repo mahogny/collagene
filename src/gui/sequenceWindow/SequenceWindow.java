@@ -20,6 +20,7 @@ import melting.CalcTmSanta98;
 import melting.TmException;
 import seq.AnnotatedSequence;
 import seq.Orientation;
+import seq.Primer;
 import seq.RestrictionSite;
 import seq.SeqAnnotation;
 import seq.SeqColor;
@@ -313,6 +314,7 @@ public class SequenceWindow extends QMainWindow
 		viewCircular.setRestrictionEnzyme(enz);
 		viewEnz.setRestrictionEnzyme(enz);
 		}
+
 	
 	/**
 	 * Update status bar
@@ -379,29 +381,31 @@ public class SequenceWindow extends QMainWindow
 		
 		mseq.addAction(tr("Select everything"), this, "actionSelectAll()");
 		mseq.addSeparator();
-		mseq.addAction("Copy upper 5-3' as-is", this, "copyUpperOrig()");
-		mseq.addAction("Copy upper 5-3' reversed", this, "copyUpperRev()");
-		mseq.addAction("Copy upper 5-3' complemented", this, "copyUpperComp()");
-		mseq.addAction("Copy upper 5-3' reverse-complemented", this, "copyUpperRevComp()");
+		mseq.addAction(tr("Copy upper 5-3' as-is"), this, "copyUpperOrig()");
+		mseq.addAction(tr("Copy upper 5-3' reversed"), this, "copyUpperRev()");
+		mseq.addAction(tr("Copy upper 5-3' complemented"), this, "copyUpperComp()");
+		mseq.addAction(tr("Copy upper 5-3' reverse-complemented"), this, "copyUpperRevComp()");
 		mseq.addSeparator();
-		mseq.addAction("Copy lower 5-3' as-is", this, "copyLowerOrig()");
-		mseq.addAction("Copy lower 5-3' reversed", this, "copyLowerRev()");
-		mseq.addAction("Copy lower 5-3' complemented", this, "copyLowerComp()");
-		mseq.addAction("Copy lower 5-3' reverse-complemented", this, "copyLowerRevComp()");
+		mseq.addAction(tr("Copy lower 5-3' as-is"), this, "copyLowerOrig()");
+		mseq.addAction(tr("Copy lower 5-3' reversed"), this, "copyLowerRev()");
+		mseq.addAction(tr("Copy lower 5-3' complemented"), this, "copyLowerComp()");
+		mseq.addAction(tr("Copy lower 5-3' reverse-complemented"), this, "copyLowerRevComp()");
 		mseq.addSeparator();
-		mseq.addAction("BLAST (NCBI)", this, "blastNCBI()");
-		mseq.addAction("CRISPR design", this, "crispr()");
+		mseq.addAction(tr("BLAST (NCBI)"), this, "blastNCBI()");
+		mseq.addAction(tr("CRISPR design"), this, "crispr()");
 		mseq.addSeparator();
-		mseq.addAction("Reverse plasmid", this, "actionReverseSequence()");
+		mseq.addAction(tr("Reverse plasmid"), this, "actionReverseSequence()");
 		mseq.addSeparator();
 		mseq.addAction(tr("Close"), this, "close()");
 
-		mannotation.addAction("Add", this, "addAnnotation()");
-		mannotation.addAction("Delete", this, "actionDeleteAnnotation()");
-		mannotation.addAction("Edit", this, "actionEditAnnotation()");
+		mannotation.addAction(tr("Add annotation"), this, "addAnnotation()");
+		mannotation.addAction(tr("Delete annotation"), this, "actionDeleteAnnotation()");
+		mannotation.addAction(tr("Edit annotation"), this, "actionEditAnnotation()");
 		mannotation.addSeparator();
-		mannotation.addAction("Find ORFs", this, "actionFindORFs()");
-
+		mannotation.addAction(tr("Find ORFs"), this, "actionFindORFs()");
+		mannotation.addSeparator();
+		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
+		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
 		
 		viewEnz.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
 
@@ -586,5 +590,41 @@ public class SequenceWindow extends QMainWindow
 			}
 		}
 
+	public void actionAddPrimerFWD()
+		{
+		SequenceRange r=getSelection();
+		if(r!=null)
+			{
+			Primer p=new Primer();
+			p.sequence=getSequence().getSubsequence(r);
+			p.orientation=Orientation.FORWARD;
+			p.targetPosition=r.to;
+			editprimerandadd(p);
+			}
+		}
+
+	public void actionAddPrimerREV()
+		{
+		SequenceRange r=getSelection();
+		if(r!=null)
+			{
+			Primer p=new Primer();
+			p.sequence=getSequence().getSubsequence(r);
+			p.orientation=Orientation.REVERSE;
+			p.targetPosition=r.from;
+			editprimerandadd(p);
+			}
+		}
 	
+	private void editprimerandadd(Primer p)
+		{
+		PrimerWindow w=new PrimerWindow();
+		w.setPrimer(p);
+		w.exec();
+		if(w.getPrimer()!=null)
+			{
+			getSequence().addPrimer(w.getPrimer());
+			setSequence(seq);
+			}
+		}
 	}

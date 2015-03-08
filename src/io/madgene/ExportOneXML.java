@@ -11,6 +11,7 @@ import org.jdom2.output.XMLOutputter;
 
 import seq.AnnotatedSequence;
 import seq.Orientation;
+import seq.Primer;
 import seq.SeqAnnotation;
 
 /**
@@ -26,8 +27,9 @@ public class ExportOneXML
 		
 		Element eSeq=new Element("sequence");
 		eSeq.setAttribute("su",seq.getSequence());
-		eSeq.setAttribute("su",seq.getSequenceLower());
+		eSeq.setAttribute("sl",seq.getSequenceLower());
 		eSeq.setAttribute("circular",""+seq.isCircular);
+		eSeq.setAttribute("notes",""+seq.notes);
 		e.addContent(eSeq);
 
 		
@@ -43,18 +45,33 @@ public class ExportOneXML
 			eAnnot.setAttribute("colg",""+a.color.g);
 			eAnnot.setAttribute("colb",""+a.color.b);
 
-			if(a.orientation==Orientation.FORWARD)
-				eAnnot.setAttribute("orientation","fwd");
-			else if(a.orientation==Orientation.REVERSE)
-				eAnnot.setAttribute("orientation","rev");
-			else if(a.orientation==Orientation.NOTORIENTED)
-				eAnnot.setAttribute("orientation","none");
-			else
-				throw new IOException("!");
+			eAnnot.setAttribute("orientation",orientationToString(a.orientation));
 			
 			e.addContent(eAnnot);
 			}
 
+		for(Primer p:seq.primers)
+			{
+			Element ePrimer=new Element("primer");
+			ePrimer.setAttribute("name",p.name);
+			ePrimer.setAttribute("target",""+p.targetPosition);
+			ePrimer.setAttribute("sequence",""+p.sequence);
+			ePrimer.setAttribute("orientation",orientationToString(p.orientation));
+
+			e.addContent(ePrimer);
+			}
+		}
+	
+	private static String orientationToString(Orientation orientation) throws IOException
+		{
+		if(orientation==Orientation.FORWARD)
+			return "fwd";
+		else if(orientation==Orientation.REVERSE)
+			return "rev";
+		else if(orientation==Orientation.NOTORIENTED)
+			return "none";
+		else
+			throw new IOException("!");
 		}
 	
 	public static void save(File f, AnnotatedSequence seq) throws IOException

@@ -24,6 +24,7 @@ public class AnnotatedSequence
 	public HashMap<RestrictionEnzyme,LinkedList<RestrictionSite>> restrictionSites=new HashMap<RestrictionEnzyme, LinkedList<RestrictionSite>>();
 			
 
+	public LinkedList<Primer> primers=new LinkedList<Primer>();
 	
 	
 	/**
@@ -46,7 +47,13 @@ public class AnnotatedSequence
 	
 	public AnnotatedSequence()
 		{
-		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta");
+		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
+		Primer p=new Primer();
+		p.name="foo";
+		p.orientation=Orientation.FORWARD;
+		p.sequence="ATAC";
+		p.targetPosition=25;
+		primers.add(p);
 		}
 	
 	public void setSequence(String upper)
@@ -129,6 +136,11 @@ public class AnnotatedSequence
 			return sequenceLower.substring(range.from, range.to);
 		else
 			return sequenceLower.substring(range.from) + sequenceLower.substring(0,range.to);
+		}
+
+	public void addPrimer(Primer primer)
+		{
+		primers.add(primer);
 		}
 	
 	

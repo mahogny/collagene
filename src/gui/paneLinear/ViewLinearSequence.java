@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.Orientation;
+import seq.Primer;
 import seq.RestrictionSite;
 import seq.SequenceRange;
 import seq.SeqAnnotation;
@@ -31,6 +32,7 @@ import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QContextMenuEvent;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsLineItem;
+import com.trolltech.qt.gui.QGraphicsPathItem;
 import com.trolltech.qt.gui.QGraphicsPolygonItem;
 import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QGraphicsScene;
@@ -38,6 +40,7 @@ import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QGraphicsView;
 import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMouseEvent;
+import com.trolltech.qt.gui.QPainterPath;
 import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QPolygonF;
 import com.trolltech.qt.gui.QResizeEvent;
@@ -156,7 +159,10 @@ public class ViewLinearSequence extends QGraphicsView
 
 		QFont fontRestriction=new QFont();
 		fontRestriction.setPointSize(10);
-		
+
+		QFont fontPrimer=new QFont();
+		fontPrimer.setPointSize(10);
+
 		//Update how many chars fit on each line
 		charsPerLine=widthInChars;
 		if(charsPerLine==-1)
@@ -173,9 +179,9 @@ public class ViewLinearSequence extends QGraphicsView
 			int cposLeft=curline*charsPerLine;
 			int cposRight=(curline+1)*charsPerLine;
 			
+			//////////////////////////////////////////////// Place enzymes
 			
-			
-			//Find all relevant restriction enzymes
+			//Find all relevant restriction enzymes, and sort by position
 			LinkedList<RestrictionSite> rsites=new LinkedList<RestrictionSite>();
 			for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
 				{
@@ -187,8 +193,6 @@ public class ViewLinearSequence extends QGraphicsView
 							rsites.add(site);
 					}
 				}
-			
-			//Sort sites left to right
 			Collections.sort(rsites,new Comparator<RestrictionSite>()
 				{
 				public int compare(RestrictionSite o1, RestrictionSite o2)
@@ -197,8 +201,7 @@ public class ViewLinearSequence extends QGraphicsView
 					}
 				});
 			
-			
-			//Place enzymes
+			//Render the enzymes
 			int siteHeightPx=20;
 			int maxSiteHeight=0;
 			int siteDx=-2;
@@ -262,9 +265,86 @@ public class ViewLinearSequence extends QGraphicsView
 			scene.addItem(titem);
 			
 			currentY+=titem.boundingRect().height();
-			currentY-=20;
+
+			//////////////////////////////////////////////// Place primers
+			int primerh=0;
+			LinkedList<QRectF> prevprimerplaced=new LinkedList<QRectF>();
+			double oneprimerh=charHeight-4;
+			for(Primer p:seq.primers)
+				{
+				if(p.targetPosition>=cposLeft && p.targetPosition<=cposRight)
+					{
+					int basey=currentY;
+
+					double x1;
+					double x2=mapCharToX(p.targetPosition-cposLeft);
+					double x3;
+					int arrowsize=5;
+					double texty=basey-2;
+					if(p.orientation==Orientation.FORWARD)
+						{
+						x1=x2-charWidth*p.sequence.length();
+						x3=x2-arrowsize;
+						}
+					else //REVERSE
+						{
+						x1=x2+charWidth*p.sequence.length();
+						x3=x2+arrowsize;
+						}
 			
-			//Draw annotation
+					
+					//Initial placement of text
+					QGraphicsTextItem ptext=new QGraphicsTextItem();
+					ptext.setPlainText(p.name);
+					ptext.setFont(fontRestriction);
+					if(p.orientation==Orientation.FORWARD)
+						ptext.setPos(x2-ptext.boundingRect().width()-arrowsize,texty);
+					else
+						ptext.setPos(x2+arrowsize,texty);
+
+					//Find suitable height for primer
+					QRectF thisbb=CircView.textBR(ptext);
+					double minx=Math.min(x1, x2);
+					double maxx=Math.max(x1, x2);
+					if(thisbb.left()>minx)
+						thisbb.setLeft(minx);
+					if(thisbb.right()<maxx)
+						thisbb.setRight(maxx);
+					int curprimerh=1;
+					retryplace: for(;;)
+						{
+						for(QRectF oldr:prevprimerplaced)
+							{
+							if(oldr.intersects(thisbb))
+								{
+								thisbb.adjust(0, oneprimerh, 0, oneprimerh);
+								texty+=oneprimerh;
+								ptext.setY(texty);
+								basey+=oneprimerh;
+								curprimerh+=1;
+								continue retryplace;
+								}
+							}
+						prevprimerplaced.add(thisbb);
+						break;
+						}
+					if(curprimerh>primerh)
+						primerh=curprimerh;
+
+					//Add arrow
+					QPainterPath pp=new QPainterPath();
+					pp.moveTo(x1, basey);
+					pp.lineTo(x2, basey);
+					pp.lineTo(x3, basey+arrowsize);
+					QGraphicsPathItem path=new QGraphicsPathItem();
+					path.setPath(pp);			
+					scene.addItem(ptext);
+					scene.addItem(path);
+					}
+				}
+			currentY+=primerh*oneprimerh+2;
+			
+			//////////////////////////////////////////////// Draw annotation
 			int currentAnnotationHeight=0;
 			for(SeqAnnotation annot:seq.annotations)
 				{
@@ -361,8 +441,6 @@ public class ViewLinearSequence extends QGraphicsView
 		updateSelectionGraphics();
 		}	
 	
-	
-
 	
 	
 	private void updateSelectionGraphics()

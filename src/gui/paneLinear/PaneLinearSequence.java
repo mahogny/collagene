@@ -40,10 +40,6 @@ public class PaneLinearSequence extends QWidget
 	 */
 	public PaneLinearSequence()
 		{
-
-		
-
-
 		sliderZoom.setRange(0, 5000);
 		sliderZoom.setValue(0);
 		sliderZoom.valueChanged.connect(this,"updateview()");

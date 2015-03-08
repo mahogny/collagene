@@ -15,6 +15,7 @@ import org.jdom2.input.SAXBuilder;
 
 import seq.AnnotatedSequence;
 import seq.Orientation;
+import seq.Primer;
 import seq.SeqAnnotation;
 
 /**
@@ -70,21 +71,35 @@ public class ImportOneXML implements SequenceImporter
 				annot.color.g=e.getAttribute("colg").getIntValue();
 				annot.color.b=e.getAttribute("colb").getIntValue();
 				
-				String o=e.getAttributeValue("orientation");
-				if(o.equals("fwd"))
-					annot.orientation=Orientation.FORWARD;
-				else if(o.equals("rev"))
-					annot.orientation=Orientation.REVERSE;
-				else if(o.equals("none"))
-					annot.orientation=Orientation.NOTORIENTED;
-				else
-					throw new IOException("orientation!");
+				annot.orientation=stringToOrientation(e.getAttributeValue("orientation"));
+				}
+			else if(e.getName().equals("primer"))
+				{
+				Primer p=new Primer();
+				seq.addPrimer(p);
+				
+				p.name=e.getAttributeValue("name");
+				p.sequence=e.getAttributeValue("sequence");
+				p.targetPosition=e.getAttribute("target").getIntValue();
+
+				p.orientation=stringToOrientation(e.getAttributeValue("orientation"));
 				}
 			
 			}
 		return seq;
 		}
 	
+	private static Orientation stringToOrientation(String o) throws IOException
+		{
+		if(o.equals("fwd"))
+			return Orientation.FORWARD;
+		else if(o.equals("rev"))
+			return Orientation.REVERSE;
+		else if(o.equals("none"))
+			return Orientation.NOTORIENTED;
+		else
+			throw new IOException("orientation!");
+		}
 	
 	/**
 	 * Load XML data
