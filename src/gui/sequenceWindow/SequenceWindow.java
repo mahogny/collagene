@@ -33,10 +33,14 @@ import com.trolltech.qt.gui.QApplication;
 import com.trolltech.qt.gui.QClipboard;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHBoxLayout;
+import com.trolltech.qt.gui.QIcon;
+import com.trolltech.qt.gui.QInputDialog;
 import com.trolltech.qt.gui.QLabel;
+import com.trolltech.qt.gui.QLineEdit;
 import com.trolltech.qt.gui.QMainWindow;
 import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMenuBar;
+import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QResizeEvent;
 import com.trolltech.qt.gui.QStatusBar;
 import com.trolltech.qt.gui.QTabWidget;
@@ -67,6 +71,7 @@ public class SequenceWindow extends QMainWindow
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	
+	private QLineEdit tfSearch=new QLineEdit();
 	
 	private QStatusBar statusbar=new QStatusBar();
 
@@ -383,7 +388,6 @@ public class SequenceWindow extends QMainWindow
 		QMenu mseq=menubar.addMenu(tr("Sequence"));
 		QMenu mannotation=menubar.addMenu(tr("Annotation"));
 		
-		
 		mseq.addAction(tr("Select everything"), this, "actionSelectAll()");
 		mseq.addSeparator();
 		mseq.addAction("Copy upper 5-3' as-is", this, "copyUpperOrig()");
@@ -409,6 +413,10 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addSeparator();
 		mannotation.addAction("Find ORFs", this, "actionFindORFs()");
 
+
+		
+		
+		
 		viewEnz.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
 
 		viewLinear.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
@@ -420,6 +428,17 @@ public class SequenceWindow extends QMainWindow
 		QHBoxLayout layToolbar=new QHBoxLayout();
 
 		QColorCombo colorcombo=new QColorCombo();
+		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
+		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
+
+		tfSearch.textChanged.connect(this,"actionSearch()");
+		bSearchNext.clicked.connect(this,"actionSearchNext()");
+		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
+
+		layToolbar.addWidget(new QLabel(tr("Search:")));
+		layToolbar.addWidget(tfSearch);
+		layToolbar.addWidget(bSearchPrev);
+		layToolbar.addWidget(bSearchNext);
 		layToolbar.addStretch();
 		layToolbar.addWidget(colorcombo);
 		
@@ -524,5 +543,53 @@ public class SequenceWindow extends QMainWindow
 		seq.restrictionSites.clear();
 		setSequence(seq);
 		}
+	
+	
+	public SequenceSearcher currentSearchString=null;
+	/*
+	public void entersearch()
+		{
+		String s=QInputDialog.getText(this, tr("Search sequence"), tr("Sequence:"));
+		if(s==null)
+			currentSearchString=null;
+		else
+			currentSearchString=new SequenceSearcher(getSequence(), s.toUpperCase());
+		
+		}*/
+	public void actionSearch()
+		{
+		if(tfSearch.text().length()==0)
+			currentSearchString=null;
+		else
+			currentSearchString=new SequenceSearcher(getSequence(), tfSearch.text().toUpperCase());
+		actionSearchNext();
+		}
+	
+	public void actionSearchNext()
+		{
+		/*
+		if(currentSearchString==null)
+			entersearch();*/
+		if(currentSearchString!=null)
+			{
+			SequenceRange r=currentSearchString.next(getSelection());
+			if(r!=null) //needed?
+				onSelectionChanged(r);
+			}
+		}
+
+	public void actionSearchPrev()
+		{
+		/*
+		if(currentSearchString==null)
+			entersearch();*/
+		if(currentSearchString!=null)
+			{
+			SequenceRange r=currentSearchString.prev(getSelection());
+			if(r!=null) //needed?
+				onSelectionChanged(r);
+			}
+		}
+
 	
 	}

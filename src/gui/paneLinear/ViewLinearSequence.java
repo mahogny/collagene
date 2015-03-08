@@ -506,7 +506,11 @@ public class ViewLinearSequence extends QGraphicsView
 				{
 				//Find where on line
 				int c=mapXtoChar(x);
-				if(c>=0 && c<charsPerLine)
+				if(c<0)
+					c=0;
+				else if(c>charsPerLine)
+					c=charsPerLine;
+				if(c>=0 && c<=charsPerLine)   //////////////////// TODO: just round up or down 
 					{
 					int total=i*charsPerLine + c;
 					if(total>seq.getLength())

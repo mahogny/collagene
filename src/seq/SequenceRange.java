@@ -12,6 +12,16 @@ public class SequenceRange
 	{
 	public int from, to;
 
+	public SequenceRange()
+		{
+		}
+	public SequenceRange(int from, int to)
+		{
+		this.from=from;
+		this.to=to;
+		}
+	
+	
 	public int getLower()
 		{
 		return Math.min(from, to);

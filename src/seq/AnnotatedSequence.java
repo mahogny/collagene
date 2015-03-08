@@ -91,8 +91,24 @@ public class AnnotatedSequence
 	
 	public String getSubsequence(SequenceRange range)
 		{
-		//TODO range checks might be needed
-		return sequenceUpper.substring(range.getLower(), range.getUpper());
+		//Normalize range
+		int from=range.from;
+		int to=range.to;
+		while(from<=0)
+			{
+			from+=getLength();
+			to+=getLength();
+			}
+		if(to>getLength())
+			to-=getLength();
+		
+		if(from<to && to<getLength())
+			return sequenceUpper.substring(range.from, range.to);
+		else
+			{
+			return sequenceUpper.substring(range.from) + sequenceLower.substring(0,to);
+			
+			}
 		}
 
 	
