@@ -1,5 +1,7 @@
 package seq;
 
+import java.util.LinkedList;
+
 /**
  * A selection range over a sequence
  * 
@@ -68,17 +70,7 @@ public class SequenceRange
 		while(to<from)
 			to+=seq.getLength();
 		return new SequenceRange(from,to);
-
 		}
-	/*
-	public int getLower()
-		{
-		return Math.min(from, to);
-		}
-	public int getUpper()
-		{
-		return Math.max(from,to);
-		}*/
 	
 	public int getSize(AnnotatedSequence seq)
 		{
@@ -90,4 +82,51 @@ public class SequenceRange
 			return n.to-n.from;
 		}
 
+	@Override
+	public String toString()
+		{
+		return "("+from+","+to+")";
+		}
+	
+	
+	/**
+	 * Segment range into blocks over lines
+	 */
+	public LinkedList<SequenceRange> segmentRanges(AnnotatedSequence seq, int charsPerLine)
+		{
+		LinkedList<SequenceRange> segments=new LinkedList<SequenceRange>();
+		SequenceRange r=toNormalizedRange(seq);
+		if(r.from>r.to)
+			{
+			//"from" to end of sequence
+			for(int i=r.from/charsPerLine;i<=seq.getLength()/charsPerLine;i++)
+				{
+				segments.add(
+				new SequenceRange(
+						Math.max(i*charsPerLine, r.from),
+						Math.min((i+1)*charsPerLine, seq.getLength())));
+				}
+			//0 to "to"
+			for(int i=0;i<=r.to/charsPerLine;i++)
+				{
+				segments.add(
+					new SequenceRange(
+							Math.max(i*charsPerLine, r.from),
+							Math.min((i+1)*charsPerLine, r.to)));
+				}
+			}
+		else
+			{
+			int ilow=r.from/charsPerLine;
+			int ihigh=r.to/charsPerLine;
+			for(int i=ilow;i<=ihigh;i++)
+				{
+				segments.add(
+				new SequenceRange(
+						Math.max(i*charsPerLine, r.from),
+						Math.min((i+1)*charsPerLine, r.to)));
+				}
+			}
+		return segments;
+		}
 	}

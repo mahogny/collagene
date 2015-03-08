@@ -32,6 +32,7 @@ import com.trolltech.qt.gui.QContextMenuEvent;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsLineItem;
 import com.trolltech.qt.gui.QGraphicsPolygonItem;
+import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QGraphicsScene;
 import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QGraphicsView;
@@ -67,7 +68,7 @@ public class ViewLinearSequence extends QGraphicsView
 	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
 
-	private Collection<QGraphicsLineItem> selectionItems=new LinkedList<QGraphicsLineItem>();
+	private Collection<Object> selectionItems=new LinkedList<Object>();
 	private SequenceRange selection=null;
 	private boolean isSelecting=false;
 
@@ -327,7 +328,7 @@ public class ViewLinearSequence extends QGraphicsView
 					
 					QBrush brush=new QBrush();
 					brush.setStyle(BrushStyle.SolidPattern);
-					brush.setColor(QColor.fromRgb(annot.col.r, annot.col.g, annot.col.b));
+					brush.setColor(QColor.fromRgb(annot.color.r, annot.color.g, annot.color.b));
 					
 					QGraphicsPolygonItem pi=new QGraphicsPolygonItem();
 					pi.setPolygon(poly);
@@ -367,8 +368,11 @@ public class ViewLinearSequence extends QGraphicsView
 	private void updateSelectionGraphics()
 		{
 		//Remove previous selection
-		for(QGraphicsLineItem i:selectionItems)
-			scene().removeItem(i);
+		for(Object i:selectionItems)
+			if(i instanceof QGraphicsRectItem)
+				scene().removeItem((QGraphicsRectItem)i);
+			else if(i instanceof QGraphicsLineItem)
+				scene().removeItem((QGraphicsLineItem)i);
 		selectionItems.clear();
 
 		//Draw selection
@@ -486,52 +490,93 @@ public class ViewLinearSequence extends QGraphicsView
 		//Draw restriction site if hovering
 		if(hoveringRestrictionSite!=null)
 			{			
-			int lineIndex=hoveringRestrictionSite.cuttingUpperPos/charsPerLine;
-			int cposLeft=lineIndex*charsPerLine;
-			double localUpper=mapCharToX(hoveringRestrictionSite.cuttingUpperPos-cposLeft);
-			
-			QPen penSelect=new QPen();
-			penSelect.setColor(new QColor(255,50,50));
-			penSelect.setWidth(2);
+			QPen penRS=new QPen();
+			penRS.setColor(new QColor(255,50,50));
+			penRS.setWidth(2);
 
-			double y1=sequenceLineY.get(lineIndex);
-			double y2=y1+charHeight+4;
-			double y3=y1+charHeight*2;
+			//Draw upper cut position
+			if(hoveringRestrictionSite.cuttingUpperPos!=null)
+				{
+				int lineIndex=hoveringRestrictionSite.cuttingUpperPos/charsPerLine;
+				int cposLeft=lineIndex*charsPerLine;
+				double localUpper=mapCharToX(hoveringRestrictionSite.cuttingUpperPos-cposLeft);
+				double y1=sequenceLineY.get(lineIndex);
+				double y2=y1+charHeight+4;
 
-			QPen penRS=penSelect;
-			
-			QGraphicsLineItem liUpper=new QGraphicsLineItem();
-			liUpper.setPen(penRS);
-			liUpper.setLine(localUpper, y1, localUpper, y2);
-			liUpper.setZValue(10000);
-			scene().addItem(liUpper);
-			selectionItems.add(liUpper);
+				QGraphicsLineItem liUpper=new QGraphicsLineItem();
+				liUpper.setPen(penRS);
+				liUpper.setLine(localUpper, y1, localUpper, y2);
+				liUpper.setZValue(10000);
+				scene().addItem(liUpper);
+				selectionItems.add(liUpper);				
+				
+				//Draw horizontal line
+				if(hoveringRestrictionSite.cuttingLowerPos!=null)
+					{
+					double localLower=mapCharToX(Math.max(0,Math.min(charsPerLine,hoveringRestrictionSite.cuttingLowerPos-cposLeft)));
+					QGraphicsLineItem liMid=new QGraphicsLineItem();
+					liMid.setPen(penRS);
+					liMid.setLine(localUpper, y2, localLower, y2);
+					liMid.setZValue(10000);
+					scene().addItem(liMid);
+					selectionItems.add(liMid);
+					}
+				}
 
+			//Draw lower cut position
 			if(hoveringRestrictionSite.cuttingLowerPos!=null)
 				{
+				int lineIndex=hoveringRestrictionSite.cuttingLowerPos/charsPerLine;
+				int cposLeft=lineIndex*charsPerLine;
 				double localLower=mapCharToX(hoveringRestrictionSite.cuttingLowerPos-cposLeft);
+				double y1=sequenceLineY.get(lineIndex);
+				double y2=y1+charHeight+4;
+				double y3=y1+charHeight*2;
 
-				QGraphicsLineItem liMid=new QGraphicsLineItem();
-				liMid.setPen(penRS);
-				liMid.setLine(localUpper, y2, localLower, y2);
-				liMid.setZValue(10000);
-				scene().addItem(liMid);
-				selectionItems.add(liMid);
-				
 				QGraphicsLineItem liLower=new QGraphicsLineItem();
 				liLower.setPen(penRS);
 				liLower.setLine(localLower, y2, localLower, y3);
 				liLower.setZValue(10000);
 				scene().addItem(liLower);
 				selectionItems.add(liLower);
+				
+				//Draw horizontal line
+				if(hoveringRestrictionSite.cuttingUpperPos!=null)
+					{
+					double localUpper=mapCharToX(Math.max(0,Math.min(charsPerLine,hoveringRestrictionSite.cuttingUpperPos-cposLeft)));
+					QGraphicsLineItem liMid=new QGraphicsLineItem();
+					liMid.setPen(penRS);
+					liMid.setLine(localUpper, y2, localLower, y2);
+					liMid.setZValue(10000);
+					scene().addItem(liMid);
+					selectionItems.add(liMid);
+					}
 				}
 
-			
-			//TODO should draw a background below full recognition sequence
+			//Also draw a background around motif position
+			for(SequenceRange segment:hoveringRestrictionSite.motif.segmentRanges(seq, charsPerLine))
+				{
+				int curline=segment.from/charsPerLine;
+				int cposLeft=curline*charsPerLine;
+				double local1=mapCharToX(segment.from-cposLeft);
+				double local2=mapCharToX(segment.to-cposLeft);
+				double y1=sequenceLineY.get(curline);
+				double y3=y1+charHeight*2;
+				
+				QGraphicsRectItem rect=new QGraphicsRectItem();
+				rect.setZValue(-10);
+				rect.setBrush(new QBrush(QColor.fromRgb(230,230,200)));
+				rect.setPen(new QPen(QColor.fromRgba(0)));
+				rect.setRect(local1, y1, local2-local1, y3-y1);
+				scene().addItem(rect);
+				selectionItems.add(rect);
+				}
 			}
 		}
 	
 
+	
+	
 	
 	double mapCharToX(int pos)
 		{

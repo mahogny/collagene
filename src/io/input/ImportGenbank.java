@@ -50,7 +50,6 @@ public class ImportGenbank implements SequenceImporter
 		line=br.readLine();
 		upper: for(;;)
 			{
-//			System.out.println(line);
 			if(line.contains("LOCUS"))
 				{
 				seq.name=line.substring("LOCUS".length(),"LOCUS".length()+31).trim();
@@ -94,9 +93,9 @@ public class ImportGenbank implements SequenceImporter
 								else if(line.startsWith("ApEinfo_revcolor="))
 									{
 									String c=line.substring("ApEinfo_revcolor=#".length());
-									annot.col.r=Integer.parseInt(c.substring(0,2), 16);
-									annot.col.g=Integer.parseInt(c.substring(2,4), 16);
-									annot.col.b=Integer.parseInt(c.substring(4,6), 16);
+									annot.color.r=Integer.parseInt(c.substring(0,2), 16);
+									annot.color.g=Integer.parseInt(c.substring(2,4), 16);
+									annot.color.b=Integer.parseInt(c.substring(4,6), 16);
 									}
 								
 								System.out.println("++++ "+line);

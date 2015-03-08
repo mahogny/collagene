@@ -15,7 +15,7 @@ public class SeqAnnotation
 	
 	public Orientation orientation=Orientation.FORWARD;
 	
-	public SeqColor col=new SeqColor(1,0,0);
+	public SeqColor color=new SeqColor(1,0,0);
 
 	
 	
@@ -30,7 +30,7 @@ public class SeqAnnotation
 		from=annot.from;
 		to=annot.to;
 		orientation=annot.orientation;
-		col=new SeqColor(annot.col);
+		color=new SeqColor(annot.color);
 		}
 
 

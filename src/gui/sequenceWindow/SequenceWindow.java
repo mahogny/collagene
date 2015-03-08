@@ -41,7 +41,6 @@ import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMenuBar;
 import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QResizeEvent;
-import com.trolltech.qt.gui.QSizePolicy;
 import com.trolltech.qt.gui.QSizePolicy.Policy;
 import com.trolltech.qt.gui.QStatusBar;
 import com.trolltech.qt.gui.QTabWidget;
@@ -254,7 +253,7 @@ public class SequenceWindow extends QMainWindow
 		{
 		AnnotationWindow w=new AnnotationWindow();
 		SeqAnnotation a=new SeqAnnotation();
-		a.col=new SeqColor(ColorSet.colorset.getRandomColor());
+		a.color=new SeqColor(ColorSet.colorset.getRandomColor());
 		SequenceRange r=getSelection().toNormalizedRange(getSequence());
 		if(r!=null)
 			{
@@ -483,7 +482,7 @@ public class SequenceWindow extends QMainWindow
 		for(SeqAnnotation a:annots)
 			{
 			a.name="ORF "+i;
-			a.col=ColorSet.colorset.getRandomColor();
+			a.color=ColorSet.colorset.getRandomColor();
 			getSequence().addAnnotation(a);
 			i++;
 			}

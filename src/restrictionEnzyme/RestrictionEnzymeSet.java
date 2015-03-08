@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import seq.AnnotatedSequence;
 import seq.RestrictionSite;
+import seq.SequenceRange;
 import sequtil.NucleotideUtil;
 
 /**
@@ -51,6 +52,9 @@ public class RestrictionEnzymeSet
 			Integer temp=s.cuttingLowerPos;
 			s.cuttingLowerPos=s.cuttingUpperPos;
 			s.cuttingUpperPos=temp;
+			s.motif=new SequenceRange(
+					sequence.getLength()-s.motif.to,
+					sequence.getLength()-s.motif.from).toNormalizedRange(sequence);
 			}
 		
 		//Normalize positions
@@ -118,6 +122,8 @@ public class RestrictionEnzymeSet
 					site.enzyme=e;
 					site.cuttingUpperPos=cut.upper+m.start();
 					site.cuttingLowerPos=cut.lower+m.start();
+					
+					site.motif=new SequenceRange(m.start(), m.start()+e.sequence.length());
 					
 					if(Math.min(site.cuttingUpperPos,site.cuttingLowerPos)<=sequence.length() &&
 							Math.max(site.cuttingUpperPos,site.cuttingLowerPos)>=0)  //This test is very blunt

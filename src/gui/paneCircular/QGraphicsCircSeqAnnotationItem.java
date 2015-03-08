@@ -51,7 +51,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		double ang2=(double)annot.to/seq.getLength()+view.circPan;
 
 		QColor bordercolor=QColor.fromRgb(0,0,0);
-		QColor bgcolor=QColor.fromRgb(annot.col.r,annot.col.g,annot.col.b);
+		QColor bgcolor=QColor.fromRgb(annot.color.r,annot.color.g,annot.color.b);
 		
 		QPen pen=new QPen();
 		

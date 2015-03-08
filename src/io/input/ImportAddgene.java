@@ -172,7 +172,7 @@ public class ImportAddgene
 					annot.orientation=(Boolean)ob.get("clockwise") ? Orientation.FORWARD : Orientation.REVERSE;
 
 					curcol=(curcol+1)%colorset.size();
-					annot.col=new SeqColor(colorset.get(curcol));
+					annot.color=new SeqColor(colorset.get(curcol));
 					
 					seq.addAnnotation(annot);
 					}

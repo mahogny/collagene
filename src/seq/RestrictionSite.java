@@ -15,6 +15,7 @@ public class RestrictionSite
 	public RestrictionEnzyme enzyme;
 	public Integer cuttingUpperPos;
 	public Integer cuttingLowerPos;
+	public SequenceRange motif;
 	
 	//Note that some enzymes only nick one side
 	
