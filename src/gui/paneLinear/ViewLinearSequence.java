@@ -392,7 +392,7 @@ public class ViewLinearSequence extends QGraphicsView
 				int lyLower=lyUpper+5;
 
 				//From-|
-				if(cposLeft<selectFrom && cposRight>selectFrom)
+				if(cposLeft<=selectFrom && cposRight>selectFrom)
 					{
 					double x1=mapCharToX(selectFrom-cposLeft);
 					QGraphicsLineItem li=new QGraphicsLineItem();
@@ -403,7 +403,7 @@ public class ViewLinearSequence extends QGraphicsView
 					selectionItems.add(li);
 					}
 				//To-|
-				if(cposLeft<selectTo && cposRight>selectTo)
+				if(cposLeft<=selectTo && cposRight>selectTo)
 					{
 					double x1=mapCharToX(selectTo-cposLeft);
 					QGraphicsLineItem li=new QGraphicsLineItem();

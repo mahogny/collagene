@@ -36,9 +36,11 @@ import com.trolltech.qt.gui.QWidget;
  */
 public class PaneEnzymeList extends QWidget
 	{
-	BufferEfficiencyWidget bufOne=new BufferEfficiencyWidget();
-	BufferEfficiencyWidget bufCommon=new BufferEfficiencyWidget();
-	
+	private BufferEfficiencyWidget bufOne=new BufferEfficiencyWidget();
+	private BufferEfficiencyWidget bufCommon=new BufferEfficiencyWidget();
+	private QLabel labCommon=new QLabel(tr("Common buffers"));
+	private QVBoxLayout layCommon=new QVBoxLayout();
+
 	private QPushButton bDigest=new QPushButton(tr("Digest"));
 	private WidgetCutSite pcutsite=new WidgetCutSite();
 	private QTableWidget tableAvailableEnzymes=new QTableWidget();
@@ -95,6 +97,7 @@ public class PaneEnzymeList extends QWidget
 		}
 
 
+	
 	/**
 	 * Constructor
 	 */
@@ -119,7 +122,7 @@ public class PaneEnzymeList extends QWidget
 		
 		bMenu.setMenu(menuSettings);
 		menuSettings.signalSettingsChanged.connect(this,"updateView()");
-		
+
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(bMenu);
 		lay.addWidget(tableAvailableEnzymes);
@@ -131,16 +134,19 @@ public class PaneEnzymeList extends QWidget
 		lay.addWidget(bufOne);
 
 		lay.addWidget(bDigest);
-		lay.addWidget(new QLabel(tr("Common buffers")));
-		lay.addWidget(bufCommon);
+		lay.addLayout(layCommon);
+		lay.setMargin(0);
 		setLayout(lay);
+		layCommon.setMargin(0);
 		
 		
 		
 		tableAvailableEnzymes.selectionModel().selectionChanged.connect(this,"actionSelectedEnzyme()");
 		
 		bDigest.clicked.connect(this,"actionDigest()");
-		
+
+		actionSelectedEnzyme();
+
 		setMinimumWidth(150);
 		}
 
@@ -177,6 +183,21 @@ public class PaneEnzymeList extends QWidget
 		Collection<RestrictionEnzyme> selEnzymes=getSelectedEnzymes();
 		TreeMap<String,Double> commonEfficiencies=RestrictionEnzyme.getCommonBufferEfficiency(selEnzymes);
 		bufCommon.fill(commonEfficiencies);
+
+		if(selEnzymes.size()>1)
+			{
+			bufCommon.setVisible(true);
+			labCommon.setVisible(true);
+			layCommon.addWidget(labCommon);
+			layCommon.addWidget(bufCommon);
+			}
+		else
+			{
+			bufCommon.setVisible(false);
+			labCommon.setVisible(false);
+			layCommon.removeWidget(labCommon);
+			layCommon.removeWidget(bufCommon);
+			}
 		
 		signalEnzymeChanged.emit(getSelection());
 		}

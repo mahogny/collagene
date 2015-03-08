@@ -62,7 +62,7 @@ public class SequenceSearcher
 	public SequenceRange next(SequenceRange current)
 		{
 		int next;
-		int pos=0;
+		int pos=-1;
 		if(current!=null)
 			pos=current.from;
 		

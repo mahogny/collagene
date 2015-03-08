@@ -40,27 +40,29 @@ public class PaneLinearSequence extends QWidget
 	 */
 	public PaneLinearSequence()
 		{
-		QVBoxLayout lay=new QVBoxLayout();
-		setLayout(lay);
 
 		
 
-		QHBoxLayout laycirc=new QHBoxLayout();
-		
+
 		sliderZoom.setRange(0, 5000);
 		sliderZoom.setValue(0);
 		sliderZoom.valueChanged.connect(this,"updateview()");
 		
+		QHBoxLayout laycirc=new QHBoxLayout();
 		laycirc.addWidget(ImgResource.label(ImgResource.search));
 		laycirc.addWidget(sliderZoom);
 		laycirc.addWidget(bSettings);
+		laycirc.setMargin(0);
 
 		menuSettings.addMenu(view.settings);
 		
 		bSettings.setMenu(menuSettings);
 
+		QVBoxLayout lay=new QVBoxLayout();
 		lay.addLayout(laycirc);
 		lay.addWidget(view);
+		lay.setMargin(0);
+		setLayout(lay);
 
 		view.settings.signalSettingsChanged.connect(this,"updateview()");  //train wreck
 		view.signalUpdated.connect(signalUpdated,"emit()");

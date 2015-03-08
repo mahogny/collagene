@@ -41,6 +41,8 @@ import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMenuBar;
 import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QResizeEvent;
+import com.trolltech.qt.gui.QSizePolicy;
+import com.trolltech.qt.gui.QSizePolicy.Policy;
 import com.trolltech.qt.gui.QStatusBar;
 import com.trolltech.qt.gui.QTabWidget;
 import com.trolltech.qt.gui.QTextEdit;
@@ -321,9 +323,10 @@ public class SequenceWindow extends QMainWindow
 		labelTm.setText("");
 		labelGC.setText("");
 		labelLength.setText("");
-		SequenceRange range=getSelection().toNormalizedRange(seq);
+		SequenceRange range=getSelection();
 		if(range!=null)
 			{
+			range=range.toNormalizedRange(seq);
 			//Update Tm
 			String sub=seq.getSubsequence(range);
 			try
@@ -409,22 +412,29 @@ public class SequenceWindow extends QMainWindow
 		viewLinear.signalUpdated.connect(this,"updateSequence()");
 		viewInfo.signalUpdated.connect(this,"updateSequence()");
 
-		QHBoxLayout layToolbar=new QHBoxLayout();
 		QColorCombo colorcombo=new QColorCombo();
+		colorcombo.setSizePolicy(Policy.Minimum, Policy.Minimum);
 		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
-		
 		tfSearch.textChanged.connect(this,"actionSearch()");
 		bSearchNext.clicked.connect(this,"actionSearchNext()");
 		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
 
-		layToolbar.addWidget(new QLabel(tr("Search:")));
-		layToolbar.addWidget(tfSearch);
-		layToolbar.addWidget(bSearchPrev);
-		layToolbar.addWidget(bSearchNext);
+		QHBoxLayout laySearch=new QHBoxLayout();
+		laySearch.addWidget(new QLabel(tr("Search:")));
+		laySearch.addWidget(tfSearch);
+		laySearch.addWidget(bSearchPrev);
+		laySearch.addWidget(bSearchNext);
+		laySearch.setMargin(0);
+		laySearch.setSpacing(0);
+
+		QHBoxLayout layToolbar=new QHBoxLayout();
+		layToolbar.addLayout(laySearch);
 		layToolbar.addStretch();
 		layToolbar.addWidget(colorcombo);
-		
+		layToolbar.setMargin(0);
+		//layToolbar.setSpacing(0);
+
 		
 		setMenuBar(menubar);
 		
@@ -433,15 +443,16 @@ public class SequenceWindow extends QMainWindow
 		statusbar.addPermanentWidget(labelGC);
 		statusbar.addPermanentWidget(labelLength);
 		
-		QHBoxLayout lay=new QHBoxLayout();
-		lay.addWidget(viewLinear);
-		lay.addWidget(viewCircular);
-		lay.addWidget(viewEnz);
+		QHBoxLayout hlay=new QHBoxLayout();
+		hlay.addWidget(viewLinear);
+		hlay.addWidget(viewCircular);
+		hlay.addWidget(viewEnz);
+		hlay.setMargin(0);
 
 
 		QVBoxLayout vlay=new QVBoxLayout();
 		vlay.addLayout(layToolbar);
-		vlay.addLayout(lay);
+		vlay.addLayout(hlay);
 		
 		resize(1200, 600);
 		
@@ -546,6 +557,7 @@ public class SequenceWindow extends QMainWindow
 			currentSearchString=null;
 		else
 			currentSearchString=new SequenceSearcher(getSequence(), tfSearch.text().toUpperCase());
+		onSelectionChanged(null);
 		actionSearchNext();
 		}
 	

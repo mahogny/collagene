@@ -36,33 +36,31 @@ public class PaneCircularSequence extends QWidget
 	
 	public PaneCircularSequence()
 		{
-		QVBoxLayout lay=new QVBoxLayout();
-		setLayout(lay);
-
-		
-
-		QHBoxLayout laycirc=new QHBoxLayout();
-		
 		sliderZoom.setRange(0, 5000);
 		sliderRotate.setRange(0, 1000);
 		sliderZoom.valueChanged.connect(this,"updatecirc()");
 		sliderRotate.valueChanged.connect(this,"updatecirc()");
 		
+		QHBoxLayout laycirc=new QHBoxLayout();
 		laycirc.addWidget(ImgResource.label(ImgResource.search));
 		laycirc.addWidget(sliderZoom);
 		laycirc.addWidget(ImgResource.label(ImgResource.moveLeft));
 		laycirc.addWidget(sliderRotate);
 		laycirc.addWidget(ImgResource.label(ImgResource.moveRight));
 		laycirc.addWidget(bSettings);
-
+		laycirc.setMargin(0);
+		
 		//private CircViewSettings menuSettings=new CircViewSettings();
 		QMenu menu=new QMenu();
 		menu.addMenu(view.settings);
 		
 		bSettings.setMenu(menu);
 
+		QVBoxLayout lay=new QVBoxLayout();
 		lay.addLayout(laycirc);
 		lay.addWidget(view);
+		lay.setMargin(0);
+		setLayout(lay);
 
 		view.settings.signalSettingsChanged.connect(this,"updatecirc()");  //train wreck
 		view.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");

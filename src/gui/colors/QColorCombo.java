@@ -23,7 +23,7 @@ public class QColorCombo extends QComboBox
 
 	public QColorCombo()
 		{
-		setSizePolicy(Policy.Minimum, Policy.Expanding);
+		setSizePolicy(Policy.MinimumExpanding, Policy.Minimum);
 		fillColorCombo();
 		}
 	
