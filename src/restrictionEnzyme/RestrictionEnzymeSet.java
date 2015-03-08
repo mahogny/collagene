@@ -27,13 +27,19 @@ public class RestrictionEnzymeSet
 	 */
 	public Collection<RestrictionSite> findRestrictionSites(AnnotatedSequence sequence)
 		{
-		List<RestrictionSite> list=findRestrictionSitesOneway(sequence.getSequence());
-		List<RestrictionSite> list2=findRestrictionSitesOneway(NucleotideUtil.revcomplement(sequence.getSequence()));
-		
+		String searchUpper=sequence.getSequence();
+		String searchLower=NucleotideUtil.revcomplement(sequence.getSequence());
+
+		//Handle circular sequences. Easiest way is to pad sequence with itself, 30bp or so. then exclude overlaps
 		if(sequence.isCircular)
 			{
-			//TODO handle circular sequences. Easiest way is to pad sequence with itself, 30bp or so. then exclude overlaps
+			searchUpper=searchUpper+searchUpper;
+			searchLower=searchLower+searchLower;
 			}
+
+		//Search both ways
+		List<RestrictionSite> list=findRestrictionSitesOneway(searchUpper);
+		List<RestrictionSite> list2=findRestrictionSitesOneway(searchLower);
 		
 		//Transform cut-site for lower strand into upper strand
 		for(RestrictionSite s:list2)
@@ -47,15 +53,45 @@ public class RestrictionEnzymeSet
 			s.cuttingUpperPos=temp;
 			}
 		
+		//Normalize positions
+		LinkedList<RestrictionSite> listTot=new LinkedList<RestrictionSite>();
+		listTot.addAll(list);
+		listTot.addAll(list2);
+		for(RestrictionSite s:listTot)
+			{
+			if(s.cuttingUpperPos!=null)
+				{
+				while(s.cuttingUpperPos<0)
+					{
+					s.cuttingUpperPos+=sequence.getLength();
+					if(s.cuttingLowerPos!=null)
+						s.cuttingLowerPos+=sequence.getLength();
+					}
+				while(s.cuttingUpperPos>=sequence.getLength())
+					{
+					s.cuttingUpperPos-=sequence.getLength();
+					if(s.cuttingLowerPos!=null)
+						s.cuttingLowerPos-=sequence.getLength();
+					}
+				}
+			else if(s.cuttingLowerPos!=null)
+				{
+				while(s.cuttingLowerPos<0)
+					s.cuttingLowerPos+=sequence.getLength();
+				while(s.cuttingLowerPos>=sequence.getLength())
+					s.cuttingLowerPos-=sequence.getLength();
+				}
+			}
+		
 		//Use a hashset to omit those found twice - in particular symmetric palindromic cutters
 		HashSet<RestrictionSite> sites=new HashSet<RestrictionSite>();
-		sites.addAll(list);
-		sites.addAll(list2);
+		sites.addAll(listTot);
 		
-//		list.addAll(list2);
 		return sites;
 		}
 
+	
+	
 	private List<RestrictionSite> findRestrictionSitesOneway(String sequence)
 		{
 		LinkedList<RestrictionSite> list=new LinkedList<RestrictionSite>();

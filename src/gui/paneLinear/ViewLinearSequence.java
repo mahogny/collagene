@@ -353,9 +353,7 @@ public class ViewLinearSequence extends QGraphicsView
 			currentY+=40;
 			}
 		
-
-		
-		
+		//Update view size
 		setSceneRect(0, 0, mapCharToX(charsPerLine)+30, currentY+50);
 		
 		selectionItems.clear();
@@ -390,9 +388,8 @@ public class ViewLinearSequence extends QGraphicsView
 				int cposLeft=curline*charsPerLine;
 				int cposRight=(curline+1)*charsPerLine;
 
-
-				int ly=sequenceLineY.get(curline);
-				int ly2=ly+5;
+				int lyUpper=sequenceLineY.get(curline);
+				int lyLower=lyUpper+5;
 
 				//From-|
 				if(cposLeft<selectFrom && cposRight>selectFrom)
@@ -400,7 +397,7 @@ public class ViewLinearSequence extends QGraphicsView
 					double x1=mapCharToX(selectFrom-cposLeft);
 					QGraphicsLineItem li=new QGraphicsLineItem();
 					li.setPen(penSelect);
-					li.setLine(x1, ly, x1, ly2);
+					li.setLine(x1, lyUpper, x1, lyLower);
 					li.setZValue(10000);
 					scene().addItem(li);
 					selectionItems.add(li);
@@ -411,7 +408,7 @@ public class ViewLinearSequence extends QGraphicsView
 					double x1=mapCharToX(selectTo-cposLeft);
 					QGraphicsLineItem li=new QGraphicsLineItem();
 					li.setPen(penSelect);
-					li.setLine(x1, ly, x1, ly2);
+					li.setLine(x1, lyUpper, x1, lyLower);
 					li.setZValue(10000);
 					scene().addItem(li);
 					selectionItems.add(li);
@@ -436,7 +433,7 @@ public class ViewLinearSequence extends QGraphicsView
 						
 						QGraphicsLineItem li=new QGraphicsLineItem();
 						li.setPen(penSelect);
-						li.setLine(x1, ly, x2, ly);
+						li.setLine(x1, lyUpper, x2, lyUpper);
 						li.setZValue(10000);
 						scene().addItem(li);
 						selectionItems.add(li);
@@ -460,7 +457,7 @@ public class ViewLinearSequence extends QGraphicsView
 						
 						QGraphicsLineItem li=new QGraphicsLineItem();
 						li.setPen(penSelect);
-						li.setLine(x1, ly, x2, ly);
+						li.setLine(x1, lyUpper, x2, lyUpper);
 						li.setZValue(10000);
 						scene().addItem(li);
 						selectionItems.add(li);
@@ -477,22 +474,18 @@ public class ViewLinearSequence extends QGraphicsView
 						
 						QGraphicsLineItem li=new QGraphicsLineItem();
 						li.setPen(penSelect);
-						li.setLine(x1, ly, x2, ly);
+						li.setLine(x1, lyUpper, x2, lyUpper);
 						li.setZValue(10000);
 						scene().addItem(li);
 						selectionItems.add(li);
 						}
 					}
-				
-				//Horizontal line. Can be 1 or 2
-				
 				}
 			}
 		
 		//Draw restriction site if hovering
 		if(hoveringRestrictionSite!=null)
-			{
-			
+			{			
 			int lineIndex=hoveringRestrictionSite.cuttingUpperPos/charsPerLine;
 			int cposLeft=lineIndex*charsPerLine;
 			double localUpper=mapCharToX(hoveringRestrictionSite.cuttingUpperPos-cposLeft);

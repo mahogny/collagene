@@ -107,8 +107,6 @@ public class CircView extends QGraphicsView
 			
 			QPen penSelect=new QPen();
 			penSelect.setColor(new QColor(200,100,200));
-
-			///hmmmm.... here it is semi-critical that the range is well-defined. will deal with this later!
 			
 			int ang1=(int)((circPan + rangeun.from/(double)seq.getLength())*360*16);
 			int ang2=(int)((circPan + rangeun.to/(double)seq.getLength())*360*16);

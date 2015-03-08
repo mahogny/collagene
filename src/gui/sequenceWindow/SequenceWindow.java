@@ -59,7 +59,7 @@ public class SequenceWindow extends QMainWindow
 	private PaneLinearSequence viewLinear=new PaneLinearSequence();
 	private PaneCircularSequence viewCircular=new PaneCircularSequence();
 	private PaneEnzymeList viewEnz;
-	private PaneInfo viewInfo=new PaneInfo();
+	private PaneSequenceInfo viewInfo=new PaneSequenceInfo();
 	private QLineEdit tfSearch=new QLineEdit();
 	private QStatusBar statusbar=new QStatusBar();
 	private QLabel labelTm=new QLabel("");
