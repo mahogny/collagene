@@ -89,27 +89,6 @@ public class AnnotatedSequence
 		}
 	
 	
-	public String getSubsequence(SequenceRange range)
-		{
-		//Normalize range
-		int from=range.from;
-		int to=range.to;
-		while(from<=0)
-			{
-			from+=getLength();
-			to+=getLength();
-			}
-		if(to>getLength())
-			to-=getLength();
-		
-		if(from<to && to<getLength())
-			return sequenceUpper.substring(range.from, range.to);
-		else
-			{
-			return sequenceUpper.substring(range.from) + sequenceLower.substring(0,to);
-			
-			}
-		}
 
 	
 	public void addRestrictionSite(RestrictionSite s)
@@ -134,10 +113,22 @@ public class AnnotatedSequence
 		return sequenceLower;
 		}
 
+	public String getSubsequence(SequenceRange range)
+		{
+		range=range.toNormalizedRange(this);
+		if(range.from<=range.to && range.to<getLength())
+			return sequenceUpper.substring(range.from, range.to);
+		else
+			return sequenceUpper.substring(range.from) + sequenceUpper.substring(0,range.to);
+		}
+
 	public String getSubsequenceLower(SequenceRange range)
 		{
-		//TODO range checks might be needed
-		return sequenceLower.substring(range.getLower(), range.getUpper());
+		range=range.toNormalizedRange(this);
+		if(range.from<=range.to && range.to<getLength())
+			return sequenceLower.substring(range.from, range.to);
+		else
+			return sequenceLower.substring(range.from) + sequenceLower.substring(0,range.to);
 		}
 	
 	

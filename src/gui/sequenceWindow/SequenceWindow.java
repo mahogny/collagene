@@ -34,7 +34,6 @@ import com.trolltech.qt.gui.QClipboard;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
-import com.trolltech.qt.gui.QInputDialog;
 import com.trolltech.qt.gui.QLabel;
 import com.trolltech.qt.gui.QLineEdit;
 import com.trolltech.qt.gui.QMainWindow;
@@ -50,36 +49,28 @@ import com.trolltech.qt.gui.QWidget;
 
 
 /**
- * The main window
+ * Window showing one sequence
  * 
  * @author Johan Henriksson
  *
  */
 public class SequenceWindow extends QMainWindow
 	{
-//	private File lastDirectory=new File(".");
-
-//	private RestrictionEnzymeSet restrictionEnzymes=new RestrictionEnzymeSet();
-
 	private PaneLinearSequence viewLinear=new PaneLinearSequence();
 	private PaneCircularSequence viewCircular=new PaneCircularSequence();
-//	private PaneProteinTranslation viewProtein=new PaneProteinTranslation();
 	private PaneEnzymeList viewEnz;
 	private PaneInfo viewInfo=new PaneInfo();
-	
-	private ProjectWindow projwindow;
-	
-	private AnnotatedSequence seq=new AnnotatedSequence();
-	
 	private QLineEdit tfSearch=new QLineEdit();
-	
 	private QStatusBar statusbar=new QStatusBar();
-
-	
 	private QLabel labelTm=new QLabel("");
 	private QLabel labelGC=new QLabel("");
 	private QLabel labelLength=new QLabel("");
-		
+
+
+	private ProjectWindow projwindow;
+	
+	private AnnotatedSequence seq=new AnnotatedSequence();
+	public SequenceSearcher currentSearchString=null;
 	
 	
 	public void actionSelectAll()
@@ -89,7 +80,7 @@ public class SequenceWindow extends QMainWindow
 		range.to=seq.getLength();
 		viewLinear.setSelection(range);
 		viewCircular.setSelection(range);
-		updateTm();
+		updateStatusbar();
 		}
 	
 	
@@ -262,11 +253,11 @@ public class SequenceWindow extends QMainWindow
 		AnnotationWindow w=new AnnotationWindow();
 		SeqAnnotation a=new SeqAnnotation();
 		a.col=new SeqColor(ColorSet.colorset.getRandomColor());
-		SequenceRange r=getSelection();
+		SequenceRange r=getSelection().toNormalizedRange(getSequence());
 		if(r!=null)
 			{
-			a.from=r.getLower();
-			a.to=r.getUpper();
+			a.from=r.from;
+			a.to=r.to;
 			}
 		w.setAnnotation(a);
 		w.exec();
@@ -299,7 +290,6 @@ public class SequenceWindow extends QMainWindow
 		//Brutal, works
 		viewCircular.setSequence(seq);
 		viewLinear.setSequence(seq);
-	//	viewProtein.setSequence(seq);
 		viewEnz.setSequence(seq);
 		viewInfo.setSequence(seq);
 		setWindowTitle(QtProgramInfo.programName+" - "+seq.name);
@@ -313,7 +303,7 @@ public class SequenceWindow extends QMainWindow
 		{
 		viewLinear.setSelection(range);
 		viewCircular.setSelection(range);
-		updateTm();
+		updateStatusbar();
 		}
 	
 	public void onEnzymeChanged(SelectedRestrictionEnzyme enz)
@@ -324,14 +314,14 @@ public class SequenceWindow extends QMainWindow
 		}
 	
 	/**
-	 * Update Tm
+	 * Update status bar
 	 */
-	public void updateTm()
+	public void updateStatusbar()
 		{
 		labelTm.setText("");
 		labelGC.setText("");
 		labelLength.setText("");
-		SequenceRange range=getSelection();
+		SequenceRange range=getSelection().toNormalizedRange(seq);
 		if(range!=null)
 			{
 			//Update Tm
@@ -362,8 +352,8 @@ public class SequenceWindow extends QMainWindow
 			
 			//Update region
 			labelLength.setText(
-					"From: "+IndexUtil.fromTogui(range.getLower())+
-					"  To: "+IndexUtil.toTogui(range.getUpper())+
+					"From: "+IndexUtil.fromTogui(range.from)+
+					"  To: "+IndexUtil.toTogui(range.to)+
 					"  Length: "+range.getSize(getSequence())+" bp");
 			}
 		}
@@ -378,9 +368,6 @@ public class SequenceWindow extends QMainWindow
 		this.projwindow=projwindow;
 		
 		ImgResource.setWindowIcon(this);
-		
-
-//		this.restrictionEnzymes=projwindow.restrictionEnzymes;
 		
 		//Build menus
 		QMenuBar menubar=new QMenuBar();
@@ -413,9 +400,6 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addSeparator();
 		mannotation.addAction("Find ORFs", this, "actionFindORFs()");
 
-
-		
-		
 		
 		viewEnz.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
 
@@ -426,11 +410,10 @@ public class SequenceWindow extends QMainWindow
 		viewInfo.signalUpdated.connect(this,"updateSequence()");
 
 		QHBoxLayout layToolbar=new QHBoxLayout();
-
 		QColorCombo colorcombo=new QColorCombo();
 		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
-
+		
 		tfSearch.textChanged.connect(this,"actionSearch()");
 		bSearchNext.clicked.connect(this,"actionSearchNext()");
 		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
@@ -478,6 +461,9 @@ public class SequenceWindow extends QMainWindow
 		setCentralWidget(tabw);
 		}
 
+	/**
+	 * Action: Find ORFs
+	 */
 	public void actionFindORFs()
 		{
 		OrfFinder f=new OrfFinder();
@@ -486,13 +472,16 @@ public class SequenceWindow extends QMainWindow
 		for(SeqAnnotation a:annots)
 			{
 			a.name="ORF "+i;
+			a.col=ColorSet.colorset.getRandomColor();
 			getSequence().addAnnotation(a);
 			i++;
-			//Different colors?
 			}
 		setSequence(seq);
 		}
 
+	/**
+	 * Get the sequence
+	 */
 	public AnnotatedSequence getSequence()
 		{
 		return seq;
@@ -519,7 +508,9 @@ public class SequenceWindow extends QMainWindow
 		}
 	
 	
-	
+	/**
+	 * Action: Reverse the sequence
+	 */
 	public void actionReverseSequence()
 		{
 		String upper=seq.getSequence();
@@ -545,17 +536,10 @@ public class SequenceWindow extends QMainWindow
 		}
 	
 	
-	public SequenceSearcher currentSearchString=null;
-	/*
-	public void entersearch()
-		{
-		String s=QInputDialog.getText(this, tr("Search sequence"), tr("Sequence:"));
-		if(s==null)
-			currentSearchString=null;
-		else
-			currentSearchString=new SequenceSearcher(getSequence(), s.toUpperCase());
-		
-		}*/
+
+	/**
+	 * Action: Perform a new search
+	 */
 	public void actionSearch()
 		{
 		if(tfSearch.text().length()==0)
@@ -565,29 +549,29 @@ public class SequenceWindow extends QMainWindow
 		actionSearchNext();
 		}
 	
+	/**
+	 * Action: Go to next search position
+	 */
 	public void actionSearchNext()
 		{
-		/*
-		if(currentSearchString==null)
-			entersearch();*/
 		if(currentSearchString!=null)
 			{
 			SequenceRange r=currentSearchString.next(getSelection());
-			if(r!=null) //needed?
-				onSelectionChanged(r);
+//			if(r!=null) //needed?
+			onSelectionChanged(r);
 			}
 		}
 
+	/**
+	 * Action: Go to next search position
+	 */
 	public void actionSearchPrev()
 		{
-		/*
-		if(currentSearchString==null)
-			entersearch();*/
 		if(currentSearchString!=null)
 			{
 			SequenceRange r=currentSearchString.prev(getSelection());
-			if(r!=null) //needed?
-				onSelectionChanged(r);
+//			if(r!=null) //needed?
+			onSelectionChanged(r);
 			}
 		}
 

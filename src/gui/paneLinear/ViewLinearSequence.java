@@ -376,60 +376,116 @@ public class ViewLinearSequence extends QGraphicsView
 		//Draw selection
 		if(selection!=null)
 			{
-			int selectFrom=selection.getLower();
-			int selectTo=selection.getUpper();
+			SequenceRange selection=this.selection.toNormalizedRange(seq);
+			int selectFrom=selection.from;
+			int selectTo=selection.to;
 
 			QPen penSelect=new QPen();
 			penSelect.setColor(new QColor(200,100,200));
 			penSelect.setWidth(2);
 
-			//TODO this could be made a lot more efficient
+			//this could be made a lot more efficient
 			for(int curline=0;curline<sequenceLineY.size();curline++)
 				{
 				int cposLeft=curline*charsPerLine;
 				int cposRight=(curline+1)*charsPerLine;
 
-				if(cposLeft<selectTo && cposRight>selectFrom)
-					{
-					int ly=sequenceLineY.get(curline);
 
-					//Find boundaries, and label them
-					double x1,x2;
-					if(selectFrom<cposLeft)
-						x1=mapCharToX(0);
-					else
-						{
-						x1=mapCharToX(selectFrom-cposLeft);
-						int ly2=ly+5;
-						QGraphicsLineItem li=new QGraphicsLineItem();
-						li.setPen(penSelect);
-						li.setLine(x1, ly, x1, ly2);
-						li.setZValue(10000);
-						scene().addItem(li);
-						selectionItems.add(li);
-						}
-					if(selectTo>cposRight)
-						x2=mapCharToX(charsPerLine)-1;
-					else
-						{
-						x2=mapCharToX(selectTo-cposLeft)-1;
-						int ly2=ly+5;
-						QGraphicsLineItem li=new QGraphicsLineItem();
-						li.setPen(penSelect);
-						li.setLine(x2, ly, x2, ly2);
-						li.setZValue(10000);
-						scene().addItem(li);
-						selectionItems.add(li);
-						}
-					
-					//Draw the horizontal line
+				int ly=sequenceLineY.get(curline);
+				int ly2=ly+5;
+
+				//From-|
+				if(cposLeft<selectFrom && cposRight>selectFrom)
+					{
+					double x1=mapCharToX(selectFrom-cposLeft);
 					QGraphicsLineItem li=new QGraphicsLineItem();
 					li.setPen(penSelect);
-					li.setLine(x1, ly, x2, ly);
+					li.setLine(x1, ly, x1, ly2);
 					li.setZValue(10000);
 					scene().addItem(li);
 					selectionItems.add(li);
 					}
+				//To-|
+				if(cposLeft<selectTo && cposRight>selectTo)
+					{
+					double x1=mapCharToX(selectTo-cposLeft);
+					QGraphicsLineItem li=new QGraphicsLineItem();
+					li.setPen(penSelect);
+					li.setLine(x1, ly, x1, ly2);
+					li.setZValue(10000);
+					scene().addItem(li);
+					selectionItems.add(li);
+					}
+
+				//Horizontal line
+				if(selection.from<=selection.to)
+					{
+					//There can only be one line here
+					if(cposLeft<selectTo && cposRight>selectFrom)
+						{
+						//Find boundaries, and label them
+						double x1,x2;
+						if(selectFrom<cposLeft)
+							x1=mapCharToX(0);
+						else
+							x1=mapCharToX(selectFrom-cposLeft);
+						if(selectTo>cposRight)
+							x2=mapCharToX(charsPerLine);
+						else
+							x2=mapCharToX(selectTo-cposLeft);
+						
+						QGraphicsLineItem li=new QGraphicsLineItem();
+						li.setPen(penSelect);
+						li.setLine(x1, ly, x2, ly);
+						li.setZValue(10000);
+						scene().addItem(li);
+						selectionItems.add(li);
+						}
+					}
+				else
+					{
+					int rightmax=charsPerLine;
+					if(cposRight>seq.getLength())
+						rightmax=seq.getLength()-cposLeft;
+					//If selection is wrapped, there can be up to two lines.
+					//The left horizontal line
+					if(cposLeft<selectTo) 
+						{
+						//Find boundaries, and label them
+						double x1=mapCharToX(0),x2;
+						if(selectTo>cposRight)
+							x2=mapCharToX(rightmax);
+						else
+							x2=mapCharToX(selectTo-cposLeft); 
+						
+						QGraphicsLineItem li=new QGraphicsLineItem();
+						li.setPen(penSelect);
+						li.setLine(x1, ly, x2, ly);
+						li.setZValue(10000);
+						scene().addItem(li);
+						selectionItems.add(li);
+						}
+					//The right horizontal line
+					if(cposRight>selectFrom)
+						{
+						//Find boundaries, and label them
+						double x1,x2=mapCharToX(rightmax);
+						if(selectFrom<cposLeft)
+							x1=mapCharToX(0);
+						else
+							x1=mapCharToX(selectFrom-cposLeft);
+						
+						QGraphicsLineItem li=new QGraphicsLineItem();
+						li.setPen(penSelect);
+						li.setLine(x1, ly, x2, ly);
+						li.setZValue(10000);
+						scene().addItem(li);
+						selectionItems.add(li);
+						}
+					}
+				
+				//Horizontal line. Can be 1 or 2
+				
 				}
 			}
 		

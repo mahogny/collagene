@@ -69,7 +69,7 @@ public class ColorSet
 
 	public SeqColor getRandomColor()
 		{
-		return colors.get((int)(Math.random()*colors.size()));
+		return new SeqColor(colors.get((int)(Math.random()*colors.size())));
 		}
 	
 	}
