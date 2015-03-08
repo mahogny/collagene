@@ -1,5 +1,9 @@
 package seq;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+
 /**
  * 
  * A primer attached to a sequence
@@ -47,7 +51,11 @@ public class Primer
 				}
 			
 			if(fwd.targetPosition<rev.targetPosition)
-				return rev.targetPosition-fwd.targetPosition+fwd.length()+rev.length();
+				{
+				System.out.println("111");
+				return rev.targetPosition-fwd.targetPosition
+						+fwd.length()+rev.length();
+				}
 			else
 				return seq.getLength()-fwd.targetPosition+fwd.length() + rev.targetPosition + rev.length();
 			}
@@ -58,6 +66,34 @@ public class Primer
 	public int length()
 		{
 		return sequence.length();
+		}
+	
+	
+	public LinkedList<PrimerPairInfo> getPairInfo(AnnotatedSequence seq)
+		{
+		LinkedList<PrimerPairInfo> list=new LinkedList<PrimerPairInfo>();
+		
+		for(Primer other:seq.primers)
+			{
+			//could maybe sort here?
+			Integer bp=getProductLength(seq, other);
+			if(bp!=null)
+				{
+				PrimerPairInfo i=new PrimerPairInfo();
+				i.fwd=this;
+				i.rev=other;
+				i.productsize=bp;
+				list.add(i);
+				}
+			}
+		Collections.sort(list, new Comparator<PrimerPairInfo>()
+			{
+			public int compare(PrimerPairInfo o1, PrimerPairInfo o2)
+				{
+				return Integer.compare(o1.productsize, o2.productsize);
+				}
+			});
+		return list;
 		}
 
 	}

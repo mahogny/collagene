@@ -69,7 +69,7 @@ public class MadgeneXML
 			
 			for(Element e:doc.getRootElement().getChildren())
 				{
-				if(e.getName().equals(""))
+				if(e.getName().equals("oneseq"))
 					{
 					AnnotatedSequence seq=ImportOneXML.loadOne(e);
 					proj.sequenceLinkedList.add(seq);

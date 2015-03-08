@@ -53,6 +53,7 @@ public class ImportOneXML implements SequenceImporter
 			{
 			if(e.getName().equals("sequence"))
 				{
+				seq.name=e.getAttributeValue("name");
 				seq.isCircular=Boolean.parseBoolean(e.getAttributeValue("circular"));
 				seq.setSequence(
 						e.getAttributeValue("su"),

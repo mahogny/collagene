@@ -131,7 +131,7 @@ public class ProjectWindow extends QMainWindow
 		
 		updateView();
 		
-		resize(200, 400);
+		resize(300, 480);
 		show();
 		}
 
@@ -263,9 +263,13 @@ public class ProjectWindow extends QMainWindow
 	 */
 	public void actionDeleteSequence()
 		{
-		AnnotatedSequence seq=currentlySelectedSequence();
-		proj.sequenceLinkedList.remove(seq);
-		updateView();
+		boolean ok=QTutil.showOkCancel(tr("Are you sure you wish to delete this sequence?"));
+		if(ok)
+			{
+			AnnotatedSequence seq=currentlySelectedSequence();
+			proj.sequenceLinkedList.remove(seq);
+			updateView();
+			}
 		}
 	
 	
@@ -419,6 +423,7 @@ public class ProjectWindow extends QMainWindow
 				QTutil.showNotice(this, e.getMessage());
 				e.printStackTrace();
 				}
+			updateView();
 			}		
 		}
 

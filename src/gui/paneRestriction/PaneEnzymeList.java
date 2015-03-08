@@ -16,8 +16,10 @@ import seq.RestrictionSite;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QModelIndex;
+import com.trolltech.qt.core.QUrl;
 import com.trolltech.qt.core.Qt;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
+import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHeaderView.ResizeMode;
 import com.trolltech.qt.gui.QIcon;
 import com.trolltech.qt.gui.QLabel;
@@ -162,7 +164,13 @@ public class PaneEnzymeList extends QWidget
 			}
 		return null;
 		}
-	
+
+	public void actionGoWebsite()
+		{
+		RestrictionEnzyme enz=getCurrentEnzyme();
+		if(enz!=null && enz.url!=null)
+			QDesktopServices.openUrl(new QUrl(enz.url));
+		}
 	/**
 	 * Action: An enzyme was selected
 	 */
@@ -172,10 +180,13 @@ public class PaneEnzymeList extends QWidget
 		if(enz!=null)
 			{
 			pcutsite.setEnzyme(enz);
-			lEnzName.setText("Enzyme "+enz.name);
+			lEnzName.setText("Enzyme "+enz.name+" "+
+					(enz.url==null ? "" : "- <a href=\""+enz.url+"\">web</a>"));
 			labTempInactivation.setText("Inactivation: "+formatTemp(enz.tempInactivation));
 			labTempIncubation.setText("Incubation: "+formatTemp(enz.tempIncubation));
 
+			lEnzName.linkActivated.connect(this,"actionGoWebsite()");
+			
 			bufOne.fill(enz.bufferEfficiency);
 			}
 

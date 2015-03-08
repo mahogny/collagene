@@ -5,6 +5,7 @@ import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.sequenceWindow.AnnotationWindow;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,13 +13,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import melting.CalcTm;
+import melting.CalcTmSanta98;
+import melting.TmException;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.Orientation;
 import seq.Primer;
+import seq.PrimerPairInfo;
 import seq.RestrictionSite;
 import seq.SequenceRange;
 import seq.SeqAnnotation;
+import sequtil.NucleotideUtil;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
@@ -67,6 +73,7 @@ public class ViewLinearSequence extends QGraphicsView
 	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
 
 	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
+	private HashMap<Primer, QRectF> primerPosition=new HashMap<Primer, QRectF>();
 
 	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
@@ -174,6 +181,7 @@ public class ViewLinearSequence extends QGraphicsView
 		sequenceLineY.clear();
 		int currentY=10;
 		revsitePosition.clear();
+		primerPosition.clear();
 		for(int curline=0;curline<seq.getLength()/charsPerLine+1;curline++)
 			{
 			int cposLeft=curline*charsPerLine;
@@ -330,7 +338,8 @@ public class ViewLinearSequence extends QGraphicsView
 						}
 					if(curprimerh>primerh)
 						primerh=curprimerh;
-
+					primerPosition.put(p, thisbb);
+					
 					//Add arrow
 					QPainterPath pp=new QPainterPath();
 					pp.moveTo(x1, basey);
@@ -666,14 +675,11 @@ public class ViewLinearSequence extends QGraphicsView
 		}
 	private int mapXYtoPos(double x, double y)
 		{
-//		System.out.println();
-//		System.out.println("# "+sequenceLineY.size());
 		//Find which line
 		for(int i=0;i<sequenceLineY.size();i++)
 			{
 			int y1=sequenceLineY.get(i);
-			int y2=y1+30; //sequenceLineY.get(i+1)
-//			System.out.println(y+"   "+y1+"   "+y2);
+			int y2=y1+30; 
 			if(y>y1 && y<y2)
 				{
 				//Find where on line
@@ -682,16 +688,12 @@ public class ViewLinearSequence extends QGraphicsView
 					c=0;
 				else if(c>charsPerLine)
 					c=charsPerLine;
-				if(c>=0 && c<=charsPerLine)   //////////////////// TODO: just round up or down 
-					{
-					int total=i*charsPerLine + c;
-					if(total>seq.getLength())
-						return -1;
-					else
-						return total;  
-					}
-				else
+				
+				int total=i*charsPerLine + c;
+				if(total>seq.getLength())
 					return -1;
+				else
+					return total;  
 				}
 			}
 		return -1;
@@ -722,8 +724,63 @@ public class ViewLinearSequence extends QGraphicsView
 			
 			mPopup.exec(event.globalPos());
 			}
+		curPrimer=getPrimerAt(pos);
+		if(curPrimer!=null)
+			{
+			String tm="?";
+			String pseq=curPrimer.sequence;
+			try
+				{
+				NumberFormat nf=NumberFormat.getNumberInstance();
+				nf.setMaximumFractionDigits(1);
+				nf.setMinimumFractionDigits(1);
+				CalcTm tmc=new CalcTmSanta98();
+				double d=tmc.calcTm(pseq, NucleotideUtil.complement(pseq));
+				tm=nf.format(d)+"C";
+				}
+			catch (TmException e)
+				{
+				e.printStackTrace();
+				}
+			
+			QMenu mPopup=new QMenu();
+			mPopup.addAction("Sequence: "+curPrimer.sequence);
+			mPopup.addAction("Tm: "+tm);
+			mPopup.addSeparator();
+			
+			for(PrimerPairInfo other:curPrimer.getPairInfo(seq))
+				{
+				//could maybe sort here?
+				mPopup.addAction(other.productsize+"bp  =>  "+other.rev.name);
+				}
+			
+			mPopup.addSeparator();
+			QAction miDeleteAnnot=mPopup.addAction("Delete annotation");
+			
+			miDeleteAnnot.triggered.connect(this,"actionDeletePrimer()");
+			
+			mPopup.exec(event.globalPos());
+			}
+
 		}
 
+	public void actionDeletePrimer()
+		{
+		if(curPrimer!=null)
+			seq.primers.remove(curPrimer);
+		//TODO major update here
+		setSequence(seq);
+		}
+	
+	Primer curPrimer=null;
+	
+	private Primer getPrimerAt(QPointF pos)
+		{
+		for(Primer p:primerPosition.keySet())
+			if(primerPosition.get(p).contains(pos))
+				return p;
+		return null;
+		}
 	
 	/**
 	 * Find if cursor overlaps a future
@@ -774,12 +831,31 @@ public class ViewLinearSequence extends QGraphicsView
 		
 		if(event.button()==MouseButton.LeftButton)
 			{
+			//Look for annotation
 			curAnnotation=getAnnotationAt(pos);
+			curPrimer=getPrimerAt(pos);
 			if(curAnnotation!=null)
 				{
 				selection=new SequenceRange();
 				selection.from=curAnnotation.from;
 				selection.to=curAnnotation.to;
+				isSelecting=false;
+				signalSelectionChanged.emit(selection);
+				updateSelectionGraphics();  
+				}
+			else if(curPrimer!=null)
+				{
+				selection=new SequenceRange();
+				if(curPrimer.orientation==Orientation.FORWARD)
+					{
+					selection.from=curPrimer.targetPosition-curPrimer.length();
+					selection.to=curPrimer.targetPosition;
+					}
+				else
+					{
+					selection.from=curPrimer.targetPosition;
+					selection.to=curPrimer.targetPosition+curPrimer.length();
+					}
 				isSelecting=false;
 				signalSelectionChanged.emit(selection);
 				updateSelectionGraphics();  

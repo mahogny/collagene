@@ -26,6 +26,7 @@ public class ExportOneXML
 		{
 		
 		Element eSeq=new Element("sequence");
+		eSeq.setAttribute("name",seq.name);
 		eSeq.setAttribute("su",seq.getSequence());
 		eSeq.setAttribute("sl",seq.getSequenceLower());
 		eSeq.setAttribute("circular",""+seq.isCircular);

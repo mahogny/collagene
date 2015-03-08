@@ -55,6 +55,7 @@ public class PrimerWindow extends QDialog
 	public void actionCancel()
 		{
 		primer=null;
+		close();
 		}
 	
 	public void setPrimer(Primer p)

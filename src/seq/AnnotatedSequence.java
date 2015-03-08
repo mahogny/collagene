@@ -48,12 +48,13 @@ public class AnnotatedSequence
 	public AnnotatedSequence()
 		{
 		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
+		/*
 		Primer p=new Primer();
 		p.name="foo";
 		p.orientation=Orientation.FORWARD;
 		p.sequence="ATAC";
 		p.targetPosition=25;
-		primers.add(p);
+		primers.add(p);*/
 		}
 	
 	public void setSequence(String upper)

@@ -57,6 +57,7 @@ public class NEBparser
 					RestrictionEnzyme enz=new RestrictionEnzyme();
 					enz.name=els.get(0).getChildText("a");
 
+					enz.url="https://www.neb.com"+els.get(0).getChild("a").getAttributeValue("href");
 					String seq=els.get(2).getText().trim();
 					if(seq.equals(""))
 						continue;  //AgaSI is wrong in the table!

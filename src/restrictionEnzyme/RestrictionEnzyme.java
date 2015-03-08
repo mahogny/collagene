@@ -41,9 +41,11 @@ public class RestrictionEnzyme
 	public Double tempIncubation;
 	
 	/**
-	 * Efficiences in different buffers
+	 * Efficiencies in different buffers
 	 */
 	public TreeMap<String, Double> bufferEfficiency=new TreeMap<String, Double>(); //Buffer name -> efficiency
+
+	public String url;
 	
 	
 	/**
