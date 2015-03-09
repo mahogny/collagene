@@ -9,14 +9,15 @@ loc:
 
 ######################## todo include R-light in jar
 
-jars: compileciteproc
+jars: 
 	#todo separate qt from core
-	jar cfvm ../madgene.jar MANIFEST.STARTQTCLIENT \
-	-C ../bin \
+	cd ../bin; jar cfvm ../madgene.jar ../src/MANIFEST.STARTQTCLIENT \
+	*/*.class \
 	*/*/*.class \
-	*/*/*/*.class \
-	*/*/*.txt 
-
+	*/*.txt \
+	*/*/*.png \
+	*/*/*.txt \
+	*/*/EPAM*
 
 ############################################################################################
 ############################ osx ###########################################################
@@ -25,7 +26,7 @@ jars: compileciteproc
 macport: jars
 	rm -Rf ../release/mac
 	cp -r ../ports/mac ../release/mac
-	cp ../labstory.jar labstoryPostload.jar ../libs/*jar ../release/mac/labstory.app/
+	cp ../madgene.jar ../lib/*jar ../lib/mac/*.jar ../release/mac/madgene.app/
 #	cp translations/* ../release/mac/labstory.app/translations/
 	cd ../release/mac/; make
 
@@ -43,14 +44,14 @@ linuxport32: jars
 	mkdir -p ../release/linux32
 	rm -Rf ../release/linux32/labstory
 	cp -r ports/linux ../release/linux32/labstory
-	cp -r R labstory.jar labstoryPostload.jar libs/*jar libs/linux32/*jar ../release/linux32/labstory/
+	cp -r R labstory.jar labstoryPostload.jar lib/*jar lib/linux32/*jar ../release/linux32/labstory/
 	cp translations/* ../release/linux32/labstory/translations/
 
 linuxport64: jars
 	mkdir -p ../release/linux64
 	rm -Rf ../release/linux64/labstory
 	cp -r ports/linux ../release/linux64/labstory
-	cp -r R labstory.jar labstoryPostload.jar libs/*jar libs/linux64/*jar ../release/linux64/labstory/
+	cp -r R labstory.jar labstoryPostload.jar lib/*jar lib/linux64/*jar ../release/linux64/labstory/
 	cp -r translations/* ../release/linux64/labstory/translations/
 
 linuxport: linuxport32 linuxport64 ubuntuport
@@ -66,7 +67,7 @@ winport32: jars
 	mkdir -p ../release/win32/labstory
 	cp ports/win/starter/labstory_sysjre.exe ../release/win32/labstory/labstory.exe
 	cp ports/win/installer/* ../release/win32/
-	cp labstory.jar labstoryPostload.jar libs/*jar libs/win32/*jar ../release/win32/labstory/
+	cp labstory.jar labstoryPostload.jar lib/*jar lib/win32/*jar ../release/win32/labstory/
 	cp -r R ../release/win32/labstory/
 	cp -r translations ../release/win32/labstory/
 	cd ../release/win32; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" sysjre.nsi
@@ -77,7 +78,7 @@ winport64: jars
 	mkdir -p ../release/win64/labstory
 	cp ports/win/starter/labstory_sysjre.exe ../release/win64/labstory/labstory.exe
 	cp ports/win/installer/* ../release/win64/
-	cp labstory.jar labstoryPostload.jar libs/*jar libs/win64/*jar ../release/win64/labstory/
+	cp labstory.jar labstoryPostload.jar lib/*jar lib/win64/*jar ../release/win64/labstory/
 	cp -r R ../release/win64/labstory/
 	cp -r translations ../release/win64/labstory/
 	cd ../release/win64; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" sysjre.nsi
@@ -88,7 +89,7 @@ winportjre: jars
 	mkdir -p ../release/winjre/labstory
 	cp ports/win/starter/labstory_bundledjre.exe ../release/winjre/labstory/labstory.exe
 	cp ports/win/installer/* ../release/winjre/
-	cp labstory.jar labstoryPostload.jar libs/*jar libs/win32/*jar ../release/winjre/labstory/
+	cp labstory.jar labstoryPostload.jar lib/*jar lib/win32/*jar ../release/winjre/labstory/
 	cp -r R ../release/winjre/labstory/
 	cp -r translations ../release/winjre/labstory/
 	cp -r ../support_programs/jre ../release/winjre/

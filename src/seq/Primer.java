@@ -24,6 +24,8 @@ public class Primer
 		targetPosition=p.targetPosition;
 		}
 	
+	public SeqColor color;  //TODO. keep color?
+	
 	public String name="";
 	public String sequence="";
 
