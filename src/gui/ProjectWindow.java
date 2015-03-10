@@ -427,6 +427,7 @@ public class ProjectWindow extends QMainWindow
 			try
 				{
 				proj=MadgeneXML.loadProject(f);
+				currentProjectFile=f;
 				}
 			catch (IOException e)
 				{

@@ -35,6 +35,7 @@ import com.trolltech.qt.gui.QClipboard;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
+import com.trolltech.qt.gui.QInputDialog;
 import com.trolltech.qt.gui.QLabel;
 import com.trolltech.qt.gui.QLineEdit;
 import com.trolltech.qt.gui.QMainWindow;
@@ -42,6 +43,7 @@ import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMenuBar;
 import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QResizeEvent;
+import com.trolltech.qt.gui.QLineEdit.EchoMode;
 import com.trolltech.qt.gui.QSizePolicy.Policy;
 import com.trolltech.qt.gui.QStatusBar;
 import com.trolltech.qt.gui.QTabWidget;
@@ -417,6 +419,10 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
 		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
+		mannotation.addAction(tr("Primer sequences to clipboard"),this,"actionPrimerClipboard()");
+		mannotation.addAction(tr("Fit existing primer"),this,"actionFitExistingPrimer()");
+		
+		
 		
 		viewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
 		viewEnz.signalUpdated.connect(this,"onViewUpdated(Object)");
@@ -627,7 +633,7 @@ public class SequenceWindow extends QMainWindow
 	
 	private void editprimerandadd(Primer p)
 		{
-		PrimerWindow w=new PrimerWindow();
+		PrimerPropertyWindow w=new PrimerPropertyWindow();
 		w.setPrimer(p);
 		w.exec();
 		if(w.getPrimer()!=null)
@@ -635,5 +641,48 @@ public class SequenceWindow extends QMainWindow
 			getSequence().addPrimer(w.getPrimer());
 			setSequence(seq);
 			}
+		}
+	
+	/**
+	 * Action: Copy all primer sequences into clipboard, in an order friendly format
+	 */
+	public void actionPrimerClipboard()
+		{
+		StringBuilder sb=new StringBuilder();
+		for(Primer p:getSequence().primers)
+			sb.append(p.name+"\t"+p.sequence+"\n");
+		QClipboard cb=QApplication.clipboard();
+		cb.setText(sb.toString());
+		QTutil.showNotice(this, tr("Primers has been pasted into clipboard"));
+		}
+	
+	
+	/**
+	 * Fit an existing primer
+	 */
+	public void actionFitExistingPrimer()
+		{
+		String pname=QInputDialog.getText(this, tr("Fit primer"), tr("Name:"));
+		if(pname!=null)
+			{
+			String pseq=QInputDialog.getText(this, tr("Fit primer"), tr("Sequence:"));
+			if(pseq!=null)
+				{
+				AnnotatedSequence seq=getSequence();
+				PrimerFitter f=new PrimerFitter(seq, pname, pseq);
+				Primer p=f.getBestPrimer();
+				if(p!=null)
+					{
+					seq.primers.add(p);
+					updateSequence();
+					}
+				else
+					QTutil.showNotice(this, tr("Failed to fit"));
+				}
+			}
+		/*
+		3050 - 5320
+		2.3kb!*/
+		
 		}
 	}

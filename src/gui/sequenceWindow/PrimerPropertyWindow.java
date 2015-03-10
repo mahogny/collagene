@@ -17,7 +17,7 @@ import com.trolltech.qt.gui.QPushButton;
  * @author Johan Henriksson
  *
  */
-public class PrimerWindow extends QDialog
+public class PrimerPropertyWindow extends QDialog
 	{
 	private QLineEdit tfName=new QLineEdit();
 	private QLineEdit tfSequence=new QLineEdit();
@@ -28,7 +28,7 @@ public class PrimerWindow extends QDialog
 	private Primer primer=new Primer();
 
 	
-	public PrimerWindow()
+	public PrimerPropertyWindow()
 		{
 		QGridLayout lay=new QGridLayout();
 		lay.addWidget(new QLabel(tr("Name:")), 0, 0);

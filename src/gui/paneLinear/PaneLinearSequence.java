@@ -31,8 +31,6 @@ public class PaneLinearSequence extends QWidget
 
 	private ViewLinearSequence view=new ViewLinearSequence();
 	
-//	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
-//	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
 	
