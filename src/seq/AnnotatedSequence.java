@@ -149,6 +149,61 @@ public class AnnotatedSequence
 		return restrictionSites.get(curenz);
 		}
 	
-	
+
+	/**
+	 * Move the 0-point on the plasmid
+	 */
+	public void setNew0(int pos)
+		{
+		System.out.println(pos);
+		String upr=getSequence();
+		String lower=getSequenceLower();
+		upr=upr.substring(pos)+upr.substring(0,pos);
+		lower=lower.substring(pos)+lower.substring(0,pos);
+		setSequence(upr,lower);
+		
+		for(SeqAnnotation ann:annotations)
+			ann.setRange(new SequenceRange(ann.from-pos, ann.to-pos).toNormalizedRange(this));
+		for(Primer p:primers)
+			p.setNew0(pos, this);
+		for(RestrictionEnzyme enz:restrictionSites.keySet())
+			for(RestrictionSite site:restrictionSites.get(enz))
+				site.setNew0(pos, this);
+		}
+
+	/**
+	 * Ensure the position is within the range
+	 */
+	public int normalizePos(int i)
+		{
+		while(i<=0)
+			i+=getLength();
+		while(i>getLength())
+			i-=getLength();
+		return i;
+		}
+
+	public void reverseSequence()
+		{
+		String upper=getSequence();
+		String lower=getSequenceLower();
+		
+		setSequence(
+				NucleotideUtil.reverse(lower),
+				NucleotideUtil.reverse(upper));
+		for(SeqAnnotation a:annotations)
+			{
+			int to=getLength()-a.from;
+			int from=getLength()-a.to;
+			a.to=to;
+			a.from=from;
+			
+			if(a.orientation==Orientation.FORWARD)
+				a.orientation=Orientation.REVERSE;
+			else if(a.orientation==Orientation.REVERSE)
+				a.orientation=Orientation.FORWARD;
+			}
+		restrictionSites.clear(); //TODO
+		}
 	
 	}

@@ -66,4 +66,10 @@ public class SeqAnnotation
 		{
 		return to;
 		}
+
+	public void setRange(SequenceRange r)
+		{
+		this.from=r.from;
+		this.to=r.to;
+		}
 	}

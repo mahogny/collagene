@@ -81,4 +81,13 @@ public class RestrictionSite
 		else
 			return cuttingLowerPos;
 		}
+
+
+	public void setNew0(int pos, AnnotatedSequence seq)
+		{
+		if(cuttingUpperPos!=null)
+			cuttingUpperPos=seq.normalizePos(cuttingUpperPos-pos);
+		if(cuttingLowerPos!=null)
+			cuttingLowerPos=seq.normalizePos(cuttingLowerPos-pos);
+		}
 	}

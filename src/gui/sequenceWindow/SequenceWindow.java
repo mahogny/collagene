@@ -293,18 +293,13 @@ public class SequenceWindow extends QMainWindow
 	public void updateSequence()
 		{
 		layc.removeWidget(viewCircular);
-		System.out.println("here!!!!");
 		if(seq.isCircular)
 			{
 			layc.addWidget(viewCircular);
-
-			//show();
 			viewCircular.show();
 			}
 		else
-			{
 			viewCircular.hide();
-			}
 
 		//Brutal, works
 		viewCircular.setSequence(seq);
@@ -429,6 +424,7 @@ public class SequenceWindow extends QMainWindow
 		mseq.addAction(tr("CRISPR design"), this, "crispr()");
 		mseq.addSeparator();
 		mseq.addAction(tr("Reverse plasmid"), this, "actionReverseSequence()");
+		mseq.addAction(tr("Set plasmid 0-position"), this, "actionSetSequence0()");
 		mseq.addSeparator();
 		mseq.addAction(tr("Close"), this, "close()");
 
@@ -568,29 +564,29 @@ public class SequenceWindow extends QMainWindow
 	 */
 	public void actionReverseSequence()
 		{
-		String upper=seq.getSequence();
-		String lower=seq.getSequenceLower();
-		
-		seq.setSequence(
-				NucleotideUtil.reverse(lower),
-				NucleotideUtil.reverse(upper));
-		for(SeqAnnotation a:seq.annotations)
-			{
-			int to=seq.getLength()-a.from;
-			int from=seq.getLength()-a.to;
-			a.to=to;
-			a.from=from;
-			
-			if(a.orientation==Orientation.FORWARD)
-				a.orientation=Orientation.REVERSE;
-			else if(a.orientation==Orientation.REVERSE)
-				a.orientation=Orientation.FORWARD;
-			}
-		seq.restrictionSites.clear();
+		seq.reverseSequence();
 		setSequence(seq);
 		}
 	
 	
+	public void actionSetSequence0()
+		{
+		if(getSequence().isCircular)
+			{
+			SequenceRange r=getSelection();
+			if(r!=null)
+				{
+				seq.setNew0(r.from);
+				setSequence(seq);
+				System.out.println("here");
+				}
+			else
+				QTutil.showNotice(this, tr("Need to select position first"));
+			}
+		else
+			QTutil.showNotice(this, tr("Can only move 0-position on circular plasmids"));
+			
+		}
 
 	/**
 	 * Action: Perform a new search
@@ -683,7 +679,7 @@ public class SequenceWindow extends QMainWindow
 			sb.append(p.name+"\t"+p.sequence+"\n");
 		QClipboard cb=QApplication.clipboard();
 		cb.setText(sb.toString());
-		QTutil.showNotice(this, tr("Primers has been pasted into clipboard"));
+		QTutil.showNotice(this, tr("Primers have been pasted into clipboard"));
 		}
 	
 	

@@ -54,7 +54,6 @@ public class Primer
 			
 			if(fwd.targetPosition<rev.targetPosition)
 				{
-				System.out.println("111");
 				return rev.targetPosition-fwd.targetPosition
 						+fwd.length()+rev.length();
 				}
@@ -98,4 +97,24 @@ public class Primer
 		return list;
 		}
 
+	
+	/**
+	 * Get the range the primer covers
+	 */
+	public SequenceRange getRange()
+		{
+		if(orientation==Orientation.FORWARD)
+			return new SequenceRange(targetPosition-sequence.length(),targetPosition);
+		else
+			return new SequenceRange(targetPosition,targetPosition+sequence.length());
+		}
+	
+	/**
+	 * Move the 0-position
+	 */
+	public void setNew0(int pos, AnnotatedSequence seq)
+		{
+		targetPosition=seq.normalizePos(targetPosition-pos);
+		}
+	
 	}

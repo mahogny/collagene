@@ -24,6 +24,7 @@ This is a simple piece of software for cloning, written in Java+QT
    * Annotation on sequence
    * Calculation of products
    * Simulated annealing of oligos
+   * Automatically attach existing oligos
 * Features
    * In different directions and colors
    * Automatic finding of ORFs
