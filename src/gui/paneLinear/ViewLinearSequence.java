@@ -111,6 +111,16 @@ public class ViewLinearSequence extends QGraphicsView
 	public void setSelection(SequenceRange s)
 		{
 		selection=s;
+		if(!isSelecting && selection!=null)
+			{
+			//Center on the selection if it comes from another window
+			int line=selection.from/charsPerLine;
+			if(line<0)
+				line=0;
+			else if(line>=sequenceLineY.size())
+				line=sequenceLineY.size()-1;
+			centerOn(width()/2, sequenceLineY.get(line));
+			}
 		updateSelectionGraphics();
 		}
 	
