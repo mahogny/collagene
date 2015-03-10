@@ -568,7 +568,9 @@ public class SequenceWindow extends QMainWindow
 		setSequence(seq);
 		}
 	
-	
+	/**
+	 * Action: Set a new 0-point for the vector
+	 */
 	public void actionSetSequence0()
 		{
 		if(getSequence().isCircular)

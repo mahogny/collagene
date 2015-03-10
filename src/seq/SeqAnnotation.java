@@ -16,6 +16,7 @@ public class SeqAnnotation
 	public Orientation orientation=Orientation.FORWARD;
 	
 	public SeqColor color=new SeqColor(1,0,0);
+	public String desc;
 
 	
 	

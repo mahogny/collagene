@@ -3,6 +3,7 @@ package io;
 import io.input.ImportFASTA;
 import io.input.ImportGenbank;
 import io.input.ImportRawSequence;
+import io.input.ImportXDNA;
 import io.madgene.ImportOneXML;
 import io.output.ExportFASTA;
 import io.output.ExportGenbank;
@@ -34,6 +35,7 @@ public class SequenceFileHandlers
 		//Importers
 		listImporters.add(new ImportFASTA());
 		listImporters.add(new ImportGenbank());
+		listImporters.add(new ImportXDNA());
 		listImporters.add(new ImportOneXML());
 		listImporters.add(new ImportRawSequence());
 		

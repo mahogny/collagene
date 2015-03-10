@@ -35,9 +35,20 @@ public class ImportGenbank implements SequenceImporter
 	 */
 	public boolean isType(InputStream is) throws IOException
 		{
+		try
+			{
+			load(is);
+			return true;
+			}
+		catch (Exception e)
+			{
+/*		e.printStackTrace();*/
+			return false;
+			}
+		/*
 		BufferedReader br=new BufferedReader(new InputStreamReader(is));
 		String line=br.readLine();
-		return line!=null && line.contains("LOCUS");
+		return line!=null && line.contains("LOCUS");*/
 		}
 
 	/**

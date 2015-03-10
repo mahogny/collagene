@@ -36,6 +36,8 @@ This is a simple piece of software for cloning, written in Java+QT
    * Import from addgene
    * Import/export to genbank, including ApE variant      TODO: other software extensions
    * Import/export to fasta
+   * Import from DNA Strider
+   * Import from SerialCloner
    * Native XML format with extended metadata
 
 * Cloning methods
@@ -52,8 +54,8 @@ This is a simple piece of software for cloning, written in Java+QT
    * Copy out sequence in various directions (reverse, complement)
    * Skyline rendering of sequence
    * Align sequences
+   * Move 0-position of plasmid
    
-* TODO: reset 0-position of plasmid
 * TODO: PDF export   
 
 

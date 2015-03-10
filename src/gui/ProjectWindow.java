@@ -365,7 +365,7 @@ public class ProjectWindow extends QMainWindow
 		QFileDialog dia=new QFileDialog();
 		dia.setFileMode(FileMode.ExistingFiles);
 		dia.setDirectory(lastDirectory.getAbsolutePath());
-		dia.setNameFilter(tr("Sequence files (*.seqfile *.gb *.fasta)"));
+		dia.setNameFilter(tr("Sequence files (*.seqfile *.gb *.fasta *.xdna)"));
 		if(dia.exec()!=0)
 			{
 			try
@@ -378,7 +378,9 @@ public class ProjectWindow extends QMainWindow
 					if(importer!=null)
 						{
 						FileInputStream fis=new FileInputStream(f);
-						AnnotatedSequence seq=importer.load(fis).get(0);
+						List<AnnotatedSequence> seqs=importer.load(fis);
+						System.out.println(seqs.size());
+						AnnotatedSequence seq=seqs.get(0);
 						fis.close();
 						addSequenceToProject(seq); //TODO name?
 						}
