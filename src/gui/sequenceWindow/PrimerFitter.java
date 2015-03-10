@@ -105,7 +105,7 @@ public class PrimerFitter
 		
 		p.orientation=orientation;
 		if(orientation==Orientation.FORWARD)
-			p.targetPosition=imax;//+pseq.length();
+			p.targetPosition=imax;//+pseq.length();  
 		else
 			p.targetPosition=imax;
 		

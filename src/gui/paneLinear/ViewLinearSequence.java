@@ -75,8 +75,6 @@ public class ViewLinearSequence extends QGraphicsView
 	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
 	private HashMap<Primer, QRectF> primerPosition=new HashMap<Primer, QRectF>();
 
-//	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalRestrictionEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
-//	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
 	private Collection<Object> selectionItems=new LinkedList<Object>();
@@ -702,7 +700,18 @@ public class ViewLinearSequence extends QGraphicsView
 
 
 
-	
+
+	//Need to keep a list of these? for GC?
+	public class PCRhandler
+		{
+		PrimerPairInfo pair;
+		public void dopcr()
+			{
+			AnnotatedSequence newseq=pair.dopcr(seq);
+			newseq.name=seq.name+"-pcr-"+pair.primerA.name+"_"+pair.primerB.name;
+			signalUpdated.emit(new SignalNewSequence(newseq));
+			}
+		}
 	
 	
 	
@@ -752,11 +761,13 @@ public class ViewLinearSequence extends QGraphicsView
 			for(PrimerPairInfo other:curPrimer.getPairInfo(seq))
 				{
 				//could maybe sort here?
-				mPopup.addAction(other.productsize+"bp  =>  "+other.rev.name);
+				PCRhandler h=new PCRhandler();
+				h.pair=other;
+				mPopup.addAction(other.productsize+"bp  =>  "+other.primerB.name, h, "dopcr()");
 				}
 			
 			mPopup.addSeparator();
-			QAction miDeleteAnnot=mPopup.addAction("Delete annotation");
+			QAction miDeleteAnnot=mPopup.addAction("Delete primer");
 			
 			miDeleteAnnot.triggered.connect(this,"actionDeletePrimer()");
 			

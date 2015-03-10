@@ -7,6 +7,7 @@ import gui.colors.ColorSet;
 import gui.colors.QColorCombo;
 import gui.paneCircular.PaneCircularSequence;
 import gui.paneLinear.PaneLinearSequence;
+import gui.paneLinear.SignalNewSequence;
 import gui.paneRestriction.PaneEnzymeList;
 import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.qt.QTutil;
@@ -43,7 +44,6 @@ import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMenuBar;
 import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QResizeEvent;
-import com.trolltech.qt.gui.QLineEdit.EchoMode;
 import com.trolltech.qt.gui.QSizePolicy.Policy;
 import com.trolltech.qt.gui.QStatusBar;
 import com.trolltech.qt.gui.QTabWidget;
@@ -308,6 +308,12 @@ public class SequenceWindow extends QMainWindow
 		if(ob==null)
 			{
 			setSequence(seq);
+			}
+		else if(ob instanceof SignalNewSequence)
+			{
+			AnnotatedSequence seq=((SignalNewSequence) ob).seq;
+			projwindow.addSequenceToProject(seq);
+			projwindow.showSequence(seq);
 			}
 		else if(ob instanceof SequenceRange)
 			{
@@ -605,6 +611,9 @@ public class SequenceWindow extends QMainWindow
 			}
 		}
 
+	/**
+	 * Action: Add primer in forward direction
+	 */
 	public void actionAddPrimerFWD()
 		{
 		SequenceRange r=getSelection();
@@ -618,6 +627,9 @@ public class SequenceWindow extends QMainWindow
 			}
 		}
 
+	/**
+	 * Action: Add primer in reverse direction
+	 */
 	public void actionAddPrimerREV()
 		{
 		SequenceRange r=getSelection();
@@ -683,6 +695,5 @@ public class SequenceWindow extends QMainWindow
 		/*
 		3050 - 5320
 		2.3kb!*/
-		
 		}
 	}

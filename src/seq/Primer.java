@@ -82,8 +82,8 @@ public class Primer
 			if(bp!=null)
 				{
 				PrimerPairInfo i=new PrimerPairInfo();
-				i.fwd=this;
-				i.rev=other;
+				i.primerA=this;
+				i.primerB=other;
 				i.productsize=bp;
 				list.add(i);
 				}
