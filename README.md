@@ -4,6 +4,58 @@
 
 This is a simple piece of software for cloning, written in Java+QT
 
+## Features
+
+* Portable
+   * Linux
+   * Mac
+   * Windows
+* Restriction enzyme database
+   * Temperatures and buffer information
+   * Double-digests, suggestions for best common buffer
+   * Simulated digests, with gel view and a range of ladders
+* Linear and circular view
+   * With smooth rotation and zooming
+   * Live translation to protein
+* Sequence property calculation
+   * Melting temperature calculation, according to Santa lucia 98
+   * GC content
+* Primers and oligos
+   * Annotation on sequence
+   * Calculation of products
+   * Simulated annealing of oligos
+* Features
+   * In different directions and colors
+   * Automatic finding of ORFs
+   
+   TODO: automatic fitting of features
+   
+   
+* Data import/export
+   * Import from addgene
+   * Import/export to genbank, including ApE variant      TODO: other software extensions
+   * Import/export to fasta
+   * Native XML format with extended metadata
+
+* Cloning methods
+   * TODO pcr/restriction
+   * TODO gibson
+   * TODO topo
+   * TODO TA
+   * TODO gateway
+
+* General
+   * Search for sequence
+   * Turn plasmid around
+   * Of course, handles restriction sites and features overlapping 0-position on circular plasmids
+   * Copy out sequence in various directions (reverse, complement)
+   * Skyline rendering of sequence
+   * Align sequences
+   
+* TODO: reset 0-position of plasmid
+* TODO: PDF export   
+
+
 ## About the sequence indices and ranges
 
 Sequence ranges inside the code are 0-based and of the form [a,b). In other words, [0,1) selects the first base in a sequence and is of length 1. This choice is for practicality. It's simply faster and much less error prone in any modern programming language which also
