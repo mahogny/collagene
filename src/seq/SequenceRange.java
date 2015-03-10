@@ -12,6 +12,8 @@ import java.util.LinkedList;
  */
 public class SequenceRange
 	{
+	public boolean isNoRange=false;
+	
 	public int from, to;
 
 	public SequenceRange()
@@ -128,5 +130,12 @@ public class SequenceRange
 				}
 			}
 		return segments;
+		}
+	
+	public static SequenceRange getNoRange()
+		{
+		SequenceRange r=new SequenceRange();
+		r.isNoRange=true;
+		return r;
 		}
 	}

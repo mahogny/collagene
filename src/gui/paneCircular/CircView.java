@@ -78,7 +78,7 @@ public class CircView extends QGraphicsView
 	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
 	
 	
-	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
+	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
 	SelectedRestrictionEnzyme selectedEnz=new SelectedRestrictionEnzyme();
 
@@ -493,7 +493,7 @@ public class CircView extends QGraphicsView
 			
 			selection=new SequenceRange();
 			selection.from=selection.to=(int)(seq.getLength()*angle/(Math.PI*2));
-			signalSelectionChanged.emit(selection);
+			signalUpdated.emit(selection);
 
 			updateSelectionGraphics();
 			}
@@ -519,7 +519,7 @@ public class CircView extends QGraphicsView
 			double angle=getAngle(event);
 
 			selection.to=(int)(seq.getLength()*(angle)/(Math.PI*2));
-			signalSelectionChanged.emit(selection);
+			signalUpdated.emit(selection);
 
 			updateSelectionGraphics();
 			}

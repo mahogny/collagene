@@ -75,9 +75,9 @@ public class ViewLinearSequence extends QGraphicsView
 	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
 	private HashMap<Primer, QRectF> primerPosition=new HashMap<Primer, QRectF>();
 
-	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalRestrictionEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
-	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
-	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
+//	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalRestrictionEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
+//	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
+	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
 	private Collection<Object> selectionItems=new LinkedList<Object>();
 	private SequenceRange selection=null;
@@ -818,7 +818,7 @@ public class ViewLinearSequence extends QGraphicsView
 		if(w.getAnnotation()!=null)
 			{
 			//seq.annotations.add(w.getAnnotation());
-			signalUpdated.emit();
+			signalUpdated.emit(null);
 			//selectionItems.updateSequence();
 			}
 		
@@ -827,7 +827,7 @@ public class ViewLinearSequence extends QGraphicsView
 	public void actionDeleteAnnotation()
 		{
 		seq.annotations.remove(curAnnotation);
-		signalUpdated.emit();
+		signalUpdated.emit(null);
 		}
 	
 	
@@ -854,7 +854,7 @@ public class ViewLinearSequence extends QGraphicsView
 				selection.from=curAnnotation.from;
 				selection.to=curAnnotation.to;
 				isSelecting=false;
-				signalSelectionChanged.emit(selection);
+				signalUpdated.emit(selection);
 				updateSelectionGraphics();  
 				}
 			else if(curPrimer!=null)
@@ -871,14 +871,14 @@ public class ViewLinearSequence extends QGraphicsView
 					selection.to=curPrimer.targetPosition+curPrimer.length();
 					}
 				isSelecting=false;
-				signalSelectionChanged.emit(selection);
+				signalUpdated.emit(selection);
 				updateSelectionGraphics();  
 				}
 			else if(hoveringRestrictionSite!=null)
 				{
 				SelectedRestrictionEnzyme s=new SelectedRestrictionEnzyme();
 				s.add(hoveringRestrictionSite.enzyme);
-				signalRestrictionEnzymeChanged.emit(s);
+				signalUpdated.emit(s);
 				}
 			else
 				{
@@ -889,7 +889,7 @@ public class ViewLinearSequence extends QGraphicsView
 					selection=new SequenceRange();
 					selection.from=selection.to=curindex;
 					isSelecting=true;
-					signalSelectionChanged.emit(selection);
+					signalUpdated.emit(selection);
 					updateSelectionGraphics();  
 					}
 				}
@@ -924,7 +924,7 @@ public class ViewLinearSequence extends QGraphicsView
 		if(isSelecting && curindex!=-1)
 			{
 			selection.to=curindex;
-			signalSelectionChanged.emit(selection);
+			signalUpdated.emit(selection);
 			updateSelectionGraphics();
 			}
 		

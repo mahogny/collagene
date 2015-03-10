@@ -64,7 +64,7 @@ public class PaneEnzymeList extends QWidget
 	private QLabel labTempInactivation=new QLabel();
 	private ProjectWindow projwindow;
 
-	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
+	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalUpdated=new Signal1<SelectedRestrictionEnzyme>();
 	private SequenceWindow seqwindow;
 	
 	/**
@@ -190,7 +190,7 @@ public class PaneEnzymeList extends QWidget
 		if(!isUpdating)
 			{
 			updateDisplayedEnzyme();
-			signalEnzymeChanged.emit(getSelection());
+			signalUpdated.emit(getSelection());
 			}
 		}
 
@@ -346,7 +346,7 @@ public class PaneEnzymeList extends QWidget
 	 */
 	private void selectSite(RestrictionSite s)
 		{
-		seqwindow.onSelectionChanged(new SequenceRange(s.getEarliestPos(), s.getLatestPos()+1));
+		seqwindow.onViewUpdated(new SequenceRange(s.getEarliestPos(), s.getLatestPos()+1));
 		}
 	
 	/**

@@ -6,7 +6,6 @@ import seq.AnnotatedSequence;
 import seq.SequenceRange;
 
 import com.trolltech.qt.QSignalEmitter;
-import com.trolltech.qt.QSignalEmitter.Signal1;
 import com.trolltech.qt.core.Qt.Orientation;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
@@ -32,9 +31,9 @@ public class PaneLinearSequence extends QWidget
 
 	private ViewLinearSequence view=new ViewLinearSequence();
 	
-	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
-	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
-	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
+//	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
+//	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
+	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
 	
 	/**
@@ -63,25 +62,17 @@ public class PaneLinearSequence extends QWidget
 		setLayout(lay);
 
 		view.settings.signalSettingsChanged.connect(this,"updateview()");  //train wreck
-
-		view.signalRestrictionEnzymeChanged.connect(this,"onRestrictionEnzymeChanged(SelectedRestrictionEnzyme)");
-
-		view.signalUpdated.connect(signalUpdated,"emit()");
-		view.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
+		view.signalUpdated.connect(this,"onViewUpdated(Object)");
 		
 		updateview();
 		
 		
 		}
-	public void onSelectionChanged(SequenceRange r)
+	public void onViewUpdated(Object o)
 		{
-		signalSelectionChanged.emit(r);
+		signalUpdated.emit(o);
 		}
 	
-	public void onRestrictionEnzymeChanged(SelectedRestrictionEnzyme s)
-		{
-		signalEnzymeChanged.emit(s);
-		}
 	
 	public void updateview()
 		{

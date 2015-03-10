@@ -301,19 +301,30 @@ public class SequenceWindow extends QMainWindow
 	/**
 	 * Event: Whenever a selection is changed somewhere
 	 */
-	public void onSelectionChanged(SequenceRange range)
+	public void onViewUpdated(Object ob)
 		{
-		viewLinear.setSelection(range);
-		viewCircular.setSelection(range);
-		updateStatusbar();
+		if(ob==null)
+			{
+			setSequence(seq);
+			}
+		else if(ob instanceof SequenceRange)
+			{
+			SequenceRange range=(SequenceRange)ob;
+			if(range.isNoRange)
+				range=null;
+			viewLinear.setSelection(range);
+			viewCircular.setSelection(range);
+			updateStatusbar();
+			}
+		else if(ob instanceof SelectedRestrictionEnzyme)
+			{
+			SelectedRestrictionEnzyme enz=(SelectedRestrictionEnzyme)ob;
+			viewLinear.setRestrictionEnzyme(enz);
+			viewCircular.setRestrictionEnzyme(enz);
+			viewEnz.setRestrictionEnzyme(enz);
+			}
 		}
 	
-	public void onEnzymeChanged(SelectedRestrictionEnzyme enz)
-		{
-		viewLinear.setRestrictionEnzyme(enz);
-		viewCircular.setRestrictionEnzyme(enz);
-		viewEnz.setRestrictionEnzyme(enz);
-		}
 
 	
 	/**
@@ -407,14 +418,10 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
 		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
 		
-		viewLinear.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
-		viewEnz.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
-
-		viewLinear.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
-		viewCircular.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
-		
-		viewLinear.signalUpdated.connect(this,"updateSequence()");
-		viewInfo.signalUpdated.connect(this,"updateSequence()");
+		viewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
+		viewEnz.signalUpdated.connect(this,"onViewUpdated(Object)");
+		viewCircular.signalUpdated.connect(this,"onViewUpdated(Object)");
+		viewInfo.signalUpdated.connect(this,"onViewUpdated(Object)");
 
 		QColorCombo colorcombo=new QColorCombo();
 		colorcombo.setSizePolicy(Policy.Minimum, Policy.Minimum);
@@ -564,7 +571,7 @@ public class SequenceWindow extends QMainWindow
 			currentSearchString=null;
 		else
 			currentSearchString=new SequenceSearcher(getSequence(), tfSearch.text().toUpperCase());
-		onSelectionChanged(null);
+		onViewUpdated(SequenceRange.getNoRange());
 		actionSearchNext();
 		}
 	
@@ -576,8 +583,7 @@ public class SequenceWindow extends QMainWindow
 		if(currentSearchString!=null)
 			{
 			SequenceRange r=currentSearchString.next(getSelection());
-//			if(r!=null) //needed?
-			onSelectionChanged(r);
+			onViewUpdated(r);
 			}
 		}
 
@@ -589,8 +595,7 @@ public class SequenceWindow extends QMainWindow
 		if(currentSearchString!=null)
 			{
 			SequenceRange r=currentSearchString.prev(getSelection());
-//			if(r!=null) //needed?
-			onSelectionChanged(r);
+			onViewUpdated(r);
 			}
 		}
 

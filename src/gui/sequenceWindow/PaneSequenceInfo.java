@@ -26,7 +26,7 @@ public class PaneSequenceInfo extends QWidget
 	private QTextEdit tfNotes=new QTextEdit();
 	private QLabel tfLength=new QLabel();
 
-	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
+	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	
@@ -75,7 +75,7 @@ public class PaneSequenceInfo extends QWidget
 			seq.name=tfName.text();
 			seq.isCircular=cbIsCircular.checkState()==CheckState.Checked;
 			updateseqnotes();
-			signalUpdated.emit();
+			signalUpdated.emit(null);
 			}
 		}
 
