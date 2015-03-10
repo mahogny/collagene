@@ -13,4 +13,14 @@ import restrictionEnzyme.RestrictionEnzyme;
 public class SelectedRestrictionEnzyme
 	{
 	public LinkedList<RestrictionEnzyme> enzymes=new LinkedList<RestrictionEnzyme>();
+
+	public boolean hasEnzyme(RestrictionEnzyme thisenz)
+		{
+		return enzymes.contains(thisenz);
+		}
+
+	public void add(RestrictionEnzyme enzyme)
+		{
+		enzymes.add(enzyme);
+		}
 	}

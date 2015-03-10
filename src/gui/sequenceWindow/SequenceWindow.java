@@ -225,11 +225,11 @@ public class SequenceWindow extends QMainWindow
 		}
 	
 	
-	private SequenceRange getSelection()
+	public SequenceRange getSelection()
 		{
 		return viewLinear.getSelection();
 		}
-	private String getSelectionSequence()
+	public String getSelectionSequence()
 		{
 		SequenceRange s=getSelection();
 		if(s!=null)
@@ -237,7 +237,7 @@ public class SequenceWindow extends QMainWindow
 		else
 			return null;
 		}
-	private String getSelectionSequenceLower()
+	public String getSelectionSequenceLower()
 		{
 		SequenceRange s=getSelection();
 		if(s!=null)
@@ -368,7 +368,7 @@ public class SequenceWindow extends QMainWindow
 	 */
 	public SequenceWindow(ProjectWindow projwindow)
 		{
-		viewEnz=new PaneEnzymeList(projwindow);
+		viewEnz=new PaneEnzymeList(this, projwindow);
 		this.projwindow=projwindow;
 		
 		ImgResource.setWindowIcon(this);
@@ -407,6 +407,7 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
 		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
 		
+		viewLinear.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
 		viewEnz.signalEnzymeChanged.connect(this,"onEnzymeChanged(SelectedRestrictionEnzyme)");
 
 		viewLinear.signalSelectionChanged.connect(this,"onSelectionChanged(SequenceRange)");
@@ -420,6 +421,7 @@ public class SequenceWindow extends QMainWindow
 		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
 		tfSearch.textChanged.connect(this,"actionSearch()");
+		tfSearch.returnPressed.connect(this,"actionSearchNext()");
 		bSearchNext.clicked.connect(this,"actionSearchNext()");
 		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
 
@@ -436,7 +438,7 @@ public class SequenceWindow extends QMainWindow
 		layToolbar.addStretch();
 		layToolbar.addWidget(colorcombo);
 		layToolbar.setMargin(0);
-		//layToolbar.setSpacing(0);
+		layToolbar.setSpacing(2);
 
 		
 		setMenuBar(menubar);
@@ -456,6 +458,8 @@ public class SequenceWindow extends QMainWindow
 		QVBoxLayout vlay=new QVBoxLayout();
 		vlay.addLayout(layToolbar);
 		vlay.addLayout(hlay);
+		laySearch.setSpacing(2);
+		laySearch.setMargin(1);
 		
 		resize(1200, 600);
 		

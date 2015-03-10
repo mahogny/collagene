@@ -53,4 +53,32 @@ public class RestrictionSite
 			c+=cuttingLowerPos;
 		return c;
 		}
+
+
+	public int getEarliestPos()
+		{
+		if(cuttingUpperPos!=null)
+			{
+			if(cuttingLowerPos!=null && cuttingLowerPos<cuttingUpperPos)
+				return cuttingLowerPos;
+			else
+				return cuttingUpperPos;
+			}
+		else
+			return cuttingLowerPos;
+		}
+
+
+	public int getLatestPos()
+		{
+		if(cuttingUpperPos!=null)
+			{
+			if(cuttingLowerPos!=null && cuttingLowerPos>cuttingUpperPos)
+				return cuttingLowerPos;
+			else
+				return cuttingUpperPos;
+			}
+		else
+			return cuttingLowerPos;
+		}
 	}

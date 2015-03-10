@@ -297,7 +297,7 @@ public class CircView extends QGraphicsView
 		scene.clear();
 		selectionItems.clear();
 
-		emittedTextFont.setPointSizeF(2.0/circZoom);
+		emittedTextFont.setPointSizeF(4.0/circZoom);
 		emittedTextFont.setFamily("Arial");
 
 		//Note - it is good to have a separate scene builder class, for making PDFs

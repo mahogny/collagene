@@ -75,6 +75,7 @@ public class ViewLinearSequence extends QGraphicsView
 	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
 	private HashMap<Primer, QRectF> primerPosition=new HashMap<Primer, QRectF>();
 
+	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalRestrictionEnzymeChanged=new Signal1<SelectedRestrictionEnzyme>();
 	public QSignalEmitter.Signal1<SequenceRange> signalSelectionChanged=new Signal1<SequenceRange>();
 	public QSignalEmitter.Signal0 signalUpdated=new Signal0();
 
@@ -479,8 +480,8 @@ public class ViewLinearSequence extends QGraphicsView
 				int cposLeft=curline*charsPerLine;
 				int cposRight=(curline+1)*charsPerLine;
 
-				int lyUpper=sequenceLineY.get(curline);
-				int lyLower=lyUpper+5;
+				int lyUpper=sequenceLineY.get(curline)+3; 
+				int lyLower=lyUpper+3;
 
 				//From-|
 				if(cposLeft<=selectFrom && cposRight>selectFrom)
@@ -792,6 +793,18 @@ public class ViewLinearSequence extends QGraphicsView
 				return mapAnnotations.get(region);
 		return null;
 		}
+
+	private RestrictionSite getRestrictionSiteAt(QPointF pos)
+		{
+		for(RestrictionSite s:revsitePosition.keySet())
+			{
+			QRectF r=revsitePosition.get(s);
+			if(r.contains(pos))
+				return s;
+			}
+		return null;
+		}
+
 	
 	/**
 	 * Action: Edit current annotation
@@ -834,6 +847,7 @@ public class ViewLinearSequence extends QGraphicsView
 			//Look for annotation
 			curAnnotation=getAnnotationAt(pos);
 			curPrimer=getPrimerAt(pos);
+			hoveringRestrictionSite=getRestrictionSiteAt(pos);
 			if(curAnnotation!=null)
 				{
 				selection=new SequenceRange();
@@ -859,6 +873,12 @@ public class ViewLinearSequence extends QGraphicsView
 				isSelecting=false;
 				signalSelectionChanged.emit(selection);
 				updateSelectionGraphics();  
+				}
+			else if(hoveringRestrictionSite!=null)
+				{
+				SelectedRestrictionEnzyme s=new SelectedRestrictionEnzyme();
+				s.add(hoveringRestrictionSite.enzyme);
+				signalRestrictionEnzymeChanged.emit(s);
 				}
 			else
 				{
@@ -911,16 +931,9 @@ public class ViewLinearSequence extends QGraphicsView
 
 		//Check if hovering a restriction site
 		RestrictionSite lastHover=hoveringRestrictionSite;
-		hoveringRestrictionSite=null;
-		for(RestrictionSite s:revsitePosition.keySet())
-			{
-			QRectF r=revsitePosition.get(s);
-			if(r.contains(pos))
-				hoveringRestrictionSite=s;
-			}
+		hoveringRestrictionSite=getRestrictionSiteAt(pos);
 		if(lastHover!=hoveringRestrictionSite)
 			updateSelectionGraphics();
-		
 		}
 	
 

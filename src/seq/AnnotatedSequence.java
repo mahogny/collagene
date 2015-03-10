@@ -143,6 +143,11 @@ public class AnnotatedSequence
 		{
 		primers.add(primer);
 		}
+
+	public LinkedList<RestrictionSite> getRestrictionSitesFor(RestrictionEnzyme curenz)
+		{
+		return restrictionSites.get(curenz);
+		}
 	
 	
 	

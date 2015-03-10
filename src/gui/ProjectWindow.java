@@ -43,6 +43,7 @@ import com.trolltech.qt.gui.QTreeWidgetItem;
 import com.trolltech.qt.gui.QVBoxLayout;
 import com.trolltech.qt.gui.QWidget;
 import com.trolltech.qt.gui.QFileDialog.FileMode;
+import com.trolltech.qt.gui.QLineEdit.EchoMode;
 
 /**
  * This window will show all available sequences in a project, and other projects?
@@ -124,6 +125,8 @@ public class ProjectWindow extends QMainWindow
 		lay.addWidget(bDeleteSequence);
 		lay.addWidget(bAnnealOligos);
 		lay.addWidget(bAlign);
+		lay.setMargin(2);
+		lay.setSpacing(2);
 		
 		QWidget w=new QWidget();
 		w.setLayout(lay);
@@ -323,18 +326,25 @@ public class ProjectWindow extends QMainWindow
 	
 	
 	
-	
 	/**
 	 * Action: Import from addgene
 	 */
 	public void actionImportAddgene()
 		{
-		String t=QInputDialog.getText(this, tr("Import from Addgene"), tr("URL:"));
+		String suggest="";
+		QClipboard cb=QApplication.clipboard();
+		String s=cb.text();
+		if(s!=null && ImportAddgene.isAddgeneUrl(s))
+			suggest=s;
+		String t=QInputDialog.getText(this, tr("Import from Addgene"), tr("URL:"), EchoMode.Normal, suggest);
 		if(t!=null)
 			{
 			try
 				{
-				addSequenceToProject(ImportAddgene.get(t));
+				if(ImportAddgene.isAddgeneUrl(t))
+					addSequenceToProject(ImportAddgene.get(t));
+				else
+					throw new IOException(tr("Not the right URL; should be one showing one sequence"));
 				}
 			catch (IOException e)
 				{
