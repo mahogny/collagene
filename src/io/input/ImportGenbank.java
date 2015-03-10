@@ -1,5 +1,6 @@
 package io.input;
 
+import gui.colors.ColorSet;
 import io.SequenceImporter;
 
 import java.io.BufferedReader;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import seq.AnnotatedSequence;
 import seq.SeqAnnotation;
+import seq.SeqColor;
 
 /**
  * Importer from the genbank format
@@ -45,7 +47,9 @@ public class ImportGenbank implements SequenceImporter
 		{
 		AnnotatedSequence seq=new AnnotatedSequence();
 		BufferedReader br=new BufferedReader(new InputStreamReader(is));
-		
+
+		ColorSet colorset=ColorSet.colorset;
+		int curcol=0;
 		String line;
 		line=br.readLine();
 		upper: for(;;)
@@ -79,6 +83,9 @@ public class ImportGenbank implements SequenceImporter
 						annot.from=Integer.parseInt(sfrom)-1;
 						annot.to=Integer.parseInt(sto);
 						
+						curcol=(curcol+1)%colorset.size();
+						annot.color=new SeqColor(colorset.get(curcol));
+
 						
 						line=br.readLine();
 						for(;;)

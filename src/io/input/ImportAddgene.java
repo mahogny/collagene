@@ -206,10 +206,10 @@ public class ImportAddgene
 
 	public static boolean isAddgeneUrl(String t)
 		{
-		if(!t.startsWith("http://www.addgene.org/browse/sequence/"))  // and a number"76659/"
+		if(t.startsWith("http://www.addgene.org/browse/sequence/"))  // and a number"76659/"
 			{
 			String t2=t.substring("http://www.addgene.org/browse/sequence/".length());
-			if(Character.isDigit(t2.charAt(0)))
+			if(t2.length()>0 && Character.isDigit(t2.charAt(0)))
 				return true;
 			}
 		return false;
