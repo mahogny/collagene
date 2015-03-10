@@ -70,6 +70,7 @@ public class SequenceWindow extends QMainWindow
 	private QLabel labelGC=new QLabel("");
 	private QLabel labelLength=new QLabel("");
 
+	QHBoxLayout layc=new QHBoxLayout();
 
 	private ProjectWindow projwindow;
 	
@@ -285,12 +286,26 @@ public class SequenceWindow extends QMainWindow
 		seq.restrictionSites.clear();
 		for(RestrictionSite s:sites)
 			seq.addRestrictionSite(s);
-
+		
 		updateSequence();
 		}
 	
 	public void updateSequence()
 		{
+		layc.removeWidget(viewCircular);
+		System.out.println("here!!!!");
+		if(seq.isCircular)
+			{
+			layc.addWidget(viewCircular);
+
+			//show();
+			viewCircular.show();
+			}
+		else
+			{
+			viewCircular.hide();
+			}
+
 		//Brutal, works
 		viewCircular.setSequence(seq);
 		viewLinear.setSequence(seq);
@@ -467,9 +482,12 @@ public class SequenceWindow extends QMainWindow
 		statusbar.addPermanentWidget(labelGC);
 		statusbar.addPermanentWidget(labelLength);
 		
+		layc.setMargin(0);
+		layc.setSpacing(0);
+		
 		QHBoxLayout hlay=new QHBoxLayout();
 		hlay.addWidget(viewLinear);
-		hlay.addWidget(viewCircular);
+		hlay.addLayout(layc);
 		hlay.addWidget(viewEnz);
 		hlay.setMargin(0);
 

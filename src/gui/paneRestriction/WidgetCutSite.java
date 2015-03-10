@@ -188,8 +188,8 @@ public class WidgetCutSite extends QGraphicsView
 					scene.addItem(la);
 					}
 				}
+			setSceneRect(0, 0, midpos(enz.sequence.length())+20,50);
 			}
-		setSceneRect(0, 0, 150,50);
 		}
 
 	private int midpos(int i)
