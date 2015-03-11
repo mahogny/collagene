@@ -38,6 +38,7 @@ public class AnnealWindow extends QDialog
 		
 		setLayout(QTutil.layoutVertical(lay,QTutil.layoutHorizontal(bCancel, bOk)));
 		
+		bOk.setDefault(true);
 		setMinimumWidth(500);
 		}
 	

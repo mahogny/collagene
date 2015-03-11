@@ -13,9 +13,9 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
+import primer.Primer;
 import seq.AnnotatedSequence;
 import seq.Orientation;
-import seq.Primer;
 import seq.SeqAnnotation;
 
 /**

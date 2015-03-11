@@ -13,14 +13,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import primer.Primer;
+import primer.PrimerPairInfo;
 import melting.CalcTm;
 import melting.CalcTmSanta98;
 import melting.TmException;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.Orientation;
-import seq.Primer;
-import seq.PrimerPairInfo;
 import seq.RestrictionSite;
 import seq.SequenceRange;
 import seq.SeqAnnotation;

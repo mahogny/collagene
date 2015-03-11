@@ -24,11 +24,9 @@ import io.SequenceImporter;
  */
 public class ImportXDNA implements SequenceImporter
 	{
-
-	
-	
-	
-	
+	/**
+	 * Read one pascal string - a byte of length, followed by bytes
+	 */
 	private String readPascalString(DataInputStream dis) throws IOException
 		{
 		//1 byte for length
@@ -66,14 +64,12 @@ public class ImportXDNA implements SequenceImporter
 	@Override
 	public List<AnnotatedSequence> load(InputStream is) throws IOException
 		{
+		AnnotatedSequence seq=new AnnotatedSequence();
 		ColorSet colorset=ColorSet.colorset;
 		int curcol=0;
 		DataInputStream dis=new DataInputStream(is);
-
 		
-		AnnotatedSequence seq=new AnnotatedSequence();
-		
-		///////////////////// Header section /////////
+		// Header section
 		/*byte version=*/dis.readByte();
 		byte seqtype=dis.readByte(); //1 = DNA, 2 = degenerate DNA, 3 = RNA, 4 = protein
 		if(seqtype==4)
@@ -105,9 +101,13 @@ public class ImportXDNA implements SequenceImporter
 		int unknownByte=dis.read();
 		if(unknownByte!=-1)
 			{
+			int offset=1;
+
 			String rohLengthS=readPascalString(dis);
 			int rohLength=Integer.parseInt(rohLengthS);
 			String rohOverhang=readNchars(rohLength, dis);
+			
+//			seq.setSequence(rohOverhang);
 			
 			System.out.println(rohOverhang);
 			
@@ -115,11 +115,12 @@ public class ImportXDNA implements SequenceImporter
 			int lohLength=Integer.parseInt(lohLengthS);
 			String lohOverhang=readNchars(lohLength, dis);
 			
+			seq.setSequence(readNchars(seqlength, dis));
+
+			
 			int numAnnotation=dis.read();
-			System.out.println("num "+numAnnotation);
 			
 			//TODO add overhang
-			//TODO positions, are they +1? likely?
 			
 			for(int i=0;i<numAnnotation;i++)
 				{
@@ -129,8 +130,8 @@ public class ImportXDNA implements SequenceImporter
 				String ftype=readPascalString(dis);
 				System.out.println(ftype);
 				
-				a.from=Integer.parseInt(readPascalString(dis));
-				a.to=Integer.parseInt(readPascalString(dis));
+				a.from=Integer.parseInt(readPascalString(dis))-offset;
+				a.to=Integer.parseInt(readPascalString(dis))-offset;
 				
 				int strand=dis.read();
 				if(strand==1)
@@ -159,7 +160,10 @@ public class ImportXDNA implements SequenceImporter
 		
 		return Arrays.asList(seq);
 		}
-	
+
+	/**
+	 * Read N characters (bytes)
+	 */
 	private String readNchars(int n, DataInputStream dis) throws IOException
 		{
 		if(n<0)

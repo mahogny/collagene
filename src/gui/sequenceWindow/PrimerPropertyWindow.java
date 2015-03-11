@@ -1,7 +1,7 @@
 package gui.sequenceWindow;
 
+import primer.Primer;
 import seq.AnnotatedSequence;
-import seq.Primer;
 import gui.qt.QTutil;
 
 import com.trolltech.qt.gui.QDialog;
@@ -41,6 +41,7 @@ public class PrimerPropertyWindow extends QDialog
 		
 		setLayout(QTutil.layoutVertical(lay,QTutil.layoutHorizontal(bCancel, bOk)));
 		
+		bOk.setDefault(true);
 		setMinimumWidth(500);
 		}
 	

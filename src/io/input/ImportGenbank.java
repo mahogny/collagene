@@ -17,6 +17,9 @@ import seq.SeqColor;
 /**
  * Importer from the genbank format
  * 
+ * SerialCloner has extensions: http://serialbasics.free.fr/Serial_Cloner-Download_files/Features%20ReadMe.pdf
+ * ApE has extensions
+ * 
  * @author Johan Henriksson
  *
  */

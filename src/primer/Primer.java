@@ -1,8 +1,13 @@
-package seq;
+package primer;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+
+import seq.AnnotatedSequence;
+import seq.Orientation;
+import seq.SeqColor;
+import seq.SequenceRange;
 
 /**
  * 

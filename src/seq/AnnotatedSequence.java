@@ -3,6 +3,7 @@ package seq;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import primer.Primer;
 import restrictionEnzyme.RestrictionEnzyme;
 import sequtil.NucleotideUtil;
 

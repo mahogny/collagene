@@ -1,4 +1,9 @@
-package seq;
+package primer;
+
+import seq.AnnotatedSequence;
+import seq.Orientation;
+import seq.SeqAnnotation;
+import seq.SequenceRange;
 
 /**
  * 

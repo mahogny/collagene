@@ -17,11 +17,13 @@ import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import primer.Primer;
+import primer.PrimerFinder;
+import primer.PrimerFitter;
 import melting.CalcTmSanta98;
 import melting.TmException;
 import seq.AnnotatedSequence;
 import seq.Orientation;
-import seq.Primer;
 import seq.RestrictionSite;
 import seq.SeqAnnotation;
 import seq.SeqColor;
@@ -438,6 +440,7 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
 		mannotation.addAction(tr("Primer sequences to clipboard"),this,"actionPrimerClipboard()");
 		mannotation.addAction(tr("Fit existing primer"),this,"actionFitExistingPrimer()");
+		mannotation.addAction(tr("Find good primer location in selection"),this,"actionFindPrimer()");
 		
 		
 		
@@ -697,19 +700,38 @@ public class SequenceWindow extends QMainWindow
 			if(pseq!=null)
 				{
 				AnnotatedSequence seq=getSequence();
-				PrimerFitter f=new PrimerFitter(seq, pname, pseq);
+				PrimerFitter f=new PrimerFitter();
+				f.run(seq, pname, pseq);
 				Primer p=f.getBestPrimer();
 				if(p!=null)
 					{
 					seq.primers.add(p);
 					updateSequence();
+					onViewUpdated(p.getRange());
 					}
 				else
 					QTutil.showNotice(this, tr("Failed to fit"));
 				}
 			}
-		/*
-		3050 - 5320
-		2.3kb!*/
+		}
+	
+	/**
+	 * Find primer in selection
+	 */
+	public void actionFindPrimer()
+		{
+		if(getSelection()!=null)
+			{
+			PrimerFinder f=new PrimerFinder();
+			f.run(getSequence(), getSelection());
+			
+			if(!f.primerCandidates.isEmpty())
+				{
+				Primer p=f.primerCandidates.get(0).p;
+				onViewUpdated(p.getRange());
+				}
+			else
+				QTutil.showNotice(this, tr("Failed to find good primers"));
+			}
 		}
 	}
