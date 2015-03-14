@@ -36,7 +36,7 @@ public class SeqAnnotation
 
 	public boolean isOverlapping(SeqAnnotation o)
 		{
-		//TODO better to delegate down
+		//TODO better to delegate down. but what about wrapping ones?
 		return range.from<=o.range.to && range.to>=o.range.from;  //TODO likely a >= here
 		}
 

@@ -18,27 +18,6 @@ import seq.SequenceRange;
 public class LigationUtil
 	{
 
-	public LinkedList<AnnotatedSequence> sequences=new LinkedList<AnnotatedSequence>();
-	
-	
-	public HashMap<Integer, HashMap<Integer, Orientation>> canLigate=new HashMap<Integer, HashMap<Integer,Orientation>>();
-
-	/**
-	 * Check how fragments can ligate: Either A-B, or A-rot(B)
-	 */
-	public void calculateTable()
-		{
-		for(int i=0;i<sequences.size();i++)
-			for(int j=0;j<sequences.size();j++)
-				{
-				AnnotatedSequence seqA=sequences.get(i);
-				AnnotatedSequence seqB=sequences.get(j);
-				boolean checkAtoB=canLigateAtoB(seqA, seqB);
-				boolean checkAtoRotB=canLigateAtoRotB(seqA, seqB);
-				setCanLigate(i, j, toOrient(checkAtoB, checkAtoRotB));
-				}
-		}
-
 	/**
 	 * Check if A can be ligated to B
 	 */
@@ -101,26 +80,6 @@ public class LigationUtil
 			}
 		}
 	
-	/**
-	 * Extract orientation from 2 checks
-	 */
-	private Orientation toOrient(boolean fwd, boolean rev)
-		{
-		if(fwd)
-			{
-			if(rev)
-				return Orientation.NOTORIENTED;
-			else
-				return Orientation.FORWARD;
-			}
-		else
-			{
-			if(rev)
-				return Orientation.REVERSE;
-			else
-				return null;
-			}
-		}
 	
 	/**
 	 * Extract the sticky beginning part of a sequence
@@ -181,18 +140,7 @@ public class LigationUtil
 		}
 
 	
-	/**
-	 * Set status of ligate:ability for fragment i to j
-	 */
-	public void setCanLigate(int i, int j, Orientation o)
-		{
-		HashMap<Integer, Orientation> m=canLigate.get(i);
-		if(m==null)
-			canLigate.put(i,m=new HashMap<Integer, Orientation>());
-		m.put(j, o);
-		}
-	
-	
+
 	/**
 	 * Self-ligate plasmid to make it circular (not checking if this is valid)
 	 */
@@ -209,7 +157,6 @@ public class LigationUtil
 			for(;;i++)
 				if(upr.charAt(i)!=' ')
 					break;
-System.out.println("!!");
 			upr=upr.substring(i);
 			lwr=lwr.substring(0, len-i);
 			}
@@ -225,76 +172,51 @@ System.out.println("!!");
 			lwr=lwr.substring(i);
 			}
 		seq.setSequence(upr,lwr);
+		seq.isCircular=true;
 		
 		//Normalize position of annotation
 		for(SeqAnnotation a:seq.annotations)
 			a.range=a.range.toNormalizedRange(seq);
 		}
-	
-	
-	public static void main(String[] args)
-		{
-		LigationUtil lig=new LigationUtil();
-		
-		AnnotatedSequence seqA=new AnnotatedSequence();
-		seqA.setSequence(
-				"aaatttggg   ",
-				"   tttgggttt");
-		lig.addSequence(seqA);
-		
-		AnnotatedSequence seqB=new AnnotatedSequence();
-		seqB.setSequence(
-				"agatttggg   ",
-				"   tttgggtct");
-		lig.addSequence(seqB);
 
-		AnnotatedSequence seqD=new AnnotatedSequence(seqB);
-		seqD.reverseSequence();
-		lig.addSequence(seqD);
-
-		AnnotatedSequence seqC=new AnnotatedSequence();
-		seqC.setSequence(
-				"agatttggg",
-				"   tttggg");
-		lig.addSequence(seqC);
-		
-		
-		lig.calculateTable();
-		lig.showPairs();		
-		}
-
-	private void showPairs()
-		{
-		for(int i=0;i<sequences.size();i++)
-			{
-			for(int j=0;j<sequences.size();j++)
-				System.out.print(canLigate.get(i).get(j)+"\t");
-			System.out.println();
-			}
-		}
-
-	private void addSequence(AnnotatedSequence seqA)
-		{
-		sequences.add(seqA);
-		}
 
 	/**
 	 * Ligate sequence A with B
 	 */
 	public static AnnotatedSequence ligate(AnnotatedSequence seqA, AnnotatedSequence seqB)
 		{
+		//Remove last " " in first sequence
+		String upr=removeTrailingSpace(seqA.getSequence());
+		String lwr=removeTrailingSpace(seqA.getSequenceLower());
+		
+		//Count how much to remove from the beginning in the second
+		int cnt=0;
+		while(seqB.getSequence().charAt(cnt)==' ' || seqB.getSequenceLower().charAt(cnt)==' ')
+			cnt++;
+		
+		//Attach second sequence
+		upr+=removeStartingSpace(seqB.getSequence());
+		lwr+=removeStartingSpace(seqB.getSequenceLower());
+
+		//Assemble
 		AnnotatedSequence newseq=new AnnotatedSequence();
 		newseq.name=seqA.name + "+" + seqB.name;
+		newseq.setSequence(upr,lwr);
+		seqA.copyFeaturesTo(newseq, 0);
+		seqB.copyFeaturesTo(newseq, seqA.getLength()-cnt);
 		
-		//TODO
-		
-		
-		// TODO Auto-generated method stub
+		System.out.println("fa "+seqA.annotations);
+		System.out.println("fb "+seqB.annotations);
+		System.out.println("features "+newseq.annotations);
+
 		return newseq;
 		}
 	
 
-	public static LinkedList<LigationCandidate> ligationCombinations(AnnotatedSequence seqA, AnnotatedSequence seqB)
+	/**
+	 * Get all the ways in which these two sequences can be ligated
+	 */
+	public static LinkedList<LigationCandidate> getLigationCombinations(AnnotatedSequence seqA, AnnotatedSequence seqB)
 		{
 		LinkedList<LigationCandidate> list=new LinkedList<LigationCandidate>();
 		AnnotatedSequence rotA=copySequenceOnly(seqA);
@@ -302,11 +224,14 @@ System.out.println("!!");
 		rotA.reverseSequence();
 		rotB.reverseSequence();
 		
+		LigationCandidate cand1=null, cand2=null;
+				
 		if(canLigateAtoB(seqA, seqB))
 			{
 			LigationCandidate cand=new LigationCandidate(seqA, seqB);
 			cand.rotateA=false;
 			cand.rotateB=false;
+			cand1=cand;
 			list.add(cand);
 			}
 		if(canLigateAtoB(seqA, rotB))
@@ -314,16 +239,17 @@ System.out.println("!!");
 			LigationCandidate cand=new LigationCandidate(seqA, seqB);
 			cand.rotateA=false;
 			cand.rotateB=true;
+			cand2=cand;
 			list.add(cand);
 			}
-		if(canLigateAtoB(rotA, seqB))
+		if(cand2!=null && canLigateAtoB(rotA, seqB))
 			{
 			LigationCandidate cand=new LigationCandidate(seqA, seqB);
 			cand.rotateA=true;
 			cand.rotateB=false;
 			list.add(cand);
 			}
-		if(canLigateAtoB(rotA, rotB))
+		if(cand1==null && canLigateAtoB(rotA, rotB))
 			{
 			LigationCandidate cand=new LigationCandidate(seqA, seqB);
 			cand.rotateA=true;
@@ -333,32 +259,45 @@ System.out.println("!!");
 		return list;
 		}
 	
+	
+	/**
+	 * Copy sequence only, no annotation
+	 */
 	private static AnnotatedSequence copySequenceOnly(AnnotatedSequence seq)
 		{
 		AnnotatedSequence newseq=new AnnotatedSequence();
 		newseq.setSequence(seq.getSequence(), seq.getSequenceLower());
 		return newseq;
 		}
+
+	/**
+	 * "abc  " => "abc"
+	 */
+	private static String removeTrailingSpace(String s)
+		{
+		int i=s.length()-1;
+		for(;s.charAt(i)==' ';i--);
+		return s.substring(0,i+1);
+		}
+
+	/**
+	 * "  abc" => "abc"
+	 */
+	private static String removeStartingSpace(String s)
+		{
+		int i=0;
+		for(;s.charAt(i)==' ';i++);
+		return s.substring(i);
+		}
+
 	
 	/**
-	 * Ligate sequence A with rotated B
+	 * Check if a sequence can self-ligate
 	 */
-	public static AnnotatedSequence ligateRotatedB(AnnotatedSequence seqA, AnnotatedSequence seqB)
+	public static boolean canCircularize(AnnotatedSequence seq)
 		{
-		AnnotatedSequence newseq=new AnnotatedSequence();
-		newseq.name=seqA.name + "+rot_" + seqB.name;
-		
-		//TODO
-		
-		//Use above function
-		
-		///////NOTE: sometimes need to rotate A. how to handle this best?
-		
-		
-		// TODO Auto-generated method stub
-		return newseq;
+		return canLigateAtoB(seq, seq);
 		}
-	
 	
 	
 	}

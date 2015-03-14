@@ -413,4 +413,15 @@ public class QTutil
 		int ret = msgBox.exec();
 		return ret==StandardButton.Ok.value();
 		}
+	
+	public static boolean showYesNo(String title)
+		{
+		QMessageBox msgBox=new QMessageBox();
+		msgBox.setText(title);
+		msgBox.setStandardButtons(StandardButton.Yes, StandardButton.No);
+		msgBox.setDefaultButton(StandardButton.Yes);
+		int ret = msgBox.exec();
+		return ret==StandardButton.Yes.value();
+		}
+
 	}

@@ -274,8 +274,8 @@ public class ProjectWindow extends QMainWindow
 		boolean ok=QTutil.showOkCancel(tr("Are you sure you wish to delete this sequence?"));
 		if(ok)
 			{
-			AnnotatedSequence seq=currentlySelectedSequence();
-			proj.sequenceLinkedList.remove(seq);
+			for(AnnotatedSequence seq:getSelectedSequences())
+				proj.sequenceLinkedList.remove(seq);
 			updateView();
 			}
 		}
@@ -562,7 +562,7 @@ public class ProjectWindow extends QMainWindow
 		}
 
 	/**
-	 * 
+	 * Action: Ligate selected sequences
 	 */
 	public void actionLigate()
 		{
@@ -590,10 +590,11 @@ public class ProjectWindow extends QMainWindow
 			}
 		else if(seqs.size()==2)
 			{
+			//If ever bringing up a menu to select combinations, also show potential self-ligation. Or just include in the list!
 			AnnotatedSequence seqA=seqs.get(0);
 			AnnotatedSequence seqB=seqs.get(1);
 			
-			LinkedList<LigationCandidate> cands=LigationUtil.ligationCombinations(seqA, seqB);
+			LinkedList<LigationCandidate> cands=LigationUtil.getLigationCombinations(seqA, seqB);
 			if(cands.isEmpty())
 				QTutil.showNotice(this, tr("Sequences does not have any matching ends"));
 			else
@@ -601,6 +602,8 @@ public class ProjectWindow extends QMainWindow
 				for(LigationCandidate cand:cands)
 					{
 					AnnotatedSequence seqOut=cand.getProduct();
+					if(LigationUtil.canCircularize(seqOut) && QTutil.showYesNo(tr("Would you like to circularize the resulting plasmid as well?")))
+						LigationUtil.selfCircularize(seqOut);
 					addSequenceToProject(seqOut); 
 					}
 				}

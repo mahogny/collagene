@@ -62,13 +62,7 @@ public class AnnotatedSequence
 		name=seq.name;
 		notes=seq.notes;
 		isCircular=seq.isCircular;
-		for(SeqAnnotation annot:seq.annotations)
-			addAnnotation(new SeqAnnotation(annot));
-		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
-			for(RestrictionSite site:seq.restrictionSites.get(enz))
-				addRestrictionSite(new RestrictionSite(site));
-		for(Primer p:primers)
-			addPrimer(new Primer(p));
+		seq.copyFeaturesTo(this);
 		}
 
 	public void setSequence(String upper)
@@ -82,26 +76,6 @@ public class AnnotatedSequence
 		sequenceLower=lower.toUpperCase();
 		if(sequenceUpper.length()!=sequenceLower.length())
 			throw new RuntimeException("upper and lower sequence not the same length");
-		}
-
-	public void fillcrap()
-		{
-		SeqAnnotation annot=new SeqAnnotation();
-		annot.setRange(0,50);
-		annot.name="bleh";
-		annotations.add(annot);
-
-		/*
-		RestrictionEnzyme enz=new RestrictionEnzyme();
-		enz.name="aea";
-		RestrictionSite r=new RestrictionSite();
-		r.enzyme=enz;
-		r.cuttingUpperPos=20;
-		r.cuttingLowerPos=25;
-		restrictionSites.add(r);
-*/
-//		FindRestrictionEnzyme f=new FindRestrictionEnzyme().findEnzymes(sequence)
-
 		}
 	
 	public int getLength()
@@ -196,26 +170,38 @@ public class AnnotatedSequence
 		return i;
 		}
 
+	
+	/**
+	 * Reverse the sequence
+	 */
 	public void reverseSequence()
 		{
+		//The sequence itself
 		String upper=getSequence();
 		String lower=getSequenceLower();
-		
 		setSequence(
 				NucleotideUtil.reverse(lower),
 				NucleotideUtil.reverse(upper));
+		
+		//The annotation
 		for(SeqAnnotation a:annotations)
 			{
 			int to=getLength()-a.getFrom();
 			int from=getLength()-a.getTo();
 			a.setRange(from,to);
-			
-			if(a.orientation==Orientation.FORWARD)
-				a.orientation=Orientation.REVERSE;
-			else if(a.orientation==Orientation.REVERSE)
-				a.orientation=Orientation.FORWARD;
+			a.orientation=Orientation.reverse(a.orientation);
 			}
+		
+		//TODO restriction sites
 		restrictionSites.clear(); //TODO
+		
+		//The primers
+		for(Primer p:primers)
+			{
+			p.targetPosition=getLength()-p.targetPosition;
+			p.orientation=Orientation.reverse(p.orientation);
+			}
+		
 		}
 	
 	
@@ -224,4 +210,41 @@ public class AnnotatedSequence
 		{
 		return sequenceUpper+"\n"+sequenceLower;
 		}
+
+	
+	/**
+	 * Copy features to another sequence, with an additive shift
+	 */
+	public void copyFeaturesTo(AnnotatedSequence seq, int shift)
+		{
+		for(SeqAnnotation annot:seq.annotations)
+			{
+			SeqAnnotation na=new SeqAnnotation(annot);
+			na.range.toUnwrappedRange(seq);
+			na.range.shift(shift);
+			seq.addAnnotation(na);
+			}
+		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
+			for(RestrictionSite site:seq.restrictionSites.get(enz))
+				{
+				RestrictionSite rs=new RestrictionSite(site);
+				rs.shift(shift);
+				seq.addRestrictionSite(rs);
+				}
+		for(Primer p:primers)
+			{
+			p=new Primer(p);
+			p.shift(shift);
+			seq.addPrimer(p);
+			}
+		}
+	
+	/**
+	 * Copy features to another sequence
+	 */
+	public void copyFeaturesTo(AnnotatedSequence seq)
+		{
+		copyFeaturesTo(seq,0);
+		}
+	
 	}

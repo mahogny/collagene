@@ -49,10 +49,10 @@ public class PrimerPairInfo
 		seqnew.setSequence(s);
 		
 		//Transfer features
-		int shift=fwd.targetPosition;
+		int shift=-fwd.targetPosition+fwd.sequence.length();
 		for(SeqAnnotation a:seq.annotations)
 			{
-			SeqAnnotation newa=new SeqAnnotation(a);
+			SeqAnnotation newa=new SeqAnnotation(a);                       //TODO PCR over boundaries. how does that affect this?
 			newa.range.shift(shift);
 			if(newa.getFrom()>=0 && newa.getTo()<seqnew.getLength())
 				seqnew.addAnnotation(newa);

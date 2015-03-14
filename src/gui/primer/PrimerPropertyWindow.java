@@ -1,4 +1,4 @@
-package gui.sequenceWindow;
+package gui.primer;
 
 import primer.Primer;
 import seq.AnnotatedSequence;

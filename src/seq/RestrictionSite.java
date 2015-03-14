@@ -105,4 +105,13 @@ public class RestrictionSite
 		if(cuttingLowerPos!=null)
 			cuttingLowerPos=seq.normalizePos(cuttingLowerPos-pos);
 		}
+	
+	
+	public void shift(int shift)
+		{
+		if(cuttingUpperPos!=null)
+			cuttingUpperPos+=shift;
+		if(cuttingLowerPos!=null)
+			cuttingLowerPos+=shift;
+		}
 	}

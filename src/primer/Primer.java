@@ -24,9 +24,10 @@ public class Primer
 	public Primer(Primer p)
 		{
 		name=p.name;
-		sequence=p.name;
+		sequence=p.sequence;
 		orientation=p.orientation;
 		targetPosition=p.targetPosition;
+		color=p.color; //copy?
 		}
 	
 	public SeqColor color;  //TODO. keep color?
@@ -120,6 +121,11 @@ public class Primer
 	public void setNew0(int pos, AnnotatedSequence seq)
 		{
 		targetPosition=seq.normalizePos(targetPosition-pos);
+		}
+	
+	public void shift(int shift)
+		{
+		targetPosition+=shift;
 		}
 	
 	}

@@ -10,6 +10,7 @@ import gui.paneLinear.PaneLinearSequence;
 import gui.paneLinear.SignalNewSequence;
 import gui.paneRestriction.PaneEnzymeList;
 import gui.paneRestriction.SelectedRestrictionEnzyme;
+import gui.primer.PrimerPropertyWindow;
 import gui.qt.QTutil;
 import gui.resource.ImgResource;
 
