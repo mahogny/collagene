@@ -10,6 +10,7 @@ import com.trolltech.qt.gui.QBrush;
 import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsEllipseItem;
+import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QPainter;
 import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QPolygonF;
@@ -28,7 +29,6 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	public SeqAnnotation annot;
 	public AnnotatedSequence seq;
 	public CircView view;
-	
 	public int height;
 	
 	
@@ -48,7 +48,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		double r=getRadius();
 		
 		double ang1=(double)annot.getFrom()/seq.getLength()+view.circPan;
-		double ang2=(double)annot.getTo()/seq.getLength()+view.circPan;
+		double ang2=(double)annot.getTo()/seq.getLength()+view.circPan; //will fail over border?
 
 		QColor bordercolor=QColor.fromRgb(0,0,0);
 		QColor bgcolor=QColor.fromRgb(annot.color.r,annot.color.g,annot.color.b);
@@ -62,7 +62,6 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		
 		
 		double dAngle=1.0/100/view.circZoom; 
-//		System.out.println(view.circZoom);
 		
 		int numdiv=(int)((ang2-ang1)/dAngle);
 		if(numdiv==0)
@@ -101,8 +100,6 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		painter.drawPolygon(poly);
 
 
-		
-//		pen.setColor(QColor.fromRgb(255,255,255));
 		pen.setColor(QColor.fromRgb(0,0,0));
 		painter.setPen(pen);
 		
@@ -134,11 +131,70 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 			}
 		}
 
+	
+	/*
+	public double getHeight()
+		{
+		
+		}*/
+
+	Double textwest=null;
+	public double getEstimatedTextWidth()
+		{
+		double circZoom=getZoom();
+		if(textwest==null)
+			{
+//			textwest=4.0/view.circZoom*annot.name.length(); //estimator
+			
+			QFont font=new QFont();
+			font.setPointSizeF(4.0/circZoom);
+			font.setFamily("Arial");
+			QGraphicsTextItem ti=new QGraphicsTextItem();
+			ti.setFont(font);
+			ti.setPlainText(annot.name);
+			textwest=ti.boundingRect().width();		
+			//System.out.println("---- "+bah+"\t"+textwest);
+			
+			}
+		return textwest;
+		}
+	
+	public double getEstAng2wtext()
+		{
+		double circZoom=getZoom();
+		//TODO may want to cache for speed. also, recomputing stuff here. ugly
+		//TODO handle boundary
+		double ang1=getAng1();
+		double ang2=(double)annot.getTo()/seq.getLength()+view.circPan;
+
+		double textoffset=3.0/circZoom;
+		double textRadius=getRadius()+2.0/circZoom;
+		if(getEstimatedTextWidth()+textoffset>(ang2-ang1)*2*Math.PI*textRadius) //If the text does not fit then draw it afterwards
+			ang2+=0.01/circZoom + getEstimatedTextWidth()/(textRadius*2*Math.PI);
+		return ang2;
+		}
+	
+	public double getAng1()
+		{
+		return (double)annot.getFrom()/seq.getLength()+view.circPan;
+		}
+	
+	
 	public boolean isOverlapping(QGraphicsCircSeqAnnotationItem o)
 		{
-		return o.height==height &&
-				annot.getFrom()-50<=o.annot.getTo()+50 && annot.getTo()+50>=o.annot.getFrom()-50;
-				//TODO do proper. and check text!
+		if(o.height==height)
+			{
+			double x=5.0/360.0/getZoom();
+			double thisAng1=getAng1()-x;
+			double thisAng2=getEstAng2wtext()+x;  //TODO handle ang1>ang2
+			
+			double oAng1=o.getAng1()-x;
+			double oAng2=o.getEstAng2wtext()+x;
+			
+			return thisAng1 <= oAng2 && thisAng2>=oAng1;
+			}
+		else
+			return false;
 		}
 
 	

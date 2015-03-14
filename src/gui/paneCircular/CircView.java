@@ -5,6 +5,7 @@ package gui.paneCircular;
 import gui.paneRestriction.SelectedRestrictionEnzyme;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -60,7 +61,7 @@ public class CircView extends QGraphicsView
 	private QFont emittedTextFont=new QFont();
 	private LinkedList<EmittedText> emittedText=new LinkedList<EmittedText>();
 	private double emittedAngle;
-	private LinkedList<QRectF> emittedTextRegions=new LinkedList<QRectF>();
+	private ArrayList<QRectF> emittedTextRegions=new ArrayList<QRectF>();
 
 	private boolean isSelecting=false;
 
@@ -222,8 +223,9 @@ public class CircView extends QGraphicsView
 			textpositions: for(;;)
 				{
 				QRectF cur=textBR(itemt);
-				for(QRectF reg:emittedTextRegions)
+				for(int i=emittedTextRegions.size()-1;i>=0;i--) //Scanning backwards I suspect is more likely to give hits early
 					{
+					QRectF reg=emittedTextRegions.get(i);
 					if(reg.intersects(cur))
 						{
 						//If text hits another text, move it up/down and try again
