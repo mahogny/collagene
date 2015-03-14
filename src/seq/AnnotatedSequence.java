@@ -111,7 +111,7 @@ public class AnnotatedSequence
 	public String getSequence(SequenceRange range)
 		{
 		range=range.toNormalizedRange(this);
-		if(range.from<=range.to && range.to<getLength())
+		if(range.from<=range.to && range.to<=getLength())
 			return sequenceUpper.substring(range.from, range.to);
 		else
 			return sequenceUpper.substring(range.from) + sequenceUpper.substring(0,range.to);

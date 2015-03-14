@@ -57,4 +57,15 @@ public class SeqColor
 		return (max+min)/2;
 		}
 
+	@Override
+	public boolean equals(Object obj)
+		{
+		if(obj instanceof SeqColor)
+			{
+			SeqColor o=(SeqColor)obj;
+			return r==o.r && g==o.g && b==o.b;
+			}
+		else
+			return false;
+		}
 	}

@@ -448,8 +448,6 @@ public class SequenceWindow extends QMainWindow
 		viewCircular.signalUpdated.connect(this,"onViewUpdated(Object)");
 		viewInfo.signalUpdated.connect(this,"onViewUpdated(Object)");
 
-		QColorCombo colorcombo=new QColorCombo();
-		colorcombo.setSizePolicy(Policy.Minimum, Policy.Minimum);
 		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
 		tfSearch.textChanged.connect(this,"actionSearch()");
@@ -468,7 +466,6 @@ public class SequenceWindow extends QMainWindow
 		QHBoxLayout layToolbar=new QHBoxLayout();
 		layToolbar.addLayout(laySearch);
 		layToolbar.addStretch();
-		layToolbar.addWidget(colorcombo);
 		layToolbar.setMargin(0);
 		layToolbar.setSpacing(2);
 

@@ -47,7 +47,7 @@ public class CircView extends QGraphicsView
 	{
 	//Might be best to work from ChemView. Support arbitrary transformations. Then have a special one on top for common use
 	
-	private double plasmidRadius=100;
+	double plasmidRadius=100;
 	
 	public AnnotatedSequence seq=new AnnotatedSequence();
 
@@ -112,7 +112,7 @@ public class CircView extends QGraphicsView
 			int ang2=(int)((circPan + rangeun.to/(double)seq.getLength())*360*16);
 			QGraphicsEllipseItem itemSelect=new QGraphicsEllipseItem();
 			itemSelect.setPen(penSelect);
-			double r=plasmidRadius+10;
+			double r=plasmidRadius+10/circZoom;
 			itemSelect.setRect(-r,-r,2*r,2*r);
 			itemSelect.setStartAngle(-ang1);
 			itemSelect.setSpanAngle(ang1-ang2);
@@ -154,7 +154,7 @@ public class CircView extends QGraphicsView
 		QTransform trans=QTransform.fromScale(scale,scale);
 		setTransform(trans,false);
 	
-		double dy=Math.max(0,130*scale-height()/2)/scale;
+		double dy=Math.max(0,(plasmidRadius+30/circZoom)*scale-height()/2)/scale;
 		double y=-dy;
 		
 		//and here another thing. when getting the line to mid, should keep it in the mid
@@ -201,7 +201,7 @@ public class CircView extends QGraphicsView
 			QPen pen=new QPen();
 			pen.setColor(new QColor(0,0,0));
 
-			double rad=plasmidRadius+5;
+			double rad=plasmidRadius+5/circZoom;
 			emittedAngle=emittedAngle-(int)(emittedAngle);
 
 			QGraphicsTextItem itemt=new QGraphicsTextItem();
@@ -302,35 +302,12 @@ public class CircView extends QGraphicsView
 
 		//Note - it is good to have a separate scene builder class, for making PDFs
 		
+		//Add the plasmid
+		QGraphicsCircPlasmidSequence ic=new QGraphicsCircPlasmidSequence();
+		ic.view=this;
+		scene.addItem(ic);
 		
-		QPen pen=new QPen();
-		pen.setColor(new QColor(100,100,100));
-//		pen.setWidth(1);
-		
-		//The plasmid circle
-		QGraphicsEllipseItem itemCirc=new QGraphicsEllipseItem();
-		itemCirc.setRect(-plasmidRadius, -plasmidRadius, 2*plasmidRadius, 2*plasmidRadius);
-		itemCirc.setPen(pen);
-//		itemCirc.setZValue(10000);
-		scene.addItem(itemCirc);
-
-		//Place markings for position
-//		pen.setColor(new QColor(100,100,100));
-//		pen.setWidth(2);
-
-		//The plasmid 0-position
-		double angPlasmid0=circPan*2*Math.PI;
-		QGraphicsLineItem itemPlasmid0=new QGraphicsLineItem();
-		itemPlasmid0.setPen(pen);
-		double rPlasmid0=plasmidRadius-5;
-		itemPlasmid0.setLine(
-				rPlasmid0*Math.cos(angPlasmid0), rPlasmid0*Math.sin(angPlasmid0),
-				plasmidRadius*Math.cos(angPlasmid0), plasmidRadius*Math.sin(angPlasmid0));
-//		itemPlasmid0.setZValue(10000);
-		scene.addItem(itemPlasmid0);
-		
-		
-		
+		//Add all annotations
 		addsceneAnnotation();
 		
 
@@ -380,7 +357,6 @@ public class CircView extends QGraphicsView
 			});
 			*/
 		//Now place them all
-	//	int[] height=new int[seq.annotations.size()];
 		QGraphicsCircSeqAnnotationItem[] annotlist=new QGraphicsCircSeqAnnotationItem[seq.annotations.size()];
 		for(int i=0;i<seq.annotations.size();i++)
 			{

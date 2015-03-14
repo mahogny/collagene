@@ -1,6 +1,7 @@
 package gui.sequenceWindow;
 
 import gui.IndexUtil;
+import gui.colors.QColorCombo;
 import gui.qt.QTutil;
 
 import java.util.LinkedList;
@@ -14,6 +15,7 @@ import com.trolltech.qt.gui.QLayout;
 import com.trolltech.qt.gui.QLineEdit;
 import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QSpinBox;
+import com.trolltech.qt.gui.QSizePolicy.Policy;
 
 /**
  * Dialog for editing annotation
@@ -33,6 +35,7 @@ public class AnnotationWindow extends QDialog
 	private QPushButton bCancel=new QPushButton(tr("Cancel"));
 
 	private QComboBox comboOrientation=new QComboBox();
+	private QColorCombo colorcombo=new QColorCombo();
 	
 	private LinkedList<Orientation> orientations=new LinkedList<Orientation>();
 	
@@ -51,12 +54,15 @@ public class AnnotationWindow extends QDialog
 		orientations.add(Orientation.NOTORIENTED);
 		orientations.add(Orientation.FORWARD);
 		orientations.add(Orientation.REVERSE);
-		
+
+		colorcombo.setSizePolicy(Policy.Minimum, Policy.Minimum);
+
 		QLayout lay=QTutil.layoutVertical(
-				QTutil.withLabel("Name: ", tfName),
-				QTutil.withLabel("From: ", spFrom),
-				QTutil.withLabel("To: ", spTo),
-				QTutil.withLabel("Orientation: ", comboOrientation),
+				QTutil.withLabel(tr("Name: "), tfName),
+				QTutil.withLabel(tr("From: "), spFrom),
+				QTutil.withLabel(tr("To: "), spTo),
+				QTutil.withLabel(tr("Orientation: "), comboOrientation),
+				QTutil.withLabel(tr("Color: "), colorcombo),
 				QTutil.layoutHorizontal(bOk,bCancel)
 				);
 		
@@ -69,11 +75,17 @@ public class AnnotationWindow extends QDialog
 	
 	public void actionOK()
 		{
-		annot.name=tfName.text();
-		annot.range.from=IndexUtil.fromTointernal(spFrom.value());
-		annot.range.to=IndexUtil.toTointernal(spTo.value());
-		annot.orientation=orientations.get(comboOrientation.currentIndex());
-		close();
+		if(tfName.text().equals(""))
+			QTutil.showNotice(this, tr("Annotation must have a name"));
+		else
+			{
+			annot.name=tfName.text();
+			annot.range.from=IndexUtil.fromTointernal(spFrom.value());
+			annot.range.to=IndexUtil.toTointernal(spTo.value());
+			annot.orientation=orientations.get(comboOrientation.currentIndex());
+			annot.color=colorcombo.getCurrentColor();
+			close();
+			}
 		}
 
 	public void actionCancel()
@@ -89,6 +101,7 @@ public class AnnotationWindow extends QDialog
 		spFrom.setValue(IndexUtil.fromTogui(a.getFrom()));
 		spTo.setValue(IndexUtil.toTogui(a.getTo()));
 		comboOrientation.setCurrentIndex(orientations.indexOf(a.orientation));
+		colorcombo.setColor(a.color);
 		}
 
 	public SeqAnnotation getAnnotation()

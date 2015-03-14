@@ -24,7 +24,6 @@ import com.trolltech.qt.gui.QWidget;
  */
 public class PaneCircularSequence extends QWidget
 	{
-	
 	private QSlider sliderZoom=new QSlider(Orientation.Horizontal);
 	private QSlider sliderRotate=new QSlider(Orientation.Horizontal);
 	private QPushButton bSettings=new QPushButton(new QIcon(ImgResource.imgSettings), "");
@@ -36,7 +35,7 @@ public class PaneCircularSequence extends QWidget
 	
 	public PaneCircularSequence()
 		{
-		sliderZoom.setRange(0, 5000);
+		sliderZoom.setRange(0, 100000);
 		sliderRotate.setRange(0, 1000);
 		sliderZoom.valueChanged.connect(this,"updatecirc()");
 		sliderRotate.valueChanged.connect(this,"updatecirc()");
@@ -78,7 +77,7 @@ public class PaneCircularSequence extends QWidget
 	public void updatecirc()
 		{
 		view.circPan=sliderRotate.value()/1000.0;
-		view.circZoom=0.4+sliderZoom.value()/1000.0;
+		view.circZoom=0.4+sliderZoom.value()/10000.0;
 		view.setCameraFromCirc();
 		}
 

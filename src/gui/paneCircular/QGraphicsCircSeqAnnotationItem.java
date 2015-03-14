@@ -39,7 +39,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	
 	private double getRadius()
 		{
-		return 90-11*height/getZoom();
+		return view.plasmidRadius-11*(height+1)/getZoom();
 		}
 	
 	public void paint(QPainter painter, QStyleOptionGraphicsItem option, QWidget widget) 

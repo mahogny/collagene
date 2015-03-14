@@ -1,10 +1,8 @@
 package sequtil;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import seq.AnnotatedSequence;
-import seq.Orientation;
 import seq.SeqAnnotation;
 import seq.SequenceRange;
 
