@@ -130,8 +130,8 @@ public class ImportXDNA implements SequenceImporter
 				String ftype=readPascalString(dis);
 				System.out.println(ftype);
 				
-				a.from=Integer.parseInt(readPascalString(dis))-offset;
-				a.to=Integer.parseInt(readPascalString(dis))-offset;
+				a.range.from=Integer.parseInt(readPascalString(dis))-offset;
+				a.range.to=Integer.parseInt(readPascalString(dis))-offset;
 				
 				int strand=dis.read();
 				if(strand==1)
@@ -139,9 +139,7 @@ public class ImportXDNA implements SequenceImporter
 				else if(strand==0)
 					{
 					a.orientation=Orientation.REVERSE;
-					int temp=a.to;
-					a.to=a.from;
-					a.from=temp;
+					a.setRange(a.getTo(), a.getFrom());
 					}
 				else
 					throw new IOException("Unknown strand");

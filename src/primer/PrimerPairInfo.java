@@ -34,6 +34,9 @@ public class PrimerPairInfo
 		}
 	
 	
+	/**
+	 * Perform a PCR and get the product
+	 */
 	public AnnotatedSequence dopcr(AnnotatedSequence seq)
 		{
 		Primer fwd=getFwd(),rev=getRev();
@@ -50,11 +53,12 @@ public class PrimerPairInfo
 		for(SeqAnnotation a:seq.annotations)
 			{
 			SeqAnnotation newa=new SeqAnnotation(a);
-			newa.from-=shift;
-			newa.to-=shift;
-			if(newa.from>=0 && newa.to<seqnew.getLength())
+			newa.range.shift(shift);
+			if(newa.getFrom()>=0 && newa.getTo()<seqnew.getLength())
 				seqnew.addAnnotation(newa);
 			}
+		
+		//TODO PCR primers etc. better to set new 0 (let it move annotation). cut out everything beyond last primer. then set new sequence
 		
 		return seqnew;
 		}

@@ -367,7 +367,7 @@ public class ViewLinearSequence extends QGraphicsView
 			for(SeqAnnotation annot:seq.annotations)
 				{
 				//Check if this feature is in range
-				if(annot.to>cposLeft && annot.from<cposRight)
+				if(annot.getTo()>cposLeft && annot.getFrom()<cposRight)
 					{
 					//Annotation should go beneath sequence, above position line
 					int basey=currentY+currentAnnotationHeight*20;
@@ -378,13 +378,13 @@ public class ViewLinearSequence extends QGraphicsView
 					QPolygonF poly=new QPolygonF();
 					
 					double frompos;
-					if(annot.from>=cposLeft)
+					if(annot.getFrom()>=cposLeft)
 						{
 						//Annotation starts here
-						frompos=mapCharToX(annot.from-cposLeft);
+						frompos=mapCharToX(annot.getFrom()-cposLeft);
 						poly.add(frompos, polyydown);
 						if(annot.orientation==Orientation.REVERSE)
-							poly.add(mapCharToX(annot.from-1-cposLeft)+5, polyymid);
+							poly.add(mapCharToX(annot.getFrom()-1-cposLeft)+5, polyymid);
 						poly.add(frompos, polyyup); 
 						}
 					else
@@ -398,14 +398,14 @@ public class ViewLinearSequence extends QGraphicsView
 						}
 
 					double topos;
-					if(annot.to<=cposRight)
+					if(annot.getTo()<=cposRight)
 						{
 						//Annotation ends here
-						topos=mapCharToX(annot.to+1-cposLeft);
+						topos=mapCharToX(annot.getTo()+1-cposLeft);
 						poly.add(topos, polyyup);  
 						if(annot.orientation==Orientation.FORWARD)
-							poly.add(mapCharToX(annot.to+1-cposLeft)+5, polyymid);
-						poly.add(mapCharToX(annot.to+1-cposLeft), polyydown); 
+							poly.add(mapCharToX(annot.getTo()+1-cposLeft)+5, polyymid);
+						poly.add(mapCharToX(annot.getTo()+1-cposLeft), polyydown); 
 						}
 					else
 						{
@@ -871,9 +871,7 @@ public class ViewLinearSequence extends QGraphicsView
 			hoveringRestrictionSite=getRestrictionSiteAt(pos);
 			if(curAnnotation!=null)
 				{
-				selection=new SequenceRange();
-				selection.from=curAnnotation.from;
-				selection.to=curAnnotation.to;
+				selection=new SequenceRange(curAnnotation.range);
 				isSelecting=false;
 				signalUpdated.emit(selection);
 				updateSelectionGraphics();  

@@ -148,4 +148,11 @@ public class SequenceRange
 		r.isNoRange=true;
 		return r;
 		}
+	
+	
+	public void shift(int featureshift)
+		{
+		from-=featureshift;
+		to-=featureshift;
+		}
 	}

@@ -53,8 +53,8 @@ public class Autofit
 		
 		SeqAnnotation ann=new SeqAnnotation();
 		PairwiseAlignment bestal=scores.get(maxind);
-		ann.from=bestal.startOfA();
-		ann.to=bestal.endOfA();
+		ann.range.from=bestal.startOfA();
+		ann.range.to=bestal.endOfA();
 		if(maxind==1 || maxind==3) //??
 			ann.orientation=Orientation.FORWARD;
 		else

@@ -87,8 +87,7 @@ public class AnnotatedSequence
 	public void fillcrap()
 		{
 		SeqAnnotation annot=new SeqAnnotation();
-		annot.from=0;
-		annot.to=50;
+		annot.setRange(0,50);
 		annot.name="bleh";
 		annotations.add(annot);
 
@@ -177,7 +176,7 @@ public class AnnotatedSequence
 		setSequence(upr,lower);
 		
 		for(SeqAnnotation ann:annotations)
-			ann.setRange(new SequenceRange(ann.from-pos, ann.to-pos).toNormalizedRange(this));
+			ann.setRange(new SequenceRange(ann.getFrom()-pos, ann.getTo()-pos).toNormalizedRange(this));
 		for(Primer p:primers)
 			p.setNew0(pos, this);
 		for(RestrictionEnzyme enz:restrictionSites.keySet())
@@ -207,10 +206,9 @@ public class AnnotatedSequence
 				NucleotideUtil.reverse(upper));
 		for(SeqAnnotation a:annotations)
 			{
-			int to=getLength()-a.from;
-			int from=getLength()-a.to;
-			a.to=to;
-			a.from=from;
+			int to=getLength()-a.getFrom();
+			int from=getLength()-a.getTo();
+			a.setRange(from,to);
 			
 			if(a.orientation==Orientation.FORWARD)
 				a.orientation=Orientation.REVERSE;

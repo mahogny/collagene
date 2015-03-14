@@ -30,10 +30,9 @@ public class OrfFinder
 		
 		for(SeqAnnotation a:annots2)
 			{
-			int from=reverseIndex(a.to,seq);
-			int to=reverseIndex(a.from,seq);  
-			a.from=from;
-			a.to=to;
+			int from=reverseIndex(a.getTo(),seq);
+			int to=reverseIndex(a.getFrom(),seq);  
+			a.setRange(from,to);
 			a.orientation=Orientation.REVERSE;
 			}
 		annots.addAll(annots2);
@@ -63,8 +62,8 @@ public class OrfFinder
 			if(indexStop!=null)
 				{
 				SeqAnnotation a=new SeqAnnotation();
-				a.from=index;
-				a.to=indexStop;
+				a.range.from=index;
+				a.range.to=indexStop;
 				if(a.length(seq)>minLength)
 					annots.add(a);
 				}

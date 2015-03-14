@@ -93,9 +93,8 @@ public class ImportGenbank implements SequenceImporter
 						int doti=line.indexOf('.');
 						String sfrom=line.substring(0,doti);
 						String sto=line.substring(doti+2);
-						//System.out.println(sfrom+"  "+sto);
-						annot.from=Integer.parseInt(sfrom)-1;
-						annot.to=Integer.parseInt(sto);
+						annot.range.from=Integer.parseInt(sfrom)-1;
+						annot.range.to=Integer.parseInt(sto);
 						
 						curcol=(curcol+1)%colorset.size();
 						annot.color=new SeqColor(colorset.get(curcol));

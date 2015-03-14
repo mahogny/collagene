@@ -70,8 +70,8 @@ public class AnnotationWindow extends QDialog
 	public void actionOK()
 		{
 		annot.name=tfName.text();
-		annot.from=IndexUtil.fromTointernal(spFrom.value());
-		annot.to=IndexUtil.toTointernal(spTo.value());
+		annot.range.from=IndexUtil.fromTointernal(spFrom.value());
+		annot.range.to=IndexUtil.toTointernal(spTo.value());
 		annot.orientation=orientations.get(comboOrientation.currentIndex());
 		close();
 		}
@@ -86,8 +86,8 @@ public class AnnotationWindow extends QDialog
 		{
 		annot=a;
 		tfName.setText(a.name);
-		spFrom.setValue(IndexUtil.fromTogui(a.from));
-		spTo.setValue(IndexUtil.toTogui(a.to));
+		spFrom.setValue(IndexUtil.fromTogui(a.getFrom()));
+		spTo.setValue(IndexUtil.toTogui(a.getTo()));
 		comboOrientation.setCurrentIndex(orientations.indexOf(a.orientation));
 		}
 

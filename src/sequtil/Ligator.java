@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import seq.AnnotatedSequence;
 import seq.Orientation;
+import seq.SeqAnnotation;
 import seq.SequenceRange;
 
 /**
@@ -25,47 +26,55 @@ public class Ligator
 	/**
 	 * Check how fragments can ligate: Either A-B, or A-rot(B)
 	 */
-	public void calculateCanLigate()
+	public void calculateTable()
 		{
 		for(int i=0;i<sequences.size();i++)
 			for(int j=0;j<sequences.size();j++)
 				{
 				AnnotatedSequence seqA=sequences.get(i);
 				AnnotatedSequence seqB=sequences.get(j);
-			
-				boolean checkAtoB=false, checkAtoRotB=false;
-				
-//				System.out.println(i+"\t"+j+"\t"+isBluntBegin(seqA)+"\t"+isBluntEnd(seqA));
-				if(isBluntEnd(seqA))
-					{
-					if(isBluntBegin(seqB))
-						checkAtoB=true;
-					if(isBluntEnd(seqB))
-						checkAtoRotB=true;
-					//Might want more info here? note that we only story information about piece A to piece B
-					}
-				else
-					{
-					//Check if forward is fine
-					AnnotatedSequence stickyEndA=extractStickyEnd(seqA);
-					AnnotatedSequence stickyBeginB=extractStickyBegin(seqB);
-					checkAtoB=isComplementary(stickyEndA, stickyBeginB);
-					
-					//Check if rotated is fine
-					AnnotatedSequence stickyBeginRotB=extractStickyEnd(seqB);
-					stickyBeginRotB.reverseSequence();
-					checkAtoRotB=isComplementary(stickyEndA, stickyBeginRotB);
-					}
-
+				boolean checkAtoB=canLigateAtoB(seqA, seqB);
+				boolean checkAtoRotB=canLigateAtoRotB(seqA, seqB);
 				setCanLigate(i, j, toOrient(checkAtoB, checkAtoRotB));
 				}
 		}
 
+	/**
+	 * Check if A can be ligated to B
+	 */
+	public static boolean canLigateAtoB(AnnotatedSequence seqA, AnnotatedSequence seqB)
+		{
+		if(isBluntEnd(seqA))
+			return isBluntBegin(seqB);
+		else
+			{
+			//Check if forward is fine
+			AnnotatedSequence stickyEndA=extractStickyEnd(seqA);
+			AnnotatedSequence stickyBeginB=extractStickyBegin(seqB);
+			return isComplementary(stickyEndA, stickyBeginB);
+			}
+		}
 	
 	/**
-	 * 
+	 * Check if A can be ligated to rotated B
 	 */
-	private boolean isComplementary(AnnotatedSequence stickyA, AnnotatedSequence stickyB)
+	public boolean canLigateAtoRotB(AnnotatedSequence seqA, AnnotatedSequence seqB)
+		{
+		if(isBluntEnd(seqA))
+			return isBluntEnd(seqB);
+		else
+			{
+			AnnotatedSequence stickyEndA=extractStickyEnd(seqA);
+			AnnotatedSequence stickyBeginRotB=extractStickyEnd(seqB);
+			stickyBeginRotB.reverseSequence();
+			return isComplementary(stickyEndA, stickyBeginRotB);
+			}
+		}
+	
+	/**
+	 * Helper: check if two sticky ends are complementary
+	 */
+	private static boolean isComplementary(AnnotatedSequence stickyA, AnnotatedSequence stickyB)
 		{
 		if(stickyA.getLength()!=stickyB.getLength())
 			return false;
@@ -116,7 +125,7 @@ public class Ligator
 	/**
 	 * Extract the sticky beginning part of a sequence
 	 */
-	private AnnotatedSequence extractStickyBegin(AnnotatedSequence seq)
+	private static AnnotatedSequence extractStickyBegin(AnnotatedSequence seq)
 		{
 		AnnotatedSequence sticky=new AnnotatedSequence();
 		String upr=seq.getSequence();
@@ -134,7 +143,7 @@ public class Ligator
 	/**
 	 * Extract the sticky end part of a sequence
 	 */
-	private AnnotatedSequence extractStickyEnd(AnnotatedSequence seq)
+	private static AnnotatedSequence extractStickyEnd(AnnotatedSequence seq)
 		{
 		AnnotatedSequence sticky=new AnnotatedSequence();
 		String upr=seq.getSequence();
@@ -154,11 +163,10 @@ public class Ligator
 	/**
 	 * Check if a sequence is blunt-ended, at end
 	 */
-	private boolean isBluntEnd(AnnotatedSequence seq)
+	private static boolean isBluntEnd(AnnotatedSequence seq)
 		{
 		int length=seq.getLength();
 		SequenceRange r=new SequenceRange(length-1, 0);
-//		System.out.println("#"+seq.getSequence(r)+"#");
 		return !(seq.getSequence(r).equals(" ") || seq.getSequenceLower(r).equals(" "));
 		}
 	
@@ -166,10 +174,9 @@ public class Ligator
 	/**
 	 * Check if a sequence is blunt-ended, at beginning
 	 */
-	private boolean isBluntBegin(AnnotatedSequence seq)
+	private static boolean isBluntBegin(AnnotatedSequence seq)
 		{
 		SequenceRange r=new SequenceRange(0,1);
-		System.out.println("#"+seq.getSequence(r)+"#");
 		return !(seq.getSequence(r).equals(" ") || seq.getSequenceLower(r).equals(" "));
 		}
 
@@ -187,12 +194,10 @@ public class Ligator
 	
 	
 	/**
-	 * Self-ligate plasmid to make it circular
+	 * Self-ligate plasmid to make it circular (not checking if this is valid)
 	 */
 	public static void selfCircularize(AnnotatedSequence seq)
 		{
-		//TODO: check if self-ligation is valid?
-		
 		//Fill in the first gap. This way, no annotation need be moved
 		String upr=seq.getSequence();
 		String lwr=seq.getSequenceLower();
@@ -204,9 +209,9 @@ public class Ligator
 			for(;;i++)
 				if(upr.charAt(i)!=' ')
 					break;
-
-			upr=upr.substring(len-i) + upr.substring(i);
-			lwr=lwr.substring(0, len-1);
+System.out.println("!!");
+			upr=upr.substring(i);
+			lwr=lwr.substring(0, len-i);
 			}
 		else
 			{
@@ -216,11 +221,14 @@ public class Ligator
 				if(lwr.charAt(i)!=' ')
 					break;
 
-			upr=upr.substring(0, len-1);
-			lwr=lwr.substring(len-i) + lwr.substring(i);
+			upr=upr.substring(0, len-i);
+			lwr=lwr.substring(i);
 			}
+		seq.setSequence(upr,lwr);
 		
-		//TODO may want to normalize position of annotation. likely not needed
+		//Normalize position of annotation
+		for(SeqAnnotation a:seq.annotations)
+			a.range=a.range.toNormalizedRange(seq);
 		}
 	
 	
@@ -251,7 +259,7 @@ public class Ligator
 		lig.addSequence(seqC);
 		
 		
-		lig.compute();
+		lig.calculateTable();
 		lig.showPairs();		
 		}
 
@@ -263,12 +271,6 @@ public class Ligator
 				System.out.print(canLigate.get(i).get(j)+"\t");
 			System.out.println();
 			}
-		}
-
-
-	private void compute()
-		{
-		calculateCanLigate();
 		}
 
 	private void addSequence(AnnotatedSequence seqA)

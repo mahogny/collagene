@@ -39,8 +39,8 @@ public class ExportOneXML
 			{
 			Element eAnnot=new Element("annotation");
 			eAnnot.setAttribute("name",a.name);
-			eAnnot.setAttribute("from",""+a.from);
-			eAnnot.setAttribute("to",""+a.to);
+			eAnnot.setAttribute("from",""+a.getFrom());
+			eAnnot.setAttribute("to",""+a.getTo());
 
 			eAnnot.setAttribute("colr",""+a.color.r);
 			eAnnot.setAttribute("colg",""+a.color.g);

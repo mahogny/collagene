@@ -48,7 +48,7 @@ public class ExportGenbank implements SequenceExporter
 		pw.println("FEATURES             Location/Qualifiers");
 		for(SeqAnnotation a:seq.annotations)
 			{
-			pw.println("     misc_feature    "+(a.from+1)+".."+(a.to));
+			pw.println("     misc_feature    "+(a.getFrom()+1)+".."+(a.getTo()));
 			pw.println("                     /label=\""+a.name+"\"");
 			pw.println("                     /ApEinfo_revcolor=#"+a.color.getColorAsRGBstring());
 			pw.println("                     /ApEinfo_fwdcolor=#"+a.color.getColorAsRGBstring());

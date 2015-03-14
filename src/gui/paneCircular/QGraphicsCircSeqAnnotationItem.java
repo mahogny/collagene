@@ -47,8 +47,8 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		double circZoom=getZoom();
 		double r=getRadius();
 		
-		double ang1=(double)annot.from/seq.getLength()+view.circPan;
-		double ang2=(double)annot.to/seq.getLength()+view.circPan;
+		double ang1=(double)annot.getFrom()/seq.getLength()+view.circPan;
+		double ang2=(double)annot.getTo()/seq.getLength()+view.circPan;
 
 		QColor bordercolor=QColor.fromRgb(0,0,0);
 		QColor bgcolor=QColor.fromRgb(annot.color.r,annot.color.g,annot.color.b);
@@ -137,7 +137,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	public boolean isOverlapping(QGraphicsCircSeqAnnotationItem o)
 		{
 		return o.height==height &&
-				annot.from-50<=o.annot.to+50 && annot.to+50>=o.annot.from-50;
+				annot.getFrom()-50<=o.annot.getTo()+50 && annot.getTo()+50>=o.annot.getFrom()-50;
 				//TODO do proper. and check text!
 		}
 

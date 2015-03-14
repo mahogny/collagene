@@ -11,15 +11,14 @@ public class SeqAnnotation
 	public String name;
 	public String note;
 	
-	public int from, to; //starting from 0, in format [from,to)
+	public SequenceRange range=new SequenceRange();
+//	public int from, to; //starting from 0, in format [from,to)
 	
 	public Orientation orientation=Orientation.FORWARD;
 	
 	public SeqColor color=new SeqColor(1,0,0);
 	public String desc;
 
-	
-	
 	public SeqAnnotation()
 		{
 		}
@@ -28,8 +27,7 @@ public class SeqAnnotation
 		{
 		name=annot.name;
 		note=annot.note;
-		from=annot.from;
-		to=annot.to;
+		range=new SequenceRange(annot.range);
 		orientation=annot.orientation;
 		color=new SeqColor(annot.color);
 		}
@@ -38,7 +36,8 @@ public class SeqAnnotation
 
 	public boolean isOverlapping(SeqAnnotation o)
 		{
-		return from<=o.to && to>=o.from;  //TODO likely a >= here
+		//TODO better to delegate down
+		return range.from<=o.range.to && range.to>=o.range.from;  //TODO likely a >= here
 		}
 
 
@@ -47,30 +46,31 @@ public class SeqAnnotation
 	@Override
 	public String toString()
 		{
-		return "("+from+","+to+")";
+		return "("+getFrom()+","+getTo()+")";
 		}
 
 	public int length(AnnotatedSequence seq)
 		{
-		SequenceRange r=new SequenceRange();
-		r.from=from;
-		r.to=to;
-		return r.getSize(seq);
+		return range.getSize(seq);
 		}
 	
 	public int getFrom()
 		{
-		return from;
+		return range.from;
 		}
 	
 	public int getTo()
 		{
-		return to;
+		return range.to;
 		}
 
 	public void setRange(SequenceRange r)
 		{
-		this.from=r.from;
-		this.to=r.to;
+		range=r;
+		}
+
+	public void setRange(int from, int to)
+		{
+		range=new SequenceRange(from,to);
 		}
 	}

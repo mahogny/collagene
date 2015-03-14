@@ -167,8 +167,8 @@ public class ImportAddgene
 					{
 					SeqAnnotation annot=new SeqAnnotation();
 					annot.name=(String)ob.get("feature");
-					annot.from=(Integer)ob.get("start");
-					annot.to=(Integer)ob.get("end");
+					annot.range.from=(Integer)ob.get("start");
+					annot.range.to=(Integer)ob.get("end");
 					annot.orientation=(Boolean)ob.get("clockwise") ? Orientation.FORWARD : Orientation.REVERSE;
 
 					curcol=(curcol+1)%colorset.size();

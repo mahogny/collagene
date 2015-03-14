@@ -16,6 +16,7 @@ import java.util.List;
 import restrictionEnzyme.NEBparser;
 import restrictionEnzyme.RestrictionEnzymeSet;
 import seq.AnnotatedSequence;
+import sequtil.Ligator;
 import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
 import gui.qt.QTutil;
@@ -92,6 +93,7 @@ public class ProjectWindow extends QMainWindow
 		QPushButton bAnnealOligos=new QPushButton(tr("Anneal"));
 		QPushButton bDeleteSequence=new QPushButton(tr("Delete sequence"));
 		QPushButton bAlign=new QPushButton(tr("Align"));
+		QPushButton bLigate=new QPushButton(tr("Ligate"));
 		
 		setMenuBar(menubar);
 		QMenu mfile=menubar.addMenu("File");
@@ -118,6 +120,7 @@ public class ProjectWindow extends QMainWindow
 		bAnnealOligos.clicked.connect(this,"actionAnnealOligos()");
 		bDeleteSequence.clicked.connect(this,"actionDeleteSequence()");
 		bAlign.clicked.connect(this,"actionAlign()");
+		bLigate.clicked.connect(this,"actionLigate()");
 		
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(wtree);
@@ -125,6 +128,7 @@ public class ProjectWindow extends QMainWindow
 		lay.addWidget(bDeleteSequence);
 		lay.addWidget(bAnnealOligos);
 		lay.addWidget(bAlign);
+		lay.addWidget(bLigate);
 		lay.setMargin(2);
 		lay.setSpacing(2);
 		
@@ -555,10 +559,43 @@ public class ProjectWindow extends QMainWindow
 			e.printStackTrace();
 			}					
 		}
-	
-	
-	
 
+	/**
+	 * 
+	 */
+	public void actionLigate()
+		{
+		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
+		if(!seqs.isEmpty() && seqs.size()==1)
+			{
+			//Self-ligation
+			
+			AnnotatedSequence seq=seqs.get(0);
+			if(seq.isCircular)
+				QTutil.showNotice(this, tr("Sequence is already circular"));
+			else
+				{
+				if(Ligator.canLigateAtoB(seq, seq))
+					{
+					AnnotatedSequence newseq=new AnnotatedSequence(seq);
+					Ligator.selfCircularize(newseq);
+					newseq.name=newseq.name+"_circ";
+					addSequenceToProject(newseq); 
+					}
+				else
+					QTutil.showNotice(this, tr("Sequence does not have matching ends"));
+				
+				}
+					
+			
+			
+			/*
+			SequenceWindow w=new SequenceWindow(this);
+			w.setSequence(seq);
+			*/
+			}
+		
+		}
 	
 	/**
 	 * Entry point

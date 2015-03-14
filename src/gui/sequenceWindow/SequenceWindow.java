@@ -264,8 +264,7 @@ public class SequenceWindow extends QMainWindow
 		if(r!=null)
 			{
 			r=r.toNormalizedRange(getSequence());
-			a.from=r.from;
-			a.to=r.to;
+			a.setRange(r);
 			}
 		w.setAnnotation(a);
 		w.exec();
@@ -560,6 +559,7 @@ public class SequenceWindow extends QMainWindow
 		seq.reverseSequence();
 		setSequence(seq);
 		}
+	
 	
 	/**
 	 * Action: Set a new 0-point for the vector

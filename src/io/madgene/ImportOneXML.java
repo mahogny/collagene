@@ -65,8 +65,8 @@ public class ImportOneXML implements SequenceImporter
 				seq.annotations.add(annot);
 				
 				annot.name=e.getAttributeValue("name");
-				annot.from=e.getAttribute("from").getIntValue();
-				annot.to=e.getAttribute("to").getIntValue();
+				annot.range.from=e.getAttribute("from").getIntValue();
+				annot.range.to=e.getAttribute("to").getIntValue();
 
 				annot.color.r=e.getAttribute("colr").getIntValue();
 				annot.color.g=e.getAttribute("colg").getIntValue();
