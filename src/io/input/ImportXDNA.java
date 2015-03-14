@@ -10,6 +10,7 @@ import seq.AnnotatedSequence;
 import seq.Orientation;
 import seq.SeqAnnotation;
 import seq.SeqColor;
+import sequtil.NucleotideUtil;
 import gui.colors.ColorSet;
 import io.SequenceImporter;
 
@@ -105,7 +106,7 @@ public class ImportXDNA implements SequenceImporter
 
 			String rohLengthS=readPascalString(dis);
 			int rohLength=Integer.parseInt(rohLengthS);
-			String rohOverhang=readNchars(rohLength, dis);
+			String rohOverhang=readNchars(Math.abs(rohLength), dis);
 			
 //			seq.setSequence(rohOverhang);
 			
@@ -113,14 +114,22 @@ public class ImportXDNA implements SequenceImporter
 			
 			String lohLengthS=readPascalString(dis);
 			int lohLength=Integer.parseInt(lohLengthS);
-			String lohOverhang=readNchars(lohLength, dis);
+			String lohOverhang=readNchars(Math.abs(lohLength), dis);
 			
-			seq.setSequence(readNchars(seqlength, dis));
+			System.out.println(lohOverhang);
+			
+			String midseq=readNchars(seqlength, dis);
+			String midseqLower=NucleotideUtil.complement(midseq);
+			
+			//TODO add overhang
+			
+			
+			
+			seq.setSequence(midseq,midseqLower);
 
 			
 			int numAnnotation=dis.read();
 			
-			//TODO add overhang
 			
 			for(int i=0;i<numAnnotation;i++)
 				{

@@ -16,7 +16,8 @@ import java.util.List;
 import restrictionEnzyme.NEBparser;
 import restrictionEnzyme.RestrictionEnzymeSet;
 import seq.AnnotatedSequence;
-import sequtil.Ligator;
+import sequtil.LigationCandidate;
+import sequtil.LigationUtil;
 import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
 import gui.qt.QTutil;
@@ -566,34 +567,47 @@ public class ProjectWindow extends QMainWindow
 	public void actionLigate()
 		{
 		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
-		if(!seqs.isEmpty() && seqs.size()==1)
+		for(AnnotatedSequence seq:seqs)
+			if(seq.isCircular)
+				{
+				QTutil.showNotice(this, tr("Sequence is already circular")+": "+seq.name);
+				return;
+				}
+
+		if(seqs.size()==1)
 			{
 			//Self-ligation
-			
 			AnnotatedSequence seq=seqs.get(0);
-			if(seq.isCircular)
-				QTutil.showNotice(this, tr("Sequence is already circular"));
+			if(LigationUtil.canLigateAtoB(seq, seq))
+				{
+				AnnotatedSequence newseq=new AnnotatedSequence(seq);
+				LigationUtil.selfCircularize(newseq);
+				newseq.name=newseq.name+"_circ";
+				addSequenceToProject(newseq); 
+				}
+			else
+				QTutil.showNotice(this, tr("Sequence does not have matching ends"));
+			}
+		else if(seqs.size()==2)
+			{
+			AnnotatedSequence seqA=seqs.get(0);
+			AnnotatedSequence seqB=seqs.get(1);
+			
+			LinkedList<LigationCandidate> cands=LigationUtil.ligationCombinations(seqA, seqB);
+			if(cands.isEmpty())
+				QTutil.showNotice(this, tr("Sequences does not have any matching ends"));
 			else
 				{
-				if(Ligator.canLigateAtoB(seq, seq))
+				for(LigationCandidate cand:cands)
 					{
-					AnnotatedSequence newseq=new AnnotatedSequence(seq);
-					Ligator.selfCircularize(newseq);
-					newseq.name=newseq.name+"_circ";
-					addSequenceToProject(newseq); 
+					AnnotatedSequence seqOut=cand.getProduct();
+					addSequenceToProject(seqOut); 
 					}
-				else
-					QTutil.showNotice(this, tr("Sequence does not have matching ends"));
-				
 				}
-					
 			
-			
-			/*
-			SequenceWindow w=new SequenceWindow(this);
-			w.setSequence(seq);
-			*/
 			}
+		else
+			QTutil.showNotice(this, tr("Select 1 or 2 sequences"));
 		
 		}
 	

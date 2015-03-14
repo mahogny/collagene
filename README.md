@@ -20,11 +20,10 @@ This is a simple piece of software for cloning, written in Java+QT
 * Sequence property calculation
    * Melting temperature calculation, according to Santa lucia 98
    * GC content
-* Primers and oligos
+* Primers
    * Annotation on sequence
-   * Calculation of products
-   * Simulated annealing of oligos
-   * Automatically attach existing oligos
+   * Calculation of PCR products
+   * Automatically attach existing primers
 * Features
    * In different directions and colors
    * Automatic finding of ORFs
@@ -40,7 +39,14 @@ This is a simple piece of software for cloning, written in Java+QT
    * Import from SerialCloner
    * Native XML format with extended metadata
 
-* Cloning methods
+* Simulation of cloning steps
+   * PCR, with mutagenesis
+   * Ligation
+   * Annealing of oligos
+  TODO Gibson
+
+
+* Wizards for cloning strategies   
    * TODO pcr/restriction
    * TODO gibson
    * TODO topo

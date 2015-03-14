@@ -15,7 +15,7 @@ import seq.SequenceRange;
  * @author Johan Henriksson
  *
  */
-public class Ligator
+public class LigationUtil
 	{
 
 	public LinkedList<AnnotatedSequence> sequences=new LinkedList<AnnotatedSequence>();
@@ -58,7 +58,7 @@ public class Ligator
 	/**
 	 * Check if A can be ligated to rotated B
 	 */
-	public boolean canLigateAtoRotB(AnnotatedSequence seqA, AnnotatedSequence seqB)
+	public static boolean canLigateAtoRotB(AnnotatedSequence seqA, AnnotatedSequence seqB)
 		{
 		if(isBluntEnd(seqA))
 			return isBluntEnd(seqB);
@@ -234,7 +234,7 @@ System.out.println("!!");
 	
 	public static void main(String[] args)
 		{
-		Ligator lig=new Ligator();
+		LigationUtil lig=new LigationUtil();
 		
 		AnnotatedSequence seqA=new AnnotatedSequence();
 		seqA.setSequence(
@@ -277,4 +277,88 @@ System.out.println("!!");
 		{
 		sequences.add(seqA);
 		}
+
+	/**
+	 * Ligate sequence A with B
+	 */
+	public static AnnotatedSequence ligate(AnnotatedSequence seqA, AnnotatedSequence seqB)
+		{
+		AnnotatedSequence newseq=new AnnotatedSequence();
+		newseq.name=seqA.name + "+" + seqB.name;
+		
+		//TODO
+		
+		
+		// TODO Auto-generated method stub
+		return newseq;
+		}
+	
+
+	public static LinkedList<LigationCandidate> ligationCombinations(AnnotatedSequence seqA, AnnotatedSequence seqB)
+		{
+		LinkedList<LigationCandidate> list=new LinkedList<LigationCandidate>();
+		AnnotatedSequence rotA=copySequenceOnly(seqA);
+		AnnotatedSequence rotB=copySequenceOnly(seqB);
+		rotA.reverseSequence();
+		rotB.reverseSequence();
+		
+		if(canLigateAtoB(seqA, seqB))
+			{
+			LigationCandidate cand=new LigationCandidate(seqA, seqB);
+			cand.rotateA=false;
+			cand.rotateB=false;
+			list.add(cand);
+			}
+		if(canLigateAtoB(seqA, rotB))
+			{
+			LigationCandidate cand=new LigationCandidate(seqA, seqB);
+			cand.rotateA=false;
+			cand.rotateB=true;
+			list.add(cand);
+			}
+		if(canLigateAtoB(rotA, seqB))
+			{
+			LigationCandidate cand=new LigationCandidate(seqA, seqB);
+			cand.rotateA=true;
+			cand.rotateB=false;
+			list.add(cand);
+			}
+		if(canLigateAtoB(rotA, rotB))
+			{
+			LigationCandidate cand=new LigationCandidate(seqA, seqB);
+			cand.rotateA=true;
+			cand.rotateB=true;
+			list.add(cand);
+			}
+		return list;
+		}
+	
+	private static AnnotatedSequence copySequenceOnly(AnnotatedSequence seq)
+		{
+		AnnotatedSequence newseq=new AnnotatedSequence();
+		newseq.setSequence(seq.getSequence(), seq.getSequenceLower());
+		return newseq;
+		}
+	
+	/**
+	 * Ligate sequence A with rotated B
+	 */
+	public static AnnotatedSequence ligateRotatedB(AnnotatedSequence seqA, AnnotatedSequence seqB)
+		{
+		AnnotatedSequence newseq=new AnnotatedSequence();
+		newseq.name=seqA.name + "+rot_" + seqB.name;
+		
+		//TODO
+		
+		//Use above function
+		
+		///////NOTE: sometimes need to rotate A. how to handle this best?
+		
+		
+		// TODO Auto-generated method stub
+		return newseq;
+		}
+	
+	
+	
 	}
