@@ -51,8 +51,7 @@ public class DigestSimulator
 				{
 				RestrictionDigestFragment r=new RestrictionDigestFragment();
 				r.origseq=seq;
-				int n=sites.size()-1;
-				r.fromSite=sites.get(n);
+				r.fromSite=sites.get(sites.size()-1);
 				r.toSite=sites.get(0);
 				cutregions.add(r);
 				}

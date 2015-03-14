@@ -122,6 +122,7 @@ public class RestrictionEnzymeSet
 					site.enzyme=e;
 					site.cuttingUpperPos=cut.upper+m.start();
 					site.cuttingLowerPos=cut.lower+m.start();
+					site.cut=cut;
 					
 					site.motif=new SequenceRange(m.start(), m.start()+e.sequence.length());
 					

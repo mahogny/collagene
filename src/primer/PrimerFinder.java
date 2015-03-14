@@ -82,7 +82,7 @@ public class PrimerFinder
 		String baseLower=seq.getSequence();
 		CalcTm tmc=new CalcTmSanta98();
 		
-		String within=seq.getSubsequence(region);
+		String within=seq.getSequence(region);
 		
 		addKmer(base, kmerlen);
 		addKmer(baseLower, kmerlen);

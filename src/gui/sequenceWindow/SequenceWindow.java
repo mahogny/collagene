@@ -238,7 +238,7 @@ public class SequenceWindow extends QMainWindow
 		{
 		SequenceRange s=getSelection();
 		if(s!=null)
-			return seq.getSubsequence(s);
+			return seq.getSequence(s);
 		else
 			return null;
 		}
@@ -246,7 +246,7 @@ public class SequenceWindow extends QMainWindow
 		{
 		SequenceRange s=getSelection();
 		if(s!=null)
-			return seq.getSubsequenceLower(s);
+			return seq.getSequenceLower(s);
 		else
 			return null;
 		}
@@ -260,9 +260,10 @@ public class SequenceWindow extends QMainWindow
 		AnnotationWindow w=new AnnotationWindow();
 		SeqAnnotation a=new SeqAnnotation();
 		a.color=new SeqColor(ColorSet.colorset.getRandomColor());
-		SequenceRange r=getSelection().toNormalizedRange(getSequence());
+		SequenceRange r=getSelection();
 		if(r!=null)
 			{
+			r=r.toNormalizedRange(getSequence());
 			a.from=r.from;
 			a.to=r.to;
 			}
@@ -360,7 +361,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			range=range.toNormalizedRange(seq);
 			//Update Tm
-			String sub=seq.getSubsequence(range);
+			String sub=seq.getSequence(range);
 			try
 				{
 				NumberFormat nf=NumberFormat.getNumberInstance();
@@ -431,14 +432,12 @@ public class SequenceWindow extends QMainWindow
 		mseq.addAction(tr("Close"), this, "close()");
 
 		mannotation.addAction(tr("Add annotation"), this, "addAnnotation()");
-		mannotation.addAction(tr("Delete annotation"), this, "actionDeleteAnnotation()");
-		mannotation.addAction(tr("Edit annotation"), this, "actionEditAnnotation()");
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Find ORFs"), this, "actionFindORFs()");
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
 		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
-		mannotation.addAction(tr("Primer sequences to clipboard"),this,"actionPrimerClipboard()");
+		mannotation.addAction(tr("Copy primer sequences"),this,"actionPrimerClipboard()");
 		mannotation.addAction(tr("Fit existing primer"),this,"actionFitExistingPrimer()");
 		mannotation.addAction(tr("Find good primer location in selection"),this,"actionFindPrimer()");
 		
@@ -552,15 +551,6 @@ public class SequenceWindow extends QMainWindow
 		}
 
 	
-	public void actionDeleteAnnotation()
-		{
-		
-		}
-	public void actionEditAnnotation()
-		{
-		
-		}
-	
 	
 	/**
 	 * Action: Reverse the sequence
@@ -639,7 +629,7 @@ public class SequenceWindow extends QMainWindow
 		if(r!=null)
 			{
 			Primer p=new Primer();
-			p.sequence=getSequence().getSubsequence(r);
+			p.sequence=getSequence().getSequence(r);
 			p.orientation=Orientation.FORWARD;
 			p.targetPosition=r.to;
 			editprimerandadd(p);
@@ -655,7 +645,7 @@ public class SequenceWindow extends QMainWindow
 		if(r!=null)
 			{
 			Primer p=new Primer();
-			p.sequence=getSequence().getSubsequence(r);
+			p.sequence=NucleotideUtil.revcomplement(getSequence().getSequence(r));
 			p.orientation=Orientation.REVERSE;
 			p.targetPosition=r.from;
 			editprimerandadd(p);

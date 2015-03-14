@@ -42,7 +42,7 @@ public class PrimerPairInfo
 		seqnew.isCircular=false;			
 		
 		//Cut out
-		String s=fwd.sequence + seq.getSubsequence(new SequenceRange(fwd.targetPosition,rev.targetPosition)) + rev.sequence;
+		String s=fwd.sequence + seq.getSequence(new SequenceRange(fwd.targetPosition,rev.targetPosition)) + rev.sequence;
 		seqnew.setSequence(s);
 		
 		//Transfer features

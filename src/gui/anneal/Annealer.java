@@ -19,6 +19,9 @@ public class Annealer
 	
 	public AnnotatedSequence anneal(String upper, String lower)
 		{
+		upper=upper.replace(" ", "");
+		lower=lower.replace(" ", "");
+		
 		lower=NucleotideUtil.reverse(lower);
 		String lowerComp=NucleotideUtil.complement(lower);  ///hm
 

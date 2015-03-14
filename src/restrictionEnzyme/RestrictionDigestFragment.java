@@ -4,6 +4,7 @@ import seq.AnnotatedSequence;
 import seq.RestrictionSite;
 import seq.SeqAnnotation;
 import seq.SequenceRange;
+import sequtil.NucleotideUtil;
 
 /**
  * One fragment from digest
@@ -49,24 +50,42 @@ public class RestrictionDigestFragment
 		AnnotatedSequence newseq=new AnnotatedSequence();
 		newseq.name=origseq.name+"_"+Math.random();
 		newseq.isCircular=false;
-		
+
+		int featureshift=0;
+
 		if(isCircular())
 			{
-			String supper=origseq.getSequence();
-			String slower=origseq.getSequenceLower();
-			
-			//Cut the from part (which is on the right)
-			int diff1=fromSite.cuttingUpperPos-fromSite.cuttingLowerPos;
-			String supper1=getSpacePadding(Math.max(0, diff1)) + supper.substring(fromSite.cuttingUpperPos);
-			String slower1=getSpacePadding(Math.max(0,-diff1)) + slower.substring(fromSite.cuttingLowerPos);
-			
-			//Cut the to part (which is on the left)
-			int diff=toSite.cuttingUpperPos-toSite.cuttingLowerPos;
-			String supper2=supper.substring(0,toSite.cuttingUpperPos) + getSpacePadding(Math.max(0, -diff));
-			String slower2=slower.substring(0,toSite.cuttingLowerPos) + getSpacePadding(Math.max(0,  diff));
+			//Pull out upper and lower rang separately
+			SequenceRange rangeUpper=new SequenceRange(fromSite.cuttingUpperPos, toSite.cuttingUpperPos);
+			SequenceRange rangeLower=new SequenceRange(fromSite.cuttingLowerPos, toSite.cuttingLowerPos);
+			String supper=origseq.getSequence(rangeUpper);
+			String slower=origseq.getSequenceLower(rangeLower);
 
-			supper=supper2+supper1;
-			slower=slower2+slower1;
+			//Now have to find out which strand has the overhang
+			int delta=fromSite.cuttingUpperPos-fromSite.cuttingLowerPos;
+			if(fromSite.cut.upper<fromSite.cut.lower)
+				{
+				//Upper overhang. delta should be negative
+				if(delta>0)
+					delta-=origseq.getLength();
+				String padLeft=NucleotideUtil.getRepeatOligo(' ',-delta);
+				slower=padLeft+slower;
+				featureshift=fromSite.cuttingUpperPos;
+				}
+			else
+				{
+				//Negative overhang. delta should be positive
+				if(delta>0)
+					delta+=origseq.getLength();
+				String padLeft=NucleotideUtil.getRepeatOligo(' ',delta);
+				supper=padLeft+supper;
+				featureshift=fromSite.cuttingLowerPos;
+				}
+
+			//Add enough spaces on the right
+			supper=supper+NucleotideUtil.getRepeatOligo(' ', Math.max(0,slower.length()-supper.length()));
+			slower=slower+NucleotideUtil.getRepeatOligo(' ', Math.max(0,supper.length()-slower.length()));
+			
 			newseq.setSequence(supper,slower);
 			}
 		else
@@ -78,25 +97,25 @@ public class RestrictionDigestFragment
 			if(toSite!=null)
 				{
 				int diff=toSite.cuttingUpperPos-toSite.cuttingLowerPos;
-				supper=supper.substring(0,toSite.cuttingUpperPos)+getSpacePadding(Math.max(0, -diff));
-				slower=slower.substring(0,toSite.cuttingLowerPos)+getSpacePadding(Math.max(0,  diff));
+				supper=supper.substring(0,toSite.cuttingUpperPos)+NucleotideUtil.getRepeatOligo(' ',Math.max(0, -diff));
+				slower=slower.substring(0,toSite.cuttingLowerPos)+NucleotideUtil.getRepeatOligo(' ',Math.max(0,  diff));
 				}
 			
 			//Cut it on the left
 			if(fromSite!=null)
 				{
 				int diff=fromSite.cuttingUpperPos-fromSite.cuttingLowerPos;
-				supper=getSpacePadding(Math.max(0, diff))+supper.substring(fromSite.cuttingUpperPos);
-				slower=getSpacePadding(Math.max(0,-diff))+slower.substring(fromSite.cuttingLowerPos);
+				supper=NucleotideUtil.getRepeatOligo(' ',Math.max(0, diff))+supper.substring(fromSite.cuttingUpperPos);
+				slower=NucleotideUtil.getRepeatOligo(' ',Math.max(0,-diff))+slower.substring(fromSite.cuttingLowerPos);
 				}
 			
 			newseq.setSequence(supper, slower);
+			
+			if(fromSite!=null)
+				featureshift=Math.min(fromSite.cuttingUpperPos,fromSite.cuttingLowerPos);  
 			}
 		
 		//Transfer features
-		int featureshift=0;
-		if(fromSite!=null)
-			featureshift=Math.min(fromSite.cuttingUpperPos,fromSite.cuttingLowerPos);
 		for(SeqAnnotation annot:origseq.annotations)
 			{
 			annot=new SeqAnnotation(annot);
@@ -111,20 +130,12 @@ public class RestrictionDigestFragment
 				annot.to+=origseq.getLength();
 				if(annot.from>=0 && annot.to<=newseq.getLength())
 					newseq.addAnnotation(annot);
-
 				}
 			}
-
 		
 		return newseq;
 		}
 	
 	
-	private String getSpacePadding(int n)
-		{
-		StringBuilder sb=new StringBuilder();
-		for(int i=0;i<n;i++)
-			sb.append(' ');
-		return sb.toString();
-		}
+
 	}

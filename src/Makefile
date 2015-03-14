@@ -62,39 +62,17 @@ linuxport: linuxport32 linuxport64 ubuntuport
 ############################ windows #######################################################
 ############################################################################################
 
-winport32: jars
-	rm -Rf ../release/win32/
-	mkdir -p ../release/win32/labstory
-	cp ports/win/starter/labstory_sysjre.exe ../release/win32/labstory/labstory.exe
-	cp ports/win/installer/* ../release/win32/
-	cp labstory.jar labstoryPostload.jar lib/*jar lib/win32/*jar ../release/win32/labstory/
-	cp -r R ../release/win32/labstory/
-	cp -r translations ../release/win32/labstory/
-	cd ../release/win32; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" sysjre.nsi
-	cd ../release/win32; mv install.exe ../labstory_win32.exe
-
-winport64: jars
-	rm -Rf ../release/win64/
-	mkdir -p ../release/win64/labstory
-	cp ports/win/starter/labstory_sysjre.exe ../release/win64/labstory/labstory.exe
-	cp ports/win/installer/* ../release/win64/
-	cp labstory.jar labstoryPostload.jar lib/*jar lib/win64/*jar ../release/win64/labstory/
-	cp -r R ../release/win64/labstory/
-	cp -r translations ../release/win64/labstory/
-	cd ../release/win64; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" sysjre.nsi
-	cd ../release/win64; mv install.exe ../labstory_win64.exe
-
 winportjre: jars
 	rm -Rf ../release/winjre/
-	mkdir -p ../release/winjre/labstory
-	cp ports/win/starter/labstory_bundledjre.exe ../release/winjre/labstory/labstory.exe
+	mkdir -p ../release/winjre/madgene
+	cp ports/win/starter/madgene_bundledjre.exe ../release/winjre/madgene/madgene.exe
 	cp ports/win/installer/* ../release/winjre/
-	cp labstory.jar labstoryPostload.jar lib/*jar lib/win32/*jar ../release/winjre/labstory/
-	cp -r R ../release/winjre/labstory/
-	cp -r translations ../release/winjre/labstory/
+	cp madgene.jar lib/*jar lib/win32/*jar ../release/winjre/madgene/
+	cp -r R ../release/winjre/madgene/
+	cp -r translations ../release/winjre/madgene/
 	cp -r ../support_programs/jre ../release/winjre/
 	cd ../release/winjre; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" bundledjre.nsi
-	cd ../release/winjre; mv install.exe ../labstory_winjre.exe
+	cd ../release/winjre; mv install.exe ../madgene_winjre.exe
 
 
 winport: winportjre # winport32 winport64 winportjre

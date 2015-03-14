@@ -25,6 +25,12 @@ public class SequenceRange
 		this.to=to;
 		}
 	
+	public SequenceRange(SequenceRange r)
+		{
+		this.from=r.from;
+		this.to=r.to;
+		}
+	
 	/**
 	 * Returns a canonical form in which 0<=to<sequence length, and from is adjusted accordingly, within the same range
 	 */
@@ -42,9 +48,13 @@ public class SequenceRange
 			{
 			from-=seq.getLength();
 			to-=seq.getLength();
+			//if(to<0)
+			//	to=seq.getLength()-to;
 			}
 		if(to>seq.getLength())
 			to-=seq.getLength();
+		else if(to<0)
+			to+=seq.getLength();
 		return new SequenceRange(from,to);
 		}
 	

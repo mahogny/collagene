@@ -1,5 +1,7 @@
 package sequtil;
 
+import java.util.Random;
+
 
 public class NucleotideUtil
 	{
@@ -83,5 +85,34 @@ public class NucleotideUtil
 		return c;
 		}
 	
+
+	/**
+	 * Get a random oligo, equal probability of each base
+	 */
+	public static String getRandomOligo(int n, Random rand)
+		{
+		char arr[]=new char[n];
+		char atcg[]=new char[]{'A','T','C','G'};
+		
+		for(int i=0;i<n;i++)
+			{
+			int v=rand.nextInt(4);
+			arr[i]=atcg[v];
+			}
+		return new String(arr);
+		}
 	
+	
+	public static void main(String[] args)
+		{
+		System.out.println(getRandomOligo(500, new Random()));
+		}
+
+	public static String getRepeatOligo(char c, int n)
+		{
+		char arr[]=new char[n];
+		for(int i=0;i<n;i++)
+			arr[i]=c;
+		return new String(arr);
+		}
 	}

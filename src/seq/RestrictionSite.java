@@ -2,6 +2,7 @@ package seq;
 
 import gui.resource.LabnoteUtil;
 import restrictionEnzyme.RestrictionEnzyme;
+import restrictionEnzyme.RestrictionEnzymeCut;
 
 
 /**
@@ -13,6 +14,7 @@ import restrictionEnzyme.RestrictionEnzyme;
 public class RestrictionSite
 	{
 	public RestrictionEnzyme enzyme;
+	public RestrictionEnzymeCut cut;
 	public Integer cuttingUpperPos;
 	public Integer cuttingLowerPos;
 	public SequenceRange motif;
@@ -21,6 +23,19 @@ public class RestrictionSite
 	
 	//There might here be a nasty corner case over circular plasmids
 	
+
+	public RestrictionSite()
+		{
+		}
+	public RestrictionSite(RestrictionSite site)
+		{
+		enzyme=site.enzyme;
+		cut=site.cut;
+		cuttingUpperPos=site.cuttingUpperPos;
+		cuttingLowerPos=site.cuttingLowerPos;
+		motif=new SequenceRange(site.motif);
+		}
+
 
 	@Override
 	public String toString()

@@ -59,11 +59,19 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		double arrowsize=0.01;
 		
 		QPolygonF poly=new QPolygonF();
-		int numdiv=10;
+		
+		
+		double dAngle=1.0/100/view.circZoom; 
+//		System.out.println(view.circZoom);
+		
+		int numdiv=(int)((ang2-ang1)/dAngle);
+		if(numdiv==0)
+			numdiv=1;
+		double sf=(ang2-ang1)/(double)(numdiv);
 		for(int i=0;i<=numdiv;i++)
 			{
 			double rad=r+radw;
-			double ang=ang1 + (ang2-ang1)*i/(double)numdiv;
+			double ang=ang1 + i*sf;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		if(annot.orientation==Orientation.FORWARD)
@@ -75,7 +83,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		for(int i=numdiv;i>=0;i--)
 			{
 			double rad=r;
-			double ang=ang1 + (ang2-ang1)*i/(double)numdiv;
+			double ang=ang1 + i*sf;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		if(annot.orientation==Orientation.REVERSE)

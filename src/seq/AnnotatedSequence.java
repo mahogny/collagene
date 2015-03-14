@@ -23,8 +23,6 @@ public class AnnotatedSequence
 	
 	public LinkedList<SeqAnnotation> annotations=new LinkedList<SeqAnnotation>();	
 	public HashMap<RestrictionEnzyme,LinkedList<RestrictionSite>> restrictionSites=new HashMap<RestrictionEnzyme, LinkedList<RestrictionSite>>();
-			
-
 	public LinkedList<Primer> primers=new LinkedList<Primer>();
 	
 	
@@ -46,18 +44,33 @@ public class AnnotatedSequence
 	
 	//this would call for a SequenceLayout
 	
+	/**
+	 * Create an empty sequence (with testing content)
+	 */
 	public AnnotatedSequence()
 		{
 		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
-		/*
-		Primer p=new Primer();
-		p.name="foo";
-		p.orientation=Orientation.FORWARD;
-		p.sequence="ATAC";
-		p.targetPosition=25;
-		primers.add(p);*/
 		}
 	
+	/**
+	 * Copy a sequence
+	 */
+	public AnnotatedSequence(AnnotatedSequence seq)
+		{
+		sequenceUpper=seq.sequenceUpper;
+		sequenceLower=seq.sequenceLower;
+		name=seq.name;
+		notes=seq.notes;
+		isCircular=seq.isCircular;
+		for(SeqAnnotation annot:seq.annotations)
+			addAnnotation(new SeqAnnotation(annot));
+		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
+			for(RestrictionSite site:seq.restrictionSites.get(enz))
+				addRestrictionSite(new RestrictionSite(site));
+		for(Primer p:primers)
+			addPrimer(new Primer(p));
+		}
+
 	public void setSequence(String upper)
 		{
 		sequenceUpper=upper.toUpperCase();
@@ -67,7 +80,7 @@ public class AnnotatedSequence
 		{
 		sequenceUpper=upper.toUpperCase();
 		sequenceLower=lower.toUpperCase();
-		if(sequenceUpper.length()!=sequenceUpper.length())
+		if(sequenceUpper.length()!=sequenceLower.length())
 			throw new RuntimeException("upper and lower sequence not the same length");
 		}
 
@@ -122,7 +135,7 @@ public class AnnotatedSequence
 		return sequenceLower;
 		}
 
-	public String getSubsequence(SequenceRange range)
+	public String getSequence(SequenceRange range)
 		{
 		range=range.toNormalizedRange(this);
 		if(range.from<=range.to && range.to<getLength())
@@ -131,7 +144,7 @@ public class AnnotatedSequence
 			return sequenceUpper.substring(range.from) + sequenceUpper.substring(0,range.to);
 		}
 
-	public String getSubsequenceLower(SequenceRange range)
+	public String getSequenceLower(SequenceRange range)
 		{
 		range=range.toNormalizedRange(this);
 		if(range.from<=range.to && range.to<getLength())
@@ -207,4 +220,10 @@ public class AnnotatedSequence
 		restrictionSites.clear(); //TODO
 		}
 	
+	
+	@Override
+	public String toString()
+		{
+		return sequenceUpper+"\n"+sequenceLower;
+		}
 	}
