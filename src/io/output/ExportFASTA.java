@@ -35,6 +35,7 @@ public class ExportFASTA implements SequenceExporter
 			pw.println(">"+s.name);
 			pw.println(s.getSequence());
 			}
+		pw.flush();
 		}
 
 

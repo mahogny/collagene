@@ -71,7 +71,7 @@ public class ExportGenbank implements SequenceExporter
 			pw.println();
 			}
 		pw.println("//");
-		pw.close();
+		pw.flush();
 		}
 
 	
