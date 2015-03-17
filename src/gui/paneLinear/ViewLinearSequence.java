@@ -258,9 +258,10 @@ public class ViewLinearSequence extends QGraphicsView
 				revsitePositionPerLine.put(site,thisbr);
 				maxSiteHeight=Math.max(maxSiteHeight,thish);
 				}
-			
+
 			//Allocate space for the restriction sites
 			currentY+=maxSiteHeight*siteHeightPx+2;			
+			sequenceLineY.add(currentY); //reference to sequence line
 			
 			//Draw arrows down onto sequence
 			for(QRectF r:revsitePositionPerLine.values())
@@ -270,23 +271,20 @@ public class ViewLinearSequence extends QGraphicsView
 				li.setLine(r.left()-siteDx,r.bottom(),r.left()-siteDx,currentY);
 				scene.addItem(li);
 				}
-			
+
 			//Draw the sequence text
-			sequenceLineY.add(currentY);
-			
 			QGraphicsLinSeqTextAnnotationItem titem=new QGraphicsLinSeqTextAnnotationItem();
 			titem.curline=curline;
 			titem.currentY=currentY;
 			titem.seq=seq;
 			titem.view=this;
 			scene.addItem(titem);
-			
 			currentY+=titem.boundingRect().height();
 
 			//////////////////////////////////////////////// Place primers
 			int primerh=0;
 			LinkedList<QRectF> prevprimerplaced=new LinkedList<QRectF>();
-			double oneprimerh=charHeight-4;
+			double oneprimerh=charHeight;
 			for(Primer p:seq.primers)
 				{
 				if(p.targetPosition>=cposLeft && p.targetPosition<=cposRight)
@@ -297,7 +295,7 @@ public class ViewLinearSequence extends QGraphicsView
 					double x2=mapCharToX(p.targetPosition-cposLeft);
 					double x3;
 					int arrowsize=5;
-					double texty=basey-2;
+					double texty=basey-3;
 					if(p.orientation==Orientation.FORWARD)
 						{
 						x1=x2-charWidth*p.sequence.length();
@@ -362,18 +360,31 @@ public class ViewLinearSequence extends QGraphicsView
 				}
 			currentY+=primerh*oneprimerh+2;
 			
+/*
+			QGraphicsLineItem li=new QGraphicsLineItem();
+			li.setLine(0, currentY, 100, currentY);
+			li.setPen(penSequence);
+			scene.addItem(li);*/
+
 			//////////////////////////////////////////////// Draw annotation
-			int currentAnnotationHeight=0;
+			int currentAnnotationHeight=-1;
+			int oneannoth=20;
 			for(SeqAnnotation annot:seq.annotations)
 				{
 				//Check if this feature is in range
 				if(annot.getTo()>cposLeft && annot.getFrom()<cposRight)
 					{
 					//Annotation should go beneath sequence, above position line
-					int basey=currentY+currentAnnotationHeight*20;
-					int polyyup=basey+30;
-					int polyydown=basey+48;
-					int polyymid=basey+36;
+					currentAnnotationHeight++;
+//					if(currentAnnotationHeight==-1)
+//						currentAnnotationHeight=0;  //write a better allocator!
+					int thisannoth=currentAnnotationHeight;
+					
+					
+					int basey=currentY+thisannoth*oneannoth;
+					int polyyup=basey;
+					int polyydown=basey+18;
+					int polyymid=basey+9;
 					
 					QPolygonF poly=new QPolygonF();
 					
@@ -438,18 +449,22 @@ public class ViewLinearSequence extends QGraphicsView
 					ti.setPlainText(annot.name);
 					ti.setPos(frompos+2, polyyup-2);
 					scene.addItem(ti);
-					
-					currentAnnotationHeight++;
 					}
 				}
-			
-			
-			
-			//Account for the additions of all features
-			currentY+=(currentAnnotationHeight+1)*20;
+			currentY+=(currentAnnotationHeight+1)*oneannoth;
+
+			//Add position item
+			QGraphicsLinSeqPosItem pitem=new QGraphicsLinSeqPosItem();
+			pitem.curline=curline;
+			pitem.currentY=currentY;
+			pitem.seq=seq;
+			pitem.view=this;
+			scene.addItem(pitem);
+			currentY+=pitem.boundingRect().height();
+
 			
 			//Move to next line
-			currentY+=40;
+			currentY+=10;
 			}
 		
 		//Update view size
@@ -929,6 +944,8 @@ public class ViewLinearSequence extends QGraphicsView
 	SelectedRestrictionEnzyme selectedEnz=new SelectedRestrictionEnzyme();
 
 	public boolean showProteinTranslation=true;
+
+	public boolean showPositionRuler=true;
 
 
 	/**

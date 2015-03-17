@@ -72,11 +72,23 @@ public class AnnotationWindow extends QDialog
 		bCancel.clicked.connect(this,"actionCancel()");
 		}
 	
+	public boolean wasOk=false;
 	
 	public void actionOK()
 		{
-		if(tfName.text().equals(""))
+		if(storeAnnot())
+			{
+			wasOk=true;
+			close();
+			}
+		else
 			QTutil.showNotice(this, tr("Annotation must have a name"));
+		}
+
+	public boolean storeAnnot()
+		{
+		if(tfName.text().equals(""))
+			return false;
 		else
 			{
 			annot.name=tfName.text();
@@ -84,13 +96,12 @@ public class AnnotationWindow extends QDialog
 			annot.range.to=IndexUtil.toTointernal(spTo.value());
 			annot.orientation=orientations.get(comboOrientation.currentIndex());
 			annot.color=colorcombo.getCurrentColor();
-			close();
+			return true;
 			}
 		}
-
+	
 	public void actionCancel()
 		{
-		annot=null;
 		close();
 		}
 
@@ -106,7 +117,10 @@ public class AnnotationWindow extends QDialog
 
 	public SeqAnnotation getAnnotation()
 		{
-		return annot;
+		if(wasOk)
+			return annot;
+		else
+			return null; 
 		}
 	
 	}

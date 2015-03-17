@@ -3,10 +3,8 @@ package other;
 import io.input.ImportFASTA;
 import io.output.ExportFASTA;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.TreeMap;
@@ -30,7 +28,6 @@ public class FastaTemplater
 	
 	public static void main(String[] args)
 		{
-		
 		File f=new File("/home/mahogny/Dropbox/ebi/_my protocols/droplets/oligodesign.fa");
 		File fo=new File("/home/mahogny/Dropbox/ebi/_my protocols/droplets/oligodesign.fa.processed");
 		
@@ -40,16 +37,11 @@ public class FastaTemplater
 			t.addAll(ImportFASTA.load(f));
 			t.process();
 			t.out(fo);
-			
-//			System.out.println(t.mapNameSeq);
 			}
 		catch (IOException e)
 			{
 			e.printStackTrace();
 			}
-		
-		
-		
 		}
 
 

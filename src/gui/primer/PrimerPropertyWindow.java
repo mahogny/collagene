@@ -45,17 +45,21 @@ public class PrimerPropertyWindow extends QDialog
 		setMinimumWidth(500);
 		}
 	
+	public boolean wasOk=false;
+	
 	public void actionOK()
 		{
-		primer.name=tfName.text();
-		primer.sequence=tfSequence.text();
-		if(!primer.name.equals("") && !primer.sequence.equals(""))
+		if(!tfName.text().equals("") && !tfSequence.text().equals(""))
+			{
+			primer.name=tfName.text();
+			primer.sequence=tfSequence.text();
+			wasOk=true;
 			close();
+			}
 		}
 
 	public void actionCancel()
 		{
-		primer=null;
 		close();
 		}
 	
@@ -65,9 +69,13 @@ public class PrimerPropertyWindow extends QDialog
 		tfName.setText(p.name);
 		tfSequence.setText(p.sequence);
 		}
+	
 	public Primer getPrimer()
 		{
-		return primer;
+		if(wasOk)
+			return primer;
+		else
+			return null;
 		}
 		
 	}

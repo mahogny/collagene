@@ -24,6 +24,7 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 	int currentY;
 	int curline;
 	ViewLinearSequence view;
+
 	
 	public double fonth()
 		{
@@ -33,6 +34,8 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 	public void paint(QPainter painter, QStyleOptionGraphicsItem option, QWidget widget) 
 		{
 		int charsPerLine=view.charsPerLine;
+
+		int currentY=this.currentY;
 		
 		SkylineDNArenderer p=new SkylineDNArenderer();
 		
@@ -61,6 +64,7 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 			}
 
 		//Draw protein translation beneath
+		currentY+=fonth()*2;
 		if(view.showProteinTranslation)
 			{
 			ProteinTranslator ptrans=new ProteinTranslator();
@@ -75,16 +79,15 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 						double x1=view.mapCharToX(i-1)+1;
 						double x2=view.mapCharToX(i+2)-1;
 						painter.fillRect(new QRectF(
-								x1, currentY+fonth()*(2+frame)+5, 
+								x1, currentY+fonth()*(frame)+5, 
 								x2-x1, fonth()-2), QColor.fromRgb(200,200,255));
 						
 						String triplet=seq.getSequence().substring(cpos,cpos2);
-						painter.drawText(new QPointF(view.mapCharToX(i), currentY+fonth()*(3+frame)), ptrans.tripletToAminoLetter(triplet));
+						painter.drawText(new QPointF(view.mapCharToX(i), currentY+fonth()*(1+frame)), ptrans.tripletToAminoLetter(triplet));
 						}
 					}			
+			currentY+=fonth()*3+5;
 			}
-
-		
 		}
 
 	@Override
