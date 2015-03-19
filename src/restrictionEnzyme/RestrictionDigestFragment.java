@@ -132,8 +132,6 @@ public class RestrictionDigestFragment
 					annot.range.shift(-origseq.getLength());
 				if(annot.getFrom()>=0 && annot.getTo()<=newseq.getLength())
 					newseq.addAnnotation(annot);
-				else
-					System.out.println("kicking here "+annot.range);
 				}
 			}
 		newseq.normalizeFeaturePos();

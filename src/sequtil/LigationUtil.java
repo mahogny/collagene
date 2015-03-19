@@ -91,7 +91,6 @@ public class LigationUtil
 		for(;i<seq.getLength();i++)
 			if(upr.charAt(i)!=' ' && lwr.charAt(i)!=' ')
 				break;
-		System.out.println(i);
 		SequenceRange r=new SequenceRange(0,i);
 		sticky.setSequence(seq.getSequence(r), seq.getSequenceLower(r));
 		return sticky;
@@ -203,10 +202,6 @@ public class LigationUtil
 		seqA.copyFeaturesTo(newseq, 0);
 		seqB.copyFeaturesTo(newseq, seqA.getLength()-cnt);
 		newseq.normalizeFeaturePos();
-		
-		System.out.println("fa "+seqA.annotations);
-		System.out.println("fb "+seqB.annotations);
-		System.out.println("features "+newseq.annotations);
 
 		return newseq;
 		}
