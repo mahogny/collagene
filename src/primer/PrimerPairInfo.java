@@ -53,6 +53,7 @@ public class PrimerPairInfo
 		for(SeqAnnotation a:seq.annotations)
 			{
 			SeqAnnotation newa=new SeqAnnotation(a);                       //TODO PCR over boundaries. how does that affect this?
+			System.out.println("was range "+newa.range);
 			newa.range=newa.range.toUnwrappedRange(seq);
 			newa.range.shift(shift);
 			System.out.println("here is a range "+newa.range);

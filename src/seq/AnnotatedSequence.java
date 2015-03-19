@@ -186,10 +186,12 @@ public class AnnotatedSequence
 		//The annotation
 		for(SeqAnnotation a:annotations)
 			{
+			//a.range=a.range.toNormalizedRange(this);
 			int to=getLength()-a.getFrom();
 			int from=getLength()-a.getTo();
 			a.setRange(from,to);
 			a.orientation=Orientation.reverse(a.orientation);
+			System.out.println("range now "+a.range);
 			}
 		
 		//TODO restriction sites
@@ -201,7 +203,8 @@ public class AnnotatedSequence
 			p.targetPosition=getLength()-p.targetPosition;
 			p.orientation=Orientation.reverse(p.orientation);
 			}
-		
+
+		normalizeFeaturePos();
 		}
 	
 	
@@ -217,15 +220,16 @@ public class AnnotatedSequence
 	 */
 	public void copyFeaturesTo(AnnotatedSequence seq, int shift)
 		{
-		for(SeqAnnotation annot:seq.annotations)
+		for(SeqAnnotation annot:annotations)
 			{
 			SeqAnnotation na=new SeqAnnotation(annot);
 			na.range.toUnwrappedRange(seq);
 			na.range.shift(shift);
 			seq.addAnnotation(na);
+			System.out.println("copy feature "+na.range);
 			}
-		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
-			for(RestrictionSite site:seq.restrictionSites.get(enz))
+		for(RestrictionEnzyme enz:restrictionSites.keySet())
+			for(RestrictionSite site:restrictionSites.get(enz))
 				{
 				RestrictionSite rs=new RestrictionSite(site);
 				rs.shift(shift);
@@ -237,6 +241,14 @@ public class AnnotatedSequence
 			p.shift(shift);
 			seq.addPrimer(p);
 			}
+		}
+	
+	public void normalizeFeaturePos()
+		{
+		for(SeqAnnotation annot:annotations)
+			annot.range=annot.range.toNormalizedRange(this);
+		for(Primer p:primers)
+			p.targetPosition=normalizePos(p.targetPosition);
 		}
 	
 	/**

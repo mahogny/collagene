@@ -119,18 +119,24 @@ public class RestrictionDigestFragment
 		for(SeqAnnotation annot:origseq.annotations)
 			{
 			annot=new SeqAnnotation(annot);
+			annot.range=annot.range.toUnwrappedRange(origseq);
 			annot.range.shift(-featureshift);
 			if(annot.getFrom()>=0 && annot.getTo()<=newseq.getLength())
 				newseq.addAnnotation(annot);
 			else
 				{
-				//For circular sequences, need to rotate around one turn and try again
-				annot.range.shift(-origseq.getLength());
+				//For circular sequences, need to rotate around one turn and try again. ooor?
+				if(annot.getFrom()<0)
+					annot.range.shift(+origseq.getLength());
+				else
+					annot.range.shift(-origseq.getLength());
 				if(annot.getFrom()>=0 && annot.getTo()<=newseq.getLength())
 					newseq.addAnnotation(annot);
+				else
+					System.out.println("kicking here "+annot.range);
 				}
 			}
-		
+		newseq.normalizeFeaturePos();
 		return newseq;
 		}
 	

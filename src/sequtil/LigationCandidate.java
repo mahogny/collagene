@@ -26,9 +26,15 @@ public class LigationCandidate
 	 */
 	public AnnotatedSequence getProduct()
 		{
+		System.out.println("fa## "+seqA.annotations);
+		System.out.println("fb## "+seqB.annotations);
+
 		AnnotatedSequence seqA=new AnnotatedSequence(this.seqA);
 		AnnotatedSequence seqB=new AnnotatedSequence(this.seqB);
 		
+		System.out.println("fa#2# "+seqA.annotations);
+		System.out.println("fb#2# "+seqB.annotations);
+
 		String nA=seqA.name;
 		String nB=seqB.name;
 		if(rotateA)

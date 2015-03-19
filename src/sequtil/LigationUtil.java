@@ -202,6 +202,7 @@ public class LigationUtil
 		newseq.setSequence(upr,lwr);
 		seqA.copyFeaturesTo(newseq, 0);
 		seqB.copyFeaturesTo(newseq, seqA.getLength()-cnt);
+		newseq.normalizeFeaturePos();
 		
 		System.out.println("fa "+seqA.annotations);
 		System.out.println("fb "+seqB.annotations);

@@ -152,7 +152,7 @@ public class SequenceRange
 	
 	public void shift(int featureshift)
 		{
-		from-=featureshift;
-		to-=featureshift;
+		from+=featureshift;
+		to+=featureshift;
 		}
 	}
