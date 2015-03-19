@@ -124,6 +124,27 @@ public class RestrictionEnzyme
 			}
 		return map;
 		}
+
+
+	public boolean isNicking()
+		{
+		for(RestrictionEnzymeCut cut:cuts)
+			if(cut.lower==null)
+				return true;
+		return false;
+		}
+
+
+	public boolean isBlunt()
+		{
+		for(RestrictionEnzymeCut cut:cuts)
+			{
+			if(cut.upper!=null && cut.lower!=null)
+				if(cut.upper!=cut.lower)
+					return false;
+			}
+		return true;
+		}
 	
 	
 	}

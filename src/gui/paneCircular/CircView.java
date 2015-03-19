@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import primer.Primer;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.RestrictionSite;
@@ -28,10 +29,12 @@ import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QFontMetricsF;
 import com.trolltech.qt.gui.QGraphicsEllipseItem;
 import com.trolltech.qt.gui.QGraphicsLineItem;
+import com.trolltech.qt.gui.QGraphicsPathItem;
 import com.trolltech.qt.gui.QGraphicsScene;
 import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QGraphicsView;
 import com.trolltech.qt.gui.QMouseEvent;
+import com.trolltech.qt.gui.QPainterPath;
 import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QResizeEvent;
 import com.trolltech.qt.gui.QSizePolicy;
@@ -155,7 +158,7 @@ public class CircView extends QGraphicsView
 		QTransform trans=QTransform.fromScale(scale,scale);
 		setTransform(trans,false);
 	
-		double dy=Math.max(0,(plasmidRadius+30/circZoom)*scale-height()/2)/scale;
+		double dy=Math.max(0,(plasmidRadius+50/circZoom)*scale-height()/2)/scale;
 		double y=-dy;
 		
 		//and here another thing. when getting the line to mid, should keep it in the mid
@@ -312,7 +315,37 @@ public class CircView extends QGraphicsView
 		//Add all annotations
 		addsceneAnnotation();
 		
-
+		//Add all primers
+		QPen penPrimer=new QPen();
+		penPrimer.setColor(QColor.blue);
+		double fzoom=getFeatureZoom();
+		for(Primer p:seq.primers)
+			{
+			double primerRadius=plasmidRadius-1.5/fzoom;
+			SequenceRange r=p.getRange().toNormalizedRange(seq);
+			
+			double rfrom=r.from/(double)seq.getLength();
+			double rto=  r.to  /(double)seq.getLength();
+			
+			QPainterPath poly=new QPainterPath();
+			for(int i=0;i<=10;i++)
+				{
+				double ang=(rto-rfrom)*i/10.0+circPan+rfrom;
+				double x=Math.cos(Math.PI*2*ang)*primerRadius;
+				double y=Math.sin(Math.PI*2*ang)*primerRadius;
+				if(i==0)
+					poly.moveTo(x, y);
+				else
+					poly.lineTo(x, y);
+				}
+			QGraphicsPathItem item=new QGraphicsPathItem();
+			item.setPath(poly);
+			item.setPen(penPrimer);
+			scene.addItem(item);
+			}
+			
+		
+		
 		//Find restriction sites to draw
 		LinkedList<RestrictionSite> totSites=new LinkedList<RestrictionSite>();
 		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
@@ -516,6 +549,12 @@ public class CircView extends QGraphicsView
 
 		// Call the subclass resize so the scrollbars are updated correctly
 		super.resizeEvent(event);
+		}
+
+
+	public double getFeatureZoom()
+		{
+		return Math.max(1.5,circZoom);
 		}
 
 

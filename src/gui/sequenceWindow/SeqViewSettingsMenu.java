@@ -1,7 +1,6 @@
 package gui.sequenceWindow;
 
 import restrictionEnzyme.RestrictionEnzyme;
-import restrictionEnzyme.RestrictionEnzymeCut;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.gui.QAction;
@@ -9,6 +8,8 @@ import com.trolltech.qt.gui.QMenu;
 
 
 /**
+ * 
+ * Settings for a sequence viewer
  * 
  * @author Johan Henriksson
  *
@@ -18,12 +19,18 @@ public class SeqViewSettingsMenu extends QMenu
 	private int numRestrictionSite=1;
 
 	private boolean showNickEnzymes=true;
-	private QAction cbNickSites=new QAction(tr("Single-cutters"),this);
-	private QAction cbSkyline=new QAction(tr("Skyline sequence"),this);
+	public boolean showSkyline=false;
+	private boolean showBluntSites=true;
+	private boolean showStickySites=true;
 	
+	private QAction cbSkyline=new QAction(tr("Skyline sequence"),this);
+	private QAction cbNickSites=new QAction(tr("Nick sites"),this);
+	private QAction cbShowBlunt=new QAction(tr("Blunt sites"),this);
+	private QAction cbShowSticky=new QAction(tr("Sticky sites"),this);
+
 	public QSignalEmitter.Signal0 signalSettingsChanged=new Signal0();
 
-	public boolean showSkyline=false;
+
 	
 	public void setRestrictionSite0()
 		{
@@ -52,19 +59,15 @@ public class SeqViewSettingsMenu extends QMenu
 		boolean b = (c>=1 && c<=numRestrictionSite) || numRestrictionSite==-1;
 		if(b)
 			{
-			if(showNickEnzymes)
-				return true;
-			else
-				{
-				for(RestrictionEnzymeCut cut:enz.cuts)
-					if(cut.lower==null)
-						return false;
-				return true;
-				}
+			boolean a=showBluntSites  && enz.isBlunt();
+			boolean d=showStickySites && !enz.isBlunt();
+			boolean g=showNickEnzymes && enz.isNicking();
+			return a || d || g;
 			}
 		else
 			return false;
 		}
+
 	
 	
 
@@ -80,6 +83,8 @@ public class SeqViewSettingsMenu extends QMenu
 		addAction("All",this,"setRestrictionSiteAll()");
 		addSeparator();
 		addAction(cbNickSites);
+		addAction(cbShowBlunt);
+		addAction(cbShowSticky);
 		addSeparator();
 		addAction(cbSkyline);
 		
@@ -87,6 +92,14 @@ public class SeqViewSettingsMenu extends QMenu
 		cbNickSites.setChecked(showNickEnzymes);
 		cbNickSites.triggered.connect(this,"updateSettings()");
 		
+		cbShowBlunt.setCheckable(true);
+		cbShowBlunt.setChecked(showBluntSites);
+		cbShowBlunt.triggered.connect(this,"updateSettings()");
+
+		cbShowSticky.setCheckable(true);
+		cbShowSticky.setChecked(showStickySites);
+		cbShowSticky.triggered.connect(this,"updateSettings()");
+
 		cbSkyline.setCheckable(true);
 		cbSkyline.setChecked(showSkyline);
 		cbSkyline.triggered.connect(this,"updateSettings()");
@@ -98,6 +111,9 @@ public class SeqViewSettingsMenu extends QMenu
 		{
 		showNickEnzymes=cbNickSites.isChecked();
 		showSkyline=cbSkyline.isChecked();
+		showBluntSites=cbShowBlunt.isChecked();
+		showStickySites=cbShowSticky.isChecked();
+		
 		signalSettingsChanged.emit();
 		}
 	

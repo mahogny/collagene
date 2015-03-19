@@ -21,6 +21,8 @@ import seq.SeqColor;
  * 
  * https://github.com/addgene/giraffe  for detecting stuff in sequence
  * 
+ * http://www.addgene.org/browse/sequence_vdb/6108/   for commercial sequences
+ * 
  * http://www.addgene.org/50946/   here is a main thing
  * 
  * http://www.addgene.org/50946/sequences/#depositor-full    the sequence
@@ -120,8 +122,13 @@ public class ImportAddgene
 		//Construct URL to giraffe database for the features
 		if(!url.endsWith("/"))
 			url=url+"/";
-		String giraffeID=downloadAsString(url+"giraffe-analyze/");
-
+		String giraffeID;
+		
+		if(url.contains("sequence_vdb"))
+			giraffeID=downloadAsString("http://www.addgene.org/browse/sequence/"+getGiraffeInt(url)+"/giraffe-analyze_vdb/");
+		else
+			giraffeID=downloadAsString(url+"giraffe-analyze/");
+			
 		giraffeID=giraffeID.substring(giraffeID.indexOf("init_giraffe_analyze(")+"init_giraffe_analyze(".length());
 		giraffeID=giraffeID.substring(0,giraffeID.indexOf(','));
 		giraffeID=giraffeID.replace("\"", "").trim();
@@ -194,7 +201,8 @@ public class ImportAddgene
 		{
 		 try
 			{
-			get("http://www.addgene.org/browse/sequence/76659/");
+//			get("http://www.addgene.org/browse/sequence/76659/");
+			get("http://www.addgene.org/browse/sequence_vdb/6108/");
 			}
 		catch (IOException e)
 			{
@@ -204,14 +212,49 @@ public class ImportAddgene
 		}
 	
 
+	public static Integer getGiraffeInt(String t)
+		{
+		if(t.startsWith("http://www.addgene.org/browse/sequence/") || t.startsWith("https://www.addgene.org/browse/sequence/") ||
+				t.startsWith("http://www.addgene.org/browse/sequence_vdb/6108/"))  // and a number"76659/"
+			{
+			String t2;
+			if(t.contains("sequence_vdb"))
+				t2=t.substring(t.indexOf("sequence_vdb/")+"sequence_vdb/".length());
+			else
+				t2=t.substring(t.indexOf("sequence/")+"sequence/".length());
+			if(t2.length()>0)
+				{
+				if(t2.endsWith("/"))
+					t2=t2.substring(0,t2.length()-1);
+				return Integer.parseInt(t2);
+				}
+			}
+		return null;
+		}
+	
 	public static boolean isAddgeneUrl(String t)
 		{
-		if(t.startsWith("http://www.addgene.org/browse/sequence/") || t.startsWith("https://www.addgene.org/browse/sequence/"))  // and a number"76659/"
+		try
 			{
-			String t2=t.substring(t.indexOf("sequence/")+"sequence/".length());
+			return getGiraffeInt(t)!=null;
+			}
+		catch (Exception e)
+			{
+			return false;
+			}
+		/*
+		if(t.startsWith("http://www.addgene.org/browse/sequence/") || t.startsWith("https://www.addgene.org/browse/sequence/") ||
+				t.startsWith("http://www.addgene.org/browse/sequence_vdb/6108/"))  // and a number"76659/"
+			{
+			String t2;
+			if(t.contains("sequence_vdb"))
+				t2=t.substring(t.indexOf("sequence_vdb/")+"sequence_vdb/".length());
+			else
+				t2=t.substring(t.indexOf("sequence/")+"sequence/".length());
 			if(t2.length()>0 && Character.isDigit(t2.charAt(0)))
 				return true;
 			}
 		return false;
+		*/
 		}
 	}

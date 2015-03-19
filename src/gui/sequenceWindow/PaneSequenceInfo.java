@@ -25,6 +25,7 @@ public class PaneSequenceInfo extends QWidget
 	private QCheckBox cbIsCircular=new QCheckBox();
 	private QTextEdit tfNotes=new QTextEdit();
 	private QLabel tfLength=new QLabel();
+	private QLabel tfWeight=new QLabel();
 
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 	
@@ -37,10 +38,34 @@ public class PaneSequenceInfo extends QWidget
 		isUpdating=true;
 		this.seq=s;
 		
+		double weight;
+		if(s.getLength()<50)
+			{
+			weight=0;
+			for(char c:s.getSequence().toCharArray())
+				{
+				if(c=='A')
+					weight+=312.2;
+				else if(c=='T')
+					weight+=304.2;
+				else if(c=='C')
+					weight+=289.2;
+				else if(c=='G')
+					weight+=329.2;
+				}
+			}
+		else
+			weight=(313.2+304.2+289.2+329.2)/4.0*seq.getLength();
+		if(!seq.isCircular)
+			weight+=79;
+		weight*=2;
+		
+		
 		tfName.setText(seq.name);
 		cbIsCircular.setChecked(seq.isCircular);
 		tfNotes.setText(seq.notes);
 		tfLength.setText(""+seq.getLength());
+		tfWeight.setText("approx "+weight+" Da");
 		isUpdating=false;
 		}
 	
@@ -51,6 +76,7 @@ public class PaneSequenceInfo extends QWidget
 						QTutil.withLabel(tr("Name: "), tfName),
 						QTutil.withLabel(tr("Is circular: "), cbIsCircular),
 						QTutil.withLabel(tr("Length: "), tfLength),
+						QTutil.withLabel(tr("Weight: "), tfWeight),
 						QTutil.withLabel(tr("Notes: "), tfNotes)
 						));
 		

@@ -50,13 +50,12 @@ public class ImportXDNA implements SequenceImporter
 		try
 			{
 			load(is);
-			System.out.println("wheeeeeeeeeeeeeee");
 			return true;
 			}
 		catch (Exception e)
 			{
-			System.out.println("baaaaaaaaaaah");
-			e.printStackTrace();
+			System.out.println("not xdna");
+			//e.printStackTrace();
 			return false;
 			}
 		}

@@ -105,7 +105,8 @@ public class NucleotideUtil
 	
 	public static void main(String[] args)
 		{
-		System.out.println(getRandomOligo(500, new Random()));
+		for(int i=0;i<5;i++)
+			System.out.println(getRandomOligo(100, new Random()));
 		}
 
 	public static String getRepeatOligo(char c, int n)

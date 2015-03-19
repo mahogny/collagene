@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import seq.AnnotatedSequence;
+import seq.Orientation;
 import seq.SeqAnnotation;
 import seq.SeqColor;
 
@@ -25,11 +26,6 @@ import seq.SeqColor;
  */
 public class ImportGenbank implements SequenceImporter
 	{
-
-	private static String unquote(String s)
-		{
-		return s.substring(1,s.length()-1);
-		}
 	
 
 	
@@ -45,7 +41,7 @@ public class ImportGenbank implements SequenceImporter
 			}
 		catch (Exception e)
 			{
-/*		e.printStackTrace();*/
+		e.printStackTrace();
 			return false;
 			}
 		/*
@@ -90,6 +86,13 @@ public class ImportGenbank implements SequenceImporter
 						seq.annotations.add(annot);
 						annot.name=fname;
 
+						annot.orientation=Orientation.FORWARD;
+						if(line.startsWith("complement"))
+							{ //Handle complement(....)
+							annot.orientation=Orientation.REVERSE;
+							line=line.substring("complement(".length());
+							line=line.substring(0,line.length()-1);
+							}
 						int doti=line.indexOf('.');
 						String sfrom=line.substring(0,doti);
 						String sto=line.substring(doti+2);
@@ -106,23 +109,66 @@ public class ImportGenbank implements SequenceImporter
 							if(line.startsWith("                     /"))
 								{
 								line=line.trim().substring(1);
-								if(line.startsWith("label="))
+
+								int eqIndeX=line.indexOf('=');
+								String pname=line.substring(0,eqIndeX);
+								String pvalue="";
+								line=line.substring(eqIndeX+1);
+								if(line.startsWith("\""))
 									{
-									annot.name=unquote(line.substring("label=".length()));
+									//Read until the last " if a starting " appears
+									line=line.substring(1);
+									for(;;)
+										{
+										int ind=line.indexOf('"');
+										if(ind!=-1)
+											{
+											System.out.println("================ "+line);
+											pvalue+=line.substring(0,ind).trim();
+											break;
+											}
+										else
+											{
+											pvalue+=line;
+											line=br.readLine();
+											}
+										}
 									}
-								else if(line.startsWith("ApEinfo_revcolor="))
+								else
+									pvalue=line;
+								System.out.println("name:"+pname);
+								System.out.println("value:"+pvalue);
+								System.out.println();
+								System.out.println();
+								
+								if(pname.equals("label"))
 									{
-									String c=line.substring("ApEinfo_revcolor=#".length());
+									annot.name=pvalue;
+									}
+								else if(pname.equals("note"))
+									{
+									annot.name=pvalue;
+									}
+								else if(pname.equals("ApEinfo_revcolor"))
+									{
+									String c=pvalue.substring("#".length());
 									annot.color.r=Integer.parseInt(c.substring(0,2), 16);
 									annot.color.g=Integer.parseInt(c.substring(2,4), 16);
 									annot.color.b=Integer.parseInt(c.substring(4,6), 16);
 									}
+								else
+									{
+									System.out.println("Unknown pname:"+pname);
+									}
 								
-								System.out.println("++++ "+line);
+//								System.out.println("++++ "+line);
 								line=br.readLine();
 								}
 							else
+								{
+								System.out.println("end on:"+line);
 								break;
+								}
 							}
 						}
 					else
@@ -138,9 +184,6 @@ public class ImportGenbank implements SequenceImporter
 					{
 					if(line.startsWith(" "))
 						{
-//						line=line.trim();
-//						line=line.substring(line.indexOf(' ')).trim();
-//						line=line.replace(" ", "");
 						for(char c:line.toCharArray())
 							if(" 0123456789".indexOf(c)==-1)
 								sb.append(c);
@@ -159,7 +202,7 @@ public class ImportGenbank implements SequenceImporter
 			}
 		
 
-		
+		System.out.println(seq.getSequence());
 		
 		return Arrays.asList(seq);
 		}

@@ -69,7 +69,10 @@ public class SequenceFileHandlers
 			boolean b=imp.isType(fis);
 			fis.close();
 			if(b)
+				{
+				System.out.println("importing with "+imp.getClass());
 				return imp;
+				}
 			}
 		return null;
 		}

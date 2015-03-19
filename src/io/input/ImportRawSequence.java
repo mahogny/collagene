@@ -57,7 +57,8 @@ public class ImportRawSequence implements SequenceImporter
 			}
 		catch (Exception e)
 			{
-			e.printStackTrace();
+			System.out.println("not raw sequence");
+			//e.printStackTrace();
 			return false;
 			}
 		}

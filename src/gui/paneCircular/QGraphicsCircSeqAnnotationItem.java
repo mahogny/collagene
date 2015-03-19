@@ -34,7 +34,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	
 	private double getZoom()
 		{
-		return Math.max(1.5,view.circZoom);
+		return view.getFeatureZoom();
 		}
 	
 	private double getRadius()

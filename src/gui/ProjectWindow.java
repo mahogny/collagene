@@ -20,6 +20,7 @@ import sequtil.LigationCandidate;
 import sequtil.LigationUtil;
 import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
+import gui.cloneAssembler.CloneAssembler;
 import gui.qt.QTutil;
 import gui.resource.ImgResource;
 import gui.sequenceWindow.SequenceWindow;
@@ -95,6 +96,7 @@ public class ProjectWindow extends QMainWindow
 		QPushButton bDeleteSequence=new QPushButton(tr("Delete sequence"));
 		QPushButton bAlign=new QPushButton(tr("Align"));
 		QPushButton bLigate=new QPushButton(tr("Ligate"));
+		QPushButton bAssemble=new QPushButton(tr("Assemble"));
 		
 		setMenuBar(menubar);
 		QMenu mfile=menubar.addMenu("File");
@@ -122,6 +124,7 @@ public class ProjectWindow extends QMainWindow
 		bDeleteSequence.clicked.connect(this,"actionDeleteSequence()");
 		bAlign.clicked.connect(this,"actionAlign()");
 		bLigate.clicked.connect(this,"actionLigate()");
+		bAssemble.clicked.connect(this,"actionAssemble()");
 		
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(wtree);
@@ -130,6 +133,7 @@ public class ProjectWindow extends QMainWindow
 		lay.addWidget(bAnnealOligos);
 		lay.addWidget(bAlign);
 		lay.addWidget(bLigate);
+		lay.addWidget(bAssemble);
 		lay.setMargin(2);
 		lay.setSpacing(2);
 		
@@ -611,6 +615,12 @@ public class ProjectWindow extends QMainWindow
 			}
 		else
 			QTutil.showNotice(this, tr("Select 1 or 2 sequences"));
+		}
+	
+	public void actionAssemble()
+		{
+//		CloneAssembler ass=
+				new CloneAssembler();
 		
 		}
 	
