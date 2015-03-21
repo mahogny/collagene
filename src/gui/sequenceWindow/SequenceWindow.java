@@ -64,7 +64,7 @@ import com.trolltech.qt.gui.QWidget;
 public class SequenceWindow extends QMainWindow
 	{
 	private PaneLinearSequence viewLinear;
-	private PaneCircularSequence viewCircular=new PaneCircularSequence();
+	private PaneCircularSequence viewCircular;
 	private PaneEnzymeList viewEnz;
 	private PaneSequenceInfo viewInfo;
 	private QLineEdit tfSearch=new QLineEdit();
@@ -433,6 +433,7 @@ public class SequenceWindow extends QMainWindow
 		{
 		viewEnz=new PaneEnzymeList(this, projwindow);
 		viewLinear=new PaneLinearSequence(projwindow);
+		viewCircular=new PaneCircularSequence(projwindow);
 		viewInfo=new PaneSequenceInfo(projwindow);
 		this.projwindow=projwindow;
 		

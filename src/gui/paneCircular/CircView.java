@@ -2,8 +2,10 @@ package gui.paneCircular;
 
 
 
+import gui.ProjectWindow;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.sequenceWindow.EventSelectedAnnotation;
+import gui.sequenceWindow.MenuAnnotation;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import com.trolltech.qt.core.Qt.MouseButton;
 import com.trolltech.qt.core.Qt.ScrollBarPolicy;
 import com.trolltech.qt.gui.QBrush;
 import com.trolltech.qt.gui.QColor;
+import com.trolltech.qt.gui.QContextMenuEvent;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QFontMetricsF;
 import com.trolltech.qt.gui.QGraphicsEllipseItem;
@@ -93,6 +96,7 @@ public class CircView extends QGraphicsView
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
 	EventSelectedRestrictionEnzyme selectedEnz=new EventSelectedRestrictionEnzyme();
+	private ProjectWindow pw;
 
 	
 	public void setSelection(SequenceRange r)
@@ -139,8 +143,9 @@ public class CircView extends QGraphicsView
 	/**
 	 * Constructor
 	 */
-	public CircView()
+	public CircView(ProjectWindow pw)
 		{
+		this.pw=pw;
 		setBackgroundBrush(new QBrush(QColor.fromRgb(255,255,255)));
 		
     setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);  //is there a newer version??
@@ -667,4 +672,19 @@ public class CircView extends QGraphicsView
 		}
 
 
+
+	/**
+	 * Create a context menu if right-clicking
+	 */
+	@Override
+	protected void contextMenuEvent(QContextMenuEvent event)
+		{
+		QPointF pos=mapToScene(event.pos());
+		SeqAnnotation curAnnotation=getAnnotationAt(pos);
+		if(curAnnotation!=null)
+			{
+			MenuAnnotation mPopup=new MenuAnnotation(pw, seq, curAnnotation);
+			mPopup.exec(event.globalPos());
+			}
+		}
 	}

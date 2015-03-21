@@ -1,5 +1,6 @@
 package gui.paneCircular;
 
+import gui.ProjectWindow;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.resource.ImgResource;
 import seq.AnnotatedSequence;
@@ -30,13 +31,15 @@ public class PaneCircularSequence extends QWidget
 	private QPushButton bShowSelection=new QPushButton(new QIcon(ImgResource.search), "");
 	private QPushButton bShowAll=new QPushButton(new QIcon(ImgResource.viewFullscreen), "");
 
-	private CircView view=new CircView();
+	private CircView view;
 	
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 	
 	
-	public PaneCircularSequence()
+	public PaneCircularSequence(ProjectWindow pw)
 		{
+		view=new CircView(pw);
+		
 		sliderZoom.setRange(0, 100000);
 		sliderRotate.setRange(0, 1000);
 		sliderZoom.valueChanged.connect(this,"updatecirc()");

@@ -25,7 +25,6 @@ import com.trolltech.qt.gui.QScrollArea;
 import com.trolltech.qt.gui.QTextEdit;
 import com.trolltech.qt.gui.QVBoxLayout;
 import com.trolltech.qt.gui.QWidget;
-import com.trolltech.qt.gui.QSizePolicy.Policy;
 
 /**
  * 

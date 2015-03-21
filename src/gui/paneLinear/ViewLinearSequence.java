@@ -822,19 +822,17 @@ public class ViewLinearSequence extends QGraphicsView
 		{
 		QPointF pos=mapToScene(event.pos());
 		SeqAnnotation curAnnotation=getAnnotationAt(pos);
+		Primer curPrimer=getPrimerAt(pos);
 		if(curAnnotation!=null)
 			{
 			MenuAnnotation mPopup=new MenuAnnotation(w, seq, curAnnotation);
-			
 			mPopup.exec(event.globalPos());
 			}
-		Primer curPrimer=getPrimerAt(pos);
-		if(curPrimer!=null)
+		else if(curPrimer!=null)
 			{
 			MenuPrimer mPopup=new MenuPrimer(w, seq, curPrimer, true);
 			mPopup.exec(event.globalPos());
 			}
-
 		}
 
 	/**
@@ -886,8 +884,6 @@ public class ViewLinearSequence extends QGraphicsView
 		
 		if(event.button()==MouseButton.LeftButton)
 			{
-//			SeqAnnotation oldseqannotation=curAnnotation;
-			
 			//Look for annotation
 			SeqAnnotation curAnnotation=getAnnotationAt(pos);
 			Primer curPrimer=getPrimerAt(pos);
