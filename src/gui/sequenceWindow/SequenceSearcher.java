@@ -23,6 +23,7 @@ public class SequenceSearcher
 	
 	public SequenceSearcher(AnnotatedSequence seq, String currentSearchString)
 		{
+		currentSearchString=currentSearchString.toUpperCase().replace(" ", "");
 		this.currentSearchString=currentSearchString;
 		String upper=seq.getSequence();
 		String lower=seq.getSequenceLower();

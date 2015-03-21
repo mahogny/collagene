@@ -18,6 +18,15 @@ import seq.SequenceRange;
  */
 public class Primer
 	{
+
+	
+	
+	public String name="";
+	public String sequence="";
+	public Orientation orientation=Orientation.FORWARD;
+	public int targetPosition;
+	public SeqColor color;  //TODO. keep color?
+
 	public Primer()
 		{
 		}
@@ -29,15 +38,6 @@ public class Primer
 		targetPosition=p.targetPosition;
 		color=p.color; //copy?
 		}
-	
-	public SeqColor color;  //TODO. keep color?
-	
-	public String name="";
-	public String sequence="";
-
-	public Orientation orientation=Orientation.FORWARD;
-	public int targetPosition;
-
 	
 	public Integer getProductLength(AnnotatedSequence seq, Primer other)
 		{

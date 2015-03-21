@@ -3,7 +3,8 @@ all:
 loc:
 	wc -l \
 	*/*java \
-	*/*/*java
+	*/*/*java \
+	*/*/*/*java
 
 
 
@@ -14,9 +15,11 @@ jars:
 	cd ../bin; jar cfvm ../madgene.jar ../src/MANIFEST.STARTQTCLIENT \
 	*/*.class \
 	*/*/*.class \
+	*/*/*/*.class \
 	*/*.txt \
 	*/*/*.png \
 	*/*/*.txt \
+	*/*/*/*.txt \
 	*/*/EPAM*
 
 ############################################################################################
@@ -132,7 +135,8 @@ lupdate:
 gitaddall:
 	git add \
 	*/*java \
-	*/*/*java 
+	*/*/*java \
+	*/*/*/*java 
 
 
 testrest:

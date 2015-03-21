@@ -19,8 +19,8 @@ public class Annealer
 	
 	public AnnotatedSequence anneal(String upper, String lower)
 		{
-		upper=upper.replace(" ", "");
-		lower=lower.replace(" ", "");
+		upper=upper.replace(" ", "").toUpperCase();
+		lower=lower.replace(" ", "").toUpperCase();
 		
 		lower=NucleotideUtil.reverse(lower);
 		String lowerComp=NucleotideUtil.complement(lower);  ///hm
@@ -81,8 +81,8 @@ public class Annealer
 		for(int i=0;i<Math.max(0,-(imax-lower.length()));i++)
 			sb2.append(" ");
 
-		System.out.println(sb1.toString());
-		System.out.println(sb2.toString());
+		System.out.println("=="+sb1.toString()+"==");
+		System.out.println("=="+sb2.toString()+"==");
 		
 		AnnotatedSequence seq=new AnnotatedSequence();
 		seq.setSequence(sb1.toString(), sb2.toString());

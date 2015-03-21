@@ -145,6 +145,28 @@ public class SequenceWindow extends QMainWindow
 		w.show();
 		}
 	
+	
+
+	/**
+	 * Action: Site directed mutagenesis
+	 */
+	public void actionSDM()
+		{
+		if(!seq.isCircular)
+			QTutil.showNotice(this, tr("Can only perform site directed mutagenesis on circular plasmids"));
+		else
+			{
+			SequenceRange r=getSelection();
+			if(r!=null)
+				{
+				SDMWindow w=new SDMWindow(seq, r);
+				w.exec();
+				setSequence(seq); //Would be better to emit a signal
+				}
+			else
+				errNoSelection();
+			}
+		}
 	/**
 	 * Action: copy
 	 */
@@ -155,7 +177,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(s);
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	public void copyUpperRev()
 		{
@@ -164,7 +186,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(NucleotideUtil.reverse(s));
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	public void copyUpperRevComp()
 		{
@@ -173,7 +195,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(NucleotideUtil.revcomplement(s));
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	public void copyUpperComp()
 		{
@@ -182,7 +204,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(NucleotideUtil.complement(s));
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	
 	
@@ -194,7 +216,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(s);
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	public void copyLowerRev()
 		{
@@ -203,7 +225,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(NucleotideUtil.reverse(s));
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	public void copyLowerRevComp()
 		{
@@ -212,7 +234,7 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(NucleotideUtil.revcomplement(s));
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
 	public void copyLowerComp()
 		{
@@ -221,11 +243,11 @@ public class SequenceWindow extends QMainWindow
 		if(s!=null)
 			cb.setText(NucleotideUtil.complement(s));
 		else
-			errNothingtocopy();
+			errNoSelection();
 		}
-	private void errNothingtocopy()
+	private void errNoSelection()
 		{
-		QTutil.showNotice(this, tr("Nothing to copy"));
+		QTutil.showNotice(this, tr("No selection made"));
 		}
 	
 	
@@ -423,6 +445,7 @@ public class SequenceWindow extends QMainWindow
 		mseq.addSeparator();
 		mseq.addAction(tr("BLAST (NCBI)"), this, "blastNCBI()");
 		mseq.addAction(tr("CRISPR design"), this, "crispr()");
+		mseq.addAction(tr("Site directed mutagenesis"), this, "actionSDM()");
 		mseq.addSeparator();
 		mseq.addAction(tr("Reverse plasmid"), this, "actionReverseSequence()");
 		mseq.addAction(tr("Set plasmid 0-position"), this, "actionSetSequence0()");

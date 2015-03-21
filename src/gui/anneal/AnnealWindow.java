@@ -45,7 +45,9 @@ public class AnnealWindow extends QDialog
 	public void actionOK()
 		{
 		Annealer a=new Annealer();
-		seq=a.anneal(tfUpper.text(), tfLower.text());
+		String ta=tfUpper.text();
+		String tb=tfLower.text();
+		seq=a.anneal(ta, tb);
 		if(seq!=null)
 			close();
 		else

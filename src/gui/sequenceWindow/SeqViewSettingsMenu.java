@@ -32,6 +32,11 @@ public class SeqViewSettingsMenu extends QMenu
 
 
 	
+	public void setRestrictionSiteNone()
+		{
+		numRestrictionSite=-1;
+		signalSettingsChanged.emit();
+		}
 	public void setRestrictionSite0()
 		{
 		numRestrictionSite=0;
@@ -49,14 +54,14 @@ public class SeqViewSettingsMenu extends QMenu
 		}
 	public void setRestrictionSiteAll()
 		{
-		numRestrictionSite=-1;
+		numRestrictionSite=-2;
 		signalSettingsChanged.emit();
 		}
 	
 	
 	public boolean allowsRestrictionSiteCount(RestrictionEnzyme enz, int c)
 		{
-		boolean b = (c>=1 && c<=numRestrictionSite) || numRestrictionSite==-1;
+		boolean b = numRestrictionSite!=-1 && ((c<=numRestrictionSite) || numRestrictionSite==-2);
 		if(b)
 			{
 			boolean a=showBluntSites  && enz.isBlunt();
@@ -77,7 +82,8 @@ public class SeqViewSettingsMenu extends QMenu
 	public SeqViewSettingsMenu()
 		{
 		setTitle(tr("Show restriction sites"));
-		addAction("None",this,"setRestrictionSite0()");
+		addAction("None",this,"setRestrictionSiteNone()");
+		addAction("0",this,"setRestrictionSite0()");
 		addAction("1",this,"setRestrictionSite1()");
 		addAction("1 or 2",this,"setRestrictionSite2()");
 		addAction("All",this,"setRestrictionSiteAll()");

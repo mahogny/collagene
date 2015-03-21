@@ -14,6 +14,8 @@ import org.jdom2.input.SAXBuilder;
 /**
  * URL to download: https://www.neb.com/tools-and-resources/usage-guidelines/nebuffer-performance-chart-with-restriction-enzymes
  *
+ * BsrGI parsed wrong
+ *
  * cat nebuffer.txt | sed 's/&[a-zA-Z0-9]*;//' > nebuffer2.txt
  * 
  * @author Johan Henriksson
