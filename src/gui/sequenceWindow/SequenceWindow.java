@@ -163,7 +163,12 @@ public class SequenceWindow extends QMainWindow
 				{
 				SDMWindow w=new SDMWindow(seq, r);
 				w.exec();
-				setSequence(seq); //Would be better to emit a signal
+				if(w.wasOk)
+					{
+					projwindow.updateEvent(new EventSequenceModified(seq));
+					projwindow.updateEvent(new EventNewSequence(w.getCand().newseq));
+//					setSequence(seq); //Would be better to emit a signal
+					}
 				}
 			else
 				errNoSelection();

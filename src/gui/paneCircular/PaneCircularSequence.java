@@ -46,16 +46,16 @@ public class PaneCircularSequence extends QWidget
 		sliderRotate.valueChanged.connect(this,"updatecirc()");
 		
 		QHBoxLayout laycirc=new QHBoxLayout();
-		laycirc.addWidget(bShowAll);
 		laycirc.addWidget(bShowSelection);
 		laycirc.addWidget(sliderZoom);
+		laycirc.addWidget(bSettings);
 		laycirc.setMargin(0);
 
 		QHBoxLayout laycirc2=new QHBoxLayout();
+		laycirc2.addWidget(bShowAll);
 		laycirc2.addWidget(ImgResource.label(ImgResource.moveLeft));
 		laycirc2.addWidget(sliderRotate);
 		laycirc2.addWidget(ImgResource.label(ImgResource.moveRight));
-		laycirc2.addWidget(bSettings);
 		laycirc2.setMargin(0);
 
 		//private CircViewSettings menuSettings=new CircViewSettings();

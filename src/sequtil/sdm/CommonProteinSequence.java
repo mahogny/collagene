@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 /**
  * 
+ * Common protein sequences
  * 
  * @author Johan Henriksson
  *

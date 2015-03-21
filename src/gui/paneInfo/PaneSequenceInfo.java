@@ -12,6 +12,7 @@ import gui.sequenceWindow.EventSequenceModified;
 import gui.sequenceWindow.MenuAnnotation;
 import seq.AnnotatedSequence;
 import seq.SeqAnnotation;
+import seq.SequenceRange;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.Qt.CheckState;
@@ -91,7 +92,8 @@ public class PaneSequenceInfo extends QScrollArea
 			{
 			primer=p;
 			String tm=MenuPrimer.tryCalcTm(new CalcTmSanta98(), p);
-			lName.setText(primer.name+", "+primer.length()+" bp, Tm: "+tm);
+			SequenceRange range=p.getRange();
+			lName.setText(primer.name+", "+primer.length()+" bp ("+range.from+".."+range.to+"), Tm: "+tm);
 			lSequence.setText(primer.sequence);
 			} 
 		
@@ -138,7 +140,6 @@ public class PaneSequenceInfo extends QScrollArea
 		public void setAnnotation(SeqAnnotation annot)
 			{
 			this.annot=annot;
-			System.out.println("---- "+annot.name);
 			lName.setText(annot.name+", "+annot.range.from+".."+annot.range.to+" ("+annot.range.getSize(seq)+" bp)");
 			} 
 		
@@ -239,7 +240,6 @@ public class PaneSequenceInfo extends QScrollArea
 	 */
 	private void updateAnnotations()
 		{
-		System.out.println("here to update annots");
 		//Add and update existing panes
 		for(SeqAnnotation annot:seq.annotations)
 			{
@@ -257,7 +257,6 @@ public class PaneSequenceInfo extends QScrollArea
 			{
 			if(!seq.annotations.contains(annot))
 				{
-				System.out.println("remove "+annot.name);
 				PaneAnnotation pane=listAnnot.get(annot);
 				layannot.removeWidget(pane);
 				pane.setVisible(false);

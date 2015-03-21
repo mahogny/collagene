@@ -61,7 +61,7 @@ public class SeqViewSettingsMenu extends QMenu
 	
 	public boolean allowsRestrictionSiteCount(RestrictionEnzyme enz, int c)
 		{
-		boolean b = numRestrictionSite!=-1 && ((c<=numRestrictionSite) || numRestrictionSite==-2);
+		boolean b = numRestrictionSite!=-1 && ((c>=1 && c<=numRestrictionSite) || numRestrictionSite==-2 || (c==0 && numRestrictionSite==0));
 		if(b)
 			{
 			boolean a=showBluntSites  && enz.isBlunt();

@@ -29,12 +29,6 @@ public class SiteDirectedMutagenesis
 	
 	
 	
-	public static class SiteDirectedMutagenesisCandidate
-		{
-		public Primer fwd, rev;
-		public double tm;
-		}
-
 	/**
 	 * Design primers to perform the SDM
 	 */
@@ -101,8 +95,20 @@ public class SiteDirectedMutagenesis
 			cand.fwd=pFwd;
 			cand.rev=pRev;
 			
+			cand.newseq=makeNewSequence(seq, region, newmid, name);
+			
 			return cand;
 			}
+		}
+	
+	private static AnnotatedSequence makeNewSequence(AnnotatedSequence seq, SequenceRange region, String newmid, String name)
+		{
+		AnnotatedSequence newseq=new AnnotatedSequence();
+		newseq.setSequence(seq.getSequence(new SequenceRange(0, region.from))+newmid+seq.getSequence(new SequenceRange(region.to, 0))); //has trouble with 0
+		seq.copyFeaturesTo(newseq);
+		newseq.moveFeaturesByInsertion(region.from, newmid.length()-region.getSize(seq));
+		newseq.name=seq.name+"@"+name;
+		return newseq;
 		}
 	
 	

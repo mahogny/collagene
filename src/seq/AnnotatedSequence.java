@@ -223,7 +223,7 @@ public class AnnotatedSequence
 		for(SeqAnnotation annot:annotations)
 			{
 			SeqAnnotation na=new SeqAnnotation(annot);
-			na.range.toUnwrappedRange(seq);
+			na.range=na.range.toUnwrappedRange(seq);
 			na.range.shift(shift);
 			seq.addAnnotation(na);
 			System.out.println("copy feature "+na.range);
@@ -257,6 +257,33 @@ public class AnnotatedSequence
 	public void copyFeaturesTo(AnnotatedSequence seq)
 		{
 		copyFeaturesTo(seq,0);
+		}
+
+
+	/**
+	 * Adjust all features according to the insertion (which can be negative)
+	 */
+	public void moveFeaturesByInsertion(int pos, int insertSize)
+		{
+		System.out.println(insertSize);
+		for(SeqAnnotation annot:annotations)
+			{
+			if(annot.range.from>=pos)
+				annot.range.from+=insertSize;
+			if(annot.range.to>=pos)
+				annot.range.to+=insertSize;
+			}
+		for(RestrictionEnzyme enz:restrictionSites.keySet())
+			for(RestrictionSite rs:restrictionSites.get(enz))
+				{
+				if(rs.cuttingUpperPos!=null && rs.cuttingUpperPos>=pos)
+					rs.cuttingUpperPos+=insertSize;
+				}
+		for(Primer p:primers)
+			{
+			if(p.targetPosition>=pos)
+				p.targetPosition+=insertSize;
+			}
 		}
 	
 	}

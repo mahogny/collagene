@@ -7,7 +7,7 @@ import seq.AnnotatedSequence;
 import seq.SequenceRange;
 import sequtil.sdm.CommonProteinSequence;
 import sequtil.sdm.SiteDirectedMutagenesis;
-import sequtil.sdm.SiteDirectedMutagenesis.SiteDirectedMutagenesisCandidate;
+import sequtil.sdm.SiteDirectedMutagenesisCandidate;
 import sequtil.sdm.SiteDirectedMutagenesisStrategy;
 import gui.qt.QTutil;
 
@@ -114,13 +114,15 @@ public class SDMWindow extends QDialog
 	
 	public boolean wasOk=false;
 	
+	private SiteDirectedMutagenesisCandidate mut;
+	
 	public void actionOK()
 		{
 		if(!tfName.text().equals(""))
 			{
 			SiteDirectedMutagenesisStrategy strat=(SiteDirectedMutagenesisStrategy)comboStrategy.itemData(comboStrategy.currentIndex());
 			
-			SiteDirectedMutagenesisCandidate mut=SiteDirectedMutagenesis.designPrimer(seq, range, tfSequence.text(), tfName.text(), strat);
+			mut=SiteDirectedMutagenesis.designPrimer(seq, range, tfSequence.text(), tfName.text(), strat);
 			seq.primers.add(mut.fwd);
 			seq.primers.add(mut.rev);
 			
@@ -134,5 +136,12 @@ public class SDMWindow extends QDialog
 		close();
 		}
 	
+	public SiteDirectedMutagenesisCandidate getCand()
+		{
+		if(wasOk)
+			return mut;
+		else
+			return null;
+		}
 		
 	}
