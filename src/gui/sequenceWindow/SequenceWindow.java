@@ -366,6 +366,13 @@ public class SequenceWindow extends QMainWindow
 			}
 		else
 			{
+			if(ob instanceof EventSelectedAnnotation)
+				{
+				SeqAnnotation annot=((EventSelectedAnnotation) ob).annot;
+				if(annot!=null)
+					onViewUpdated(new SequenceRange(annot.range));
+				}
+
 			viewLinear.handleEvent(ob);
 			}
 		}

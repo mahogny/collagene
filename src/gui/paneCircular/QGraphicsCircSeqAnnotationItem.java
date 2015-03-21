@@ -4,6 +4,7 @@ import seq.AnnotatedSequence;
 import seq.Orientation;
 import seq.SeqAnnotation;
 
+import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
 import com.trolltech.qt.core.Qt.BrushStyle;
 import com.trolltech.qt.gui.QBrush;
@@ -11,6 +12,7 @@ import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsEllipseItem;
 import com.trolltech.qt.gui.QGraphicsTextItem;
+import com.trolltech.qt.gui.QMouseEvent;
 import com.trolltech.qt.gui.QPainter;
 import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QPolygonF;
@@ -39,8 +41,13 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	
 	private double getRadius()
 		{
+		return getRadius(height);
+		}
+	private double getRadius(int height)
+		{
 		return view.plasmidRadius-11*(height+1)/getZoom();
 		}
+	
 	
 	public void paint(QPainter painter, QStyleOptionGraphicsItem option, QWidget widget) 
 		{
@@ -138,6 +145,42 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		
 		}*/
 
+	public boolean pointWithin(QPointF p)
+		{
+		double rad2=p.x()*p.x()+p.y()*p.y();
+		
+		double router2=getRadius(height-1);
+		double rinner2=getRadius(height);
+		router2*=router2;
+		rinner2*=rinner2;
+		
+		if(rad2>=rinner2 && rad2<=router2)
+			{
+			double angle=Math.atan2(p.y(), p.x());
+//				angle-=circPan*2*Math.PI;
+			while(angle<0)
+					angle+=Math.PI*2;
+			angle/=2*Math.PI;
+
+			/*
+			System.out.println();
+			System.out.println(annot.name);
+			System.out.println("r "+rinner2+"  "+rad2+"   "+router2);*/
+//			double angle=view.getAngle(p)/2.0/Math.PI;
+			double ang1=getAng1();
+			double ang2=getEstAng2wtext();
+
+//			System.out.println("a "+ang1+"  "+angle+"   "+ang2);
+
+			if(ang1<=ang2)
+				return angle>=ang1 && angle<=ang2;
+			else
+				return angle<=ang2 || angle>=ang1;
+			
+			}
+		return false;
+		}
+	
 	Double textwest=null;
 	public double getEstimatedTextWidth()
 		{

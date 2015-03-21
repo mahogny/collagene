@@ -28,6 +28,7 @@ public class PaneCircularSequence extends QWidget
 	private QSlider sliderRotate=new QSlider(Orientation.Horizontal);
 	private QPushButton bSettings=new QPushButton(new QIcon(ImgResource.imgSettings), "");
 	private QPushButton bShowSelection=new QPushButton(new QIcon(ImgResource.search), "");
+	private QPushButton bShowAll=new QPushButton(new QIcon(ImgResource.viewFullscreen), "");
 
 	private CircView view=new CircView();
 	
@@ -42,23 +43,29 @@ public class PaneCircularSequence extends QWidget
 		sliderRotate.valueChanged.connect(this,"updatecirc()");
 		
 		QHBoxLayout laycirc=new QHBoxLayout();
+		laycirc.addWidget(bShowAll);
 		laycirc.addWidget(bShowSelection);
 		laycirc.addWidget(sliderZoom);
-		laycirc.addWidget(ImgResource.label(ImgResource.moveLeft));
-		laycirc.addWidget(sliderRotate);
-		laycirc.addWidget(ImgResource.label(ImgResource.moveRight));
-		laycirc.addWidget(bSettings);
 		laycirc.setMargin(0);
-		
+
+		QHBoxLayout laycirc2=new QHBoxLayout();
+		laycirc2.addWidget(ImgResource.label(ImgResource.moveLeft));
+		laycirc2.addWidget(sliderRotate);
+		laycirc2.addWidget(ImgResource.label(ImgResource.moveRight));
+		laycirc2.addWidget(bSettings);
+		laycirc2.setMargin(0);
+
 		//private CircViewSettings menuSettings=new CircViewSettings();
 		QMenu menu=new QMenu();
 		menu.addMenu(view.settings);
 		
 		bSettings.setMenu(menu);
+		bShowAll.clicked.connect(this,"actionShowAll()");
 		bShowSelection.clicked.connect(this,"actionShowSelection()");
 
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addLayout(laycirc);
+		lay.addLayout(laycirc2);
 		lay.addWidget(view);
 		lay.setMargin(0);
 		setLayout(lay);
@@ -71,6 +78,11 @@ public class PaneCircularSequence extends QWidget
 				sliderzoomtoscale());
 
 		updatecirc();
+		}
+	
+	public void actionShowAll()
+		{
+		sliderZoom.setValue(0);
 		}
 
 	public void actionShowSelection()

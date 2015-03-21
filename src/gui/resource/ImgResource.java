@@ -125,6 +125,7 @@ public class ImgResource
 	public static QPixmap notificationNew = getIcon("fugue-notification-new.png");
 */
 	public static QPixmap search = getIcon("tango-search.png");
+	public static QPixmap viewFullscreen = getIcon("tango-view-fullscreen.png");
 
 	/*
 	public static QPixmap calendar=getIcon("fugue-calendar.png");

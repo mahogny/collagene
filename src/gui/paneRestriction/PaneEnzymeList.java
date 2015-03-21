@@ -147,8 +147,13 @@ public class PaneEnzymeList extends QWidget
 		laysite.addWidget(bPrevSite);
 		laysite.addWidget(bNextSite);
 		
+		QHBoxLayout layb=new QHBoxLayout();
+		layb.addStretch();
+		layb.addWidget(bMenu);
+		layb.setMargin(0);
+		
 		QVBoxLayout lay=new QVBoxLayout();
-		lay.addWidget(bMenu);
+		lay.addLayout(layb);
 		lay.addWidget(tableAvailableEnzymes);
 		
 		lay.addWidget(lEnzName);
@@ -167,7 +172,6 @@ public class PaneEnzymeList extends QWidget
 		
 		
 		tableAvailableEnzymes.selectionModel().selectionChanged.connect(this,"actionSelectedEnzyme()");
-		
 		bDigest.clicked.connect(this,"actionDigest()");
 
 		actionSelectedEnzyme();
@@ -238,17 +242,23 @@ public class PaneEnzymeList extends QWidget
 
 		if(selEnzymes.size()>1)
 			{
-			bufCommon.setVisible(true);
-			labCommon.setVisible(true);
-			layCommon.addWidget(labCommon);
-			layCommon.addWidget(bufCommon);
+			if(!bufCommon.isVisible())
+				{
+				bufCommon.setVisible(true);
+				labCommon.setVisible(true);
+				layCommon.addWidget(labCommon);
+				layCommon.addWidget(bufCommon);
+				}
 			}
 		else
 			{
-			bufCommon.setVisible(false);
-			labCommon.setVisible(false);
-			layCommon.removeWidget(labCommon);
-			layCommon.removeWidget(bufCommon);
+			if(bufCommon.isVisible())
+				{
+				bufCommon.setVisible(false);
+				labCommon.setVisible(false);
+				layCommon.removeWidget(labCommon);
+				layCommon.removeWidget(bufCommon);
+				}
 			}
 		}
 	

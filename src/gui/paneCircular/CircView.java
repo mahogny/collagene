@@ -3,12 +3,14 @@ package gui.paneCircular;
 
 
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
+import gui.sequenceWindow.EventSelectedAnnotation;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import primer.Primer;
@@ -57,6 +59,7 @@ public class CircView extends QGraphicsView
 	
 	
 	public AnnotatedSequence seq=new AnnotatedSequence();
+	private HashMap<SeqAnnotation, QGraphicsCircSeqAnnotationItem> mapAnnot=new HashMap<SeqAnnotation, QGraphicsCircSeqAnnotationItem>();
 
 	public class EmittedText
 		{
@@ -401,6 +404,7 @@ public class CircView extends QGraphicsView
 			});
 			*/
 		//Now place them all
+		mapAnnot.clear();
 		QGraphicsCircSeqAnnotationItem[] annotlist=new QGraphicsCircSeqAnnotationItem[seq.annotations.size()];
 		for(int i=0;i<seq.annotations.size();i++)
 			{
@@ -408,6 +412,7 @@ public class CircView extends QGraphicsView
 			SeqAnnotation annot=seq.annotations.get(i);
 			QGraphicsCircSeqAnnotationItem it=new QGraphicsCircSeqAnnotationItem();
 			annotlist[i]=it;
+			mapAnnot.put(annot, it);
 			it.view=this;
 			it.annot=annot;
 			it.seq=seq;
@@ -494,11 +499,28 @@ public class CircView extends QGraphicsView
 	double getAngle(QMouseEvent event)
 		{
 		QPointF p = mapToScene(event.pos());
+		return getAngle(p);
+		}
+	
+	double getAngle(QPointF p)
+		{
 		double angle=Math.atan2(p.y(), p.x());
 		angle-=circPan*2*Math.PI;
 		while(angle<0)
 			angle+=Math.PI*2;
 		return angle;
+		}
+
+	
+	public SeqAnnotation getAnnotationAt(QPointF p)
+		{
+		for(SeqAnnotation annot:mapAnnot.keySet())
+			{
+			QGraphicsCircSeqAnnotationItem it=mapAnnot.get(annot);
+			if(it.pointWithin(p))
+				return annot;
+			}
+		return null;
 		}
 	
 	/**
@@ -508,14 +530,25 @@ public class CircView extends QGraphicsView
 		{
 		if(event.button()==MouseButton.LeftButton)
 			{
-			isSelecting=true;
-			double angle=getAngle(event);
+			QPointF p = mapToScene(event.pos());
+			SeqAnnotation annot=getAnnotationAt(p);
 			
-			selection=new SequenceRange();
-			selection.from=selection.to=(int)(seq.getLength()*angle/(Math.PI*2));
-			signalUpdated.emit(selection);
+			if(annot!=null)
+				{
+				System.out.println(annot.name);
+				signalUpdated.emit(new EventSelectedAnnotation(annot));
+				}
+			else
+				{
+				isSelecting=true;
+				double angle=getAngle(event);
+				
+				selection=new SequenceRange();
+				selection.from=selection.to=(int)(seq.getLength()*angle/(Math.PI*2));
+				signalUpdated.emit(selection);
 
-			updateSelectionGraphics();
+				updateSelectionGraphics();
+				}
 			}
 		}
 

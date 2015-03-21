@@ -981,15 +981,19 @@ public class ViewLinearSequence extends QGraphicsView
 			hoveringRestrictionSite=getRestrictionSiteAt(pos);
 			
 			if(oldseqannotation!=curAnnotation)
+				{
 				signalUpdated.emit(new EventSelectedAnnotation(curAnnotation));
-			
+				}
+			/*
 			if(curAnnotation!=null)
 				{
 				selection=new SequenceRange(curAnnotation.range);
 				isSelecting=false;
 				signalUpdated.emit(selection);
 				updateSelectionGraphics();  
-				}
+				}*/
+			if(curAnnotation!=null)
+				;
 			else if(curPrimer!=null)
 				{
 				selection=new SequenceRange();
