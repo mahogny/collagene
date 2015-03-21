@@ -1,6 +1,6 @@
 package gui.paneCircular;
 
-import gui.paneRestriction.SelectedRestrictionEnzyme;
+import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.resource.ImgResource;
 import seq.AnnotatedSequence;
 import seq.SequenceRange;
@@ -27,6 +27,7 @@ public class PaneCircularSequence extends QWidget
 	private QSlider sliderZoom=new QSlider(Orientation.Horizontal);
 	private QSlider sliderRotate=new QSlider(Orientation.Horizontal);
 	private QPushButton bSettings=new QPushButton(new QIcon(ImgResource.imgSettings), "");
+	private QPushButton bShowSelection=new QPushButton(new QIcon(ImgResource.search), "");
 
 	private CircView view=new CircView();
 	
@@ -41,7 +42,7 @@ public class PaneCircularSequence extends QWidget
 		sliderRotate.valueChanged.connect(this,"updatecirc()");
 		
 		QHBoxLayout laycirc=new QHBoxLayout();
-		laycirc.addWidget(ImgResource.label(ImgResource.search));
+		laycirc.addWidget(bShowSelection);
 		laycirc.addWidget(sliderZoom);
 		laycirc.addWidget(ImgResource.label(ImgResource.moveLeft));
 		laycirc.addWidget(sliderRotate);
@@ -54,6 +55,7 @@ public class PaneCircularSequence extends QWidget
 		menu.addMenu(view.settings);
 		
 		bSettings.setMenu(menu);
+		bShowSelection.clicked.connect(this,"actionShowSelection()");
 
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addLayout(laycirc);
@@ -63,24 +65,73 @@ public class PaneCircularSequence extends QWidget
 
 		view.settings.signalSettingsChanged.connect(this,"updatecirc()");  //train wreck
 		view.signalUpdated.connect(this,"onViewUpdated(Object)");
-		
+
+		view.movetoinstantaneous(
+				sliderpantopos(),
+				sliderzoomtoscale());
+
 		updatecirc();
 		}
 
+	public void actionShowSelection()
+		{
+		SequenceRange r=view.getSelection();
+		if(r!=null)
+			{
+			AnnotatedSequence seq=view.getSequence();
+			r=r.toUnwrappedRange(seq);
+			int mid=(int)(r.from+r.to)/2;
+			mid=seq.normalizePos(mid);
+			int sliderpos=(int)(sliderRotateMul*3/4 - sliderRotateMul*mid/(double)seq.getLength());
+			while(sliderpos<0)
+				sliderpos+=sliderRotateMul;
+			while(sliderpos>sliderRotateMul)
+				sliderpos-=sliderRotateMul;
+			sliderRotate.setValue(sliderpos);
+			
+			double arcspan=(r.to-r.from)/(double)seq.getLength();
+
+			double minspan=0.05;
+			if(arcspan>0.5)
+				arcspan=0.5;
+			if(arcspan<minspan)
+				arcspan=minspan;
+			int newzoom=scaletosliderzoom(0.6/(arcspan*2));
+			sliderZoom.setValue(newzoom);
+			}
+		}
 	
 	public void onViewUpdated(Object o)
 		{
 		signalUpdated.emit(o);
 		updatecirc();
 		}
+
+	private double sliderzoomtoscale()
+		{
+		return 0.4+sliderZoom.value()/10000.0;
+		}
 	
+	private int scaletosliderzoom(double scale)
+		{
+		return (int)(10000*(scale-0.4));
+		}
+	private double sliderpantopos()
+		{
+		return sliderRotate.value()/(double)sliderRotateMul;
+		}
+		
+	
+	private int sliderRotateMul=1000;
 	public void updatecirc()
 		{
-		view.circPan=sliderRotate.value()/1000.0;
-		view.circZoom=0.4+sliderZoom.value()/10000.0;
-		view.setCameraFromCirc();
+		view.moveto(
+				sliderpantopos(),
+				sliderzoomtoscale());
 		}
 
+	
+	
 	public void setSequence(AnnotatedSequence seq)
 		{
 		view.seq=seq;
@@ -93,7 +144,7 @@ public class PaneCircularSequence extends QWidget
 		}
 
 
-	public void setRestrictionEnzyme(SelectedRestrictionEnzyme enz)
+	public void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
 		{
 		view.selectedEnz=enz;
 		updatecirc();

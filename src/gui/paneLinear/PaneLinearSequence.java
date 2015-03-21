@@ -1,6 +1,6 @@
 package gui.paneLinear;
 
-import gui.paneRestriction.SelectedRestrictionEnzyme;
+import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.resource.ImgResource;
 import seq.AnnotatedSequence;
 import seq.SequenceRange;
@@ -94,10 +94,16 @@ public class PaneLinearSequence extends QWidget
 		return view.getSelection();
 		}
 	
-	public void setRestrictionEnzyme(SelectedRestrictionEnzyme enz)
+	public void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
 		{
 		view.selectedEnz=enz;
 		updateview();
+		}
+	
+	
+	public void handleEvent(Object ob)
+		{
+		view.handleEvent(ob);
 		}
 
 	}

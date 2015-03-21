@@ -6,6 +6,7 @@ import sequtil.ProteinTranslator;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
 import com.trolltech.qt.gui.QColor;
+import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QPainter;
 import com.trolltech.qt.gui.QStyleOptionGraphicsItem;
@@ -13,11 +14,12 @@ import com.trolltech.qt.gui.QWidget;
 
 /**
  * 
+ * One line of DNA and more
  * 
  * @author Johan Henriksson
  *
  */
-public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
+public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 	{
 	public AnnotatedSequence seq;
 	
@@ -67,9 +69,12 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 		currentY+=fonth()*2;
 		if(view.showProteinTranslation)
 			{
+			QFont font=new QFont(view.fontSequence);
 			ProteinTranslator ptrans=new ProteinTranslator();
-			painter.setFont(view.fontSequence);
 			for(int frame=0;frame<3;frame++)
+				{
+				font.setBold((frame+1)%3+1==view.currentReadingFrame);
+				painter.setFont(font);
 				for(int i=frame;i<charsPerLine;i+=3)
 					{
 					int cpos=curline*charsPerLine + i - 1;
@@ -86,6 +91,7 @@ public class QGraphicsLinSeqTextAnnotationItem extends QGraphicsRectItem
 						painter.drawText(new QPointF(view.mapCharToX(i), currentY+fonth()*(1+frame)), ptrans.tripletToAminoLetter(triplet));
 						}
 					}			
+				}
 			currentY+=fonth()*3+5;
 			}
 		}

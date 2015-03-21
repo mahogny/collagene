@@ -1,8 +1,10 @@
 package gui.paneLinear;
 
 import gui.paneCircular.CircView;
-import gui.paneRestriction.SelectedRestrictionEnzyme;
+import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.sequenceWindow.AnnotationWindow;
+import gui.sequenceWindow.EventSelectedAnnotation;
+import gui.sequenceWindow.EventSequenceModified;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.text.NumberFormat;
@@ -29,6 +31,7 @@ import sequtil.NucleotideUtil;
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
+import com.trolltech.qt.core.QTimer;
 import com.trolltech.qt.core.Qt.BrushStyle;
 import com.trolltech.qt.core.Qt.MouseButton;
 import com.trolltech.qt.core.Qt.ScrollBarPolicy;
@@ -67,6 +70,8 @@ public class ViewLinearSequence extends QGraphicsView
 	//Current annotation, if a context menu is opened
 	private SeqAnnotation curAnnotation=null;
 
+	private QTimer timerAnimation=new QTimer();
+
 	
 	private HashMap<QRectF,SeqAnnotation> mapAnnotations=new HashMap<QRectF, SeqAnnotation>();
 	
@@ -86,6 +91,17 @@ public class ViewLinearSequence extends QGraphicsView
 	int charsPerLine;
 	public double charWidth=10;
 	public double charHeight=17;
+	
+	private RestrictionSite hoveringRestrictionSite=null;
+
+	EventSelectedRestrictionEnzyme selectedEnz=new EventSelectedRestrictionEnzyme();
+
+	public boolean showProteinTranslation=true;
+
+	public boolean showPositionRuler=true;
+
+	public int currentReadingFrame=0;
+
 
 	/**
 	 * Set current sequence
@@ -113,16 +129,49 @@ public class ViewLinearSequence extends QGraphicsView
 		selection=s;
 		if(!isSelecting && selection!=null)
 			{
-			//Center on the selection if it comes from another window
-			int line=selection.from/charsPerLine;
-			if(line<0)
-				line=0;
-			else if(line>=sequenceLineY.size())
-				line=sequenceLineY.size()-1;
-			centerOn(width()/2, sequenceLineY.get(line));
+			//Compute y-bounds of selected region
+			int lineFrom=selection.from/charsPerLine;
+			if(lineFrom<0)
+				lineFrom=0;
+			else if(lineFrom>=sequenceLineY.size())
+				lineFrom=sequenceLineY.size()-1;
+			lineFrom=sequenceLineY.get(lineFrom);
+			
+			int lineTo=selection.to/charsPerLine;
+			if(lineTo<0)
+				lineTo=0;
+			else if(lineTo>=sequenceLineY.size())
+				lineTo=sequenceLineY.size()-1;
+			lineTo=sequenceLineY.get(lineTo);
+
+			//Check if current view covers selection
+			QRectF currentSceneRect = mapToScene(rect()).boundingRect();
+			boolean currentlySeesAnnotation=false;
+			if(lineFrom<=lineTo)
+				{
+				//Continuous block of selection
+				QRectF frect=new QRectF(0, lineFrom, width(), lineTo-lineFrom);
+				if(frect.intersects(currentSceneRect))
+					currentlySeesAnnotation=true;
+					moveToPosition(lineFrom);
+				}
+			else
+				{
+				//Selection goes around the boundary
+				QRectF frect1=new QRectF(0, 0, width(), lineTo);
+				QRectF frect2=new QRectF(0, lineFrom, width(), sequenceLineY.get(sequenceLineY.size()-1));
+				if(frect1.intersects(currentSceneRect) || frect2.intersects(currentSceneRect))
+					currentlySeesAnnotation=true;
+				}
+			
+			//Move to beginning of selection if none of it is in the view currently
+			if(!currentlySeesAnnotation)
+				moveToPosition(lineFrom);
 			}
 		updateSelectionGraphics();
 		}
+	
+	
 	
 	
 	/**
@@ -145,9 +194,54 @@ public class ViewLinearSequence extends QGraphicsView
 		setScene(new QGraphicsScene());
 		
 		buildSceneFromDoc();
+		
+		timerAnimation.timeout.connect(this,"timermove()");
+		timerAnimation.setInterval(1000/30);
+		timerAnimation.setSingleShot(false);
+		}
+
+	/**
+	 * Event: animation tick
+	 */
+	public void timermove()
+		{
+		QRectF currentSceneRect = mapToScene(rect()).boundingRect();
+		double currentY=currentSceneRect.top()+currentSceneRect.height()/2;
+
+		double dy=(currentMovetopos-currentY)*0.2;
+
+		double minspeed=3;
+		if(Math.abs(dy)<minspeed)
+			dy=Math.signum(dy)*minspeed;
+		
+		double newy=currentY+dy;
+		if(Math.abs(newy-currentMovetopos)<minspeed)
+			{
+			newy=currentMovetopos;
+			timerAnimation.stop();
+			}
+
+		//System.out.println("timer "+movetopos+"  "+currentY+"   "+dy);
+
+		centerOn(width()/2, newy);
+		
+		//Out of bounds check
+		QRectF newSceneRect = mapToScene(rect()).boundingRect();
+		if(newSceneRect.top()==currentSceneRect.top())
+			timerAnimation.stop();
 		}
 
 	
+	private double currentMovetopos=0;
+	
+	/**
+	 * Scroll to a certain position, with animation
+	 */
+	public void moveToPosition(double ypos)
+		{
+		currentMovetopos=ypos;
+		timerAnimation.start();
+		}
 	
 
 	
@@ -273,7 +367,7 @@ public class ViewLinearSequence extends QGraphicsView
 				}
 
 			//Draw the sequence text
-			QGraphicsLinSeqTextAnnotationItem titem=new QGraphicsLinSeqTextAnnotationItem();
+			QGraphicsLinSequenceItem titem=new QGraphicsLinSequenceItem();
 			titem.curline=curline;
 			titem.currentY=currentY;
 			titem.seq=seq;
@@ -454,7 +548,7 @@ public class ViewLinearSequence extends QGraphicsView
 			currentY+=(currentAnnotationHeight+1)*oneannoth;
 
 			//Add position item
-			QGraphicsLinSeqPosItem pitem=new QGraphicsLinSeqPosItem();
+			QGraphicsLinSeqPositionItem pitem=new QGraphicsLinSeqPositionItem();
 			pitem.curline=curline;
 			pitem.currentY=currentY;
 			pitem.seq=seq;
@@ -475,7 +569,9 @@ public class ViewLinearSequence extends QGraphicsView
 		}	
 	
 	
-	
+	/**
+	 * Update the graphics for the current selection
+	 */
 	private void updateSelectionGraphics()
 		{
 		//Remove previous selection
@@ -726,7 +822,9 @@ public class ViewLinearSequence extends QGraphicsView
 
 
 
-	//Need to keep a list of these? for GC?
+	/**
+	 * For PCRing from the pop-up menu
+	 */
 	public class PCRhandler
 		{
 		PrimerPairInfo pair;
@@ -734,7 +832,7 @@ public class ViewLinearSequence extends QGraphicsView
 			{
 			AnnotatedSequence newseq=pair.dopcr(seq);
 			newseq.name=seq.name+"-pcr-"+pair.primerA.name+"_"+pair.primerB.name;
-			signalUpdated.emit(new SignalNewSequence(newseq));
+			signalUpdated.emit(new EventNewSequence(newseq));
 			}
 		}
 	
@@ -852,18 +950,13 @@ public class ViewLinearSequence extends QGraphicsView
 		w.setAnnotation(a);
 		w.exec();
 		if(w.getAnnotation()!=null)
-			{
-			//seq.annotations.add(w.getAnnotation());
-			signalUpdated.emit(null);
-			//selectionItems.updateSequence();
-			}
-		
+			signalUpdated.emit(new EventSequenceModified());
 		}
 	
 	public void actionDeleteAnnotation()
 		{
 		seq.annotations.remove(curAnnotation);
-		signalUpdated.emit(null);
+		signalUpdated.emit(new EventSequenceModified());
 		}
 	
 	
@@ -880,10 +973,16 @@ public class ViewLinearSequence extends QGraphicsView
 		
 		if(event.button()==MouseButton.LeftButton)
 			{
+			SeqAnnotation oldseqannotation=curAnnotation;
+			
 			//Look for annotation
 			curAnnotation=getAnnotationAt(pos);
 			curPrimer=getPrimerAt(pos);
 			hoveringRestrictionSite=getRestrictionSiteAt(pos);
+			
+			if(oldseqannotation!=curAnnotation)
+				signalUpdated.emit(new EventSelectedAnnotation(curAnnotation));
+			
 			if(curAnnotation!=null)
 				{
 				selection=new SequenceRange(curAnnotation.range);
@@ -910,7 +1009,7 @@ public class ViewLinearSequence extends QGraphicsView
 				}
 			else if(hoveringRestrictionSite!=null)
 				{
-				SelectedRestrictionEnzyme s=new SelectedRestrictionEnzyme();
+				EventSelectedRestrictionEnzyme s=new EventSelectedRestrictionEnzyme();
 				s.add(hoveringRestrictionSite.enzyme);
 				signalUpdated.emit(s);
 				}
@@ -939,13 +1038,6 @@ public class ViewLinearSequence extends QGraphicsView
 		isSelecting=false;
 		}
 
-	private RestrictionSite hoveringRestrictionSite=null;
-
-	SelectedRestrictionEnzyme selectedEnz=new SelectedRestrictionEnzyme();
-
-	public boolean showProteinTranslation=true;
-
-	public boolean showPositionRuler=true;
 
 
 	/**
@@ -989,6 +1081,20 @@ public class ViewLinearSequence extends QGraphicsView
 		{
 		// Call the subclass resize so the scrollbars are updated correctly
 		super.resizeEvent(event);
+		}
+
+
+	public void handleEvent(Object ob)
+		{
+		if(ob instanceof EventSelectedAnnotation)
+			{
+			SeqAnnotation annot=((EventSelectedAnnotation)ob).annot;
+			if(annot!=null)
+				{
+				currentReadingFrame=annot.getFrame();
+				buildSceneFromDoc();
+				}
+			}
 		}
 
 	

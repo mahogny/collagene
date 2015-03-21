@@ -2,7 +2,7 @@ package gui.paneCircular;
 
 
 
-import gui.paneRestriction.SelectedRestrictionEnzyme;
+import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import seq.SequenceRange;
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
+import com.trolltech.qt.core.QTimer;
 import com.trolltech.qt.core.Qt.MouseButton;
 import com.trolltech.qt.core.Qt.ScrollBarPolicy;
 import com.trolltech.qt.gui.QBrush;
@@ -52,6 +53,8 @@ public class CircView extends QGraphicsView
 	//Might be best to work from ChemView. Support arbitrary transformations. Then have a special one on top for common use
 	
 	double plasmidRadius=100;
+	private QTimer timerAnimation=new QTimer();
+	
 	
 	public AnnotatedSequence seq=new AnnotatedSequence();
 
@@ -72,6 +75,8 @@ public class CircView extends QGraphicsView
 	public double circPan=0; //From 0 to 1
 	public double circZoom=1;  //1 means to fit it all into the window
 
+	private double targetCircPan=circPan;
+	private double targetCircZoom=circZoom;
 	
 	protected QPointF currentViewCenter = new QPointF();
 
@@ -84,7 +89,7 @@ public class CircView extends QGraphicsView
 	
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
-	SelectedRestrictionEnzyme selectedEnz=new SelectedRestrictionEnzyme();
+	EventSelectedRestrictionEnzyme selectedEnz=new EventSelectedRestrictionEnzyme();
 
 	
 	public void setSelection(SequenceRange r)
@@ -146,6 +151,10 @@ public class CircView extends QGraphicsView
 		setSceneRect(-10000000, -10000000, 10000000*2, 10000000*2);
 		setScene(new QGraphicsScene());
 		setCameraFromCirc();
+		
+		timerAnimation.setSingleShot(false);
+		timerAnimation.setInterval(1000/30);
+		timerAnimation.timeout.connect(this,"timertimeout()");
 		}
 	
 	
@@ -555,6 +564,73 @@ public class CircView extends QGraphicsView
 	public double getFeatureZoom()
 		{
 		return Math.max(1.5,circZoom);
+		}
+
+
+	public SequenceRange getSelection()
+		{
+		return selection;
+		}
+
+
+	public AnnotatedSequence getSequence()
+		{
+		return seq;
+		}
+
+
+	public void moveto(double pan, double zoom)
+		{
+		targetCircPan=pan;
+		targetCircZoom=zoom;
+		timerAnimation.start();
+		setCameraFromCirc();
+		}
+
+	public void timertimeout()
+		{
+		boolean happyPan=false, happyZoom=false;
+		
+		//Handle panning
+		double dpan=(targetCircPan-circPan)*0.15;
+		double minpan=0.001;
+		if(Math.abs(dpan)<minpan)
+			dpan=Math.signum(dpan)*minpan;
+		double newpan=circPan+dpan;
+		if(Math.abs(targetCircPan-newpan)<minpan)
+			{
+			circPan=targetCircPan;
+			happyPan=true;
+			}
+		else
+			circPan=newpan;
+		
+		//Handle zooming
+		double dzoom=(targetCircZoom-circZoom)*0.1;
+		double minzoom=0.02;
+		if(Math.abs(dzoom)<minzoom)
+			dzoom=Math.signum(dzoom)*minzoom;
+		double newZoom=circZoom+dzoom;
+		if(Math.abs(targetCircZoom-newZoom)<minzoom)
+			{
+			circZoom=targetCircZoom;
+			happyZoom=true;
+			}
+		else
+			circZoom=newZoom;
+		
+		setCameraFromCirc();
+
+		if(happyPan && happyZoom)
+			timerAnimation.stop();
+		}
+
+
+	public void movetoinstantaneous(double pan,
+			double zoom)
+		{
+		targetCircPan=circPan=pan;
+		targetCircZoom=circZoom=zoom;
 		}
 
 

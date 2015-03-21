@@ -73,4 +73,18 @@ public class SeqAnnotation
 		{
 		range=new SequenceRange(from,to);
 		}
+
+	public int getFrame()
+		{
+		if(orientation==Orientation.FORWARD)
+			{
+			return getFrom()%3 + 1;
+			}
+		else if(orientation==Orientation.NOTORIENTED)
+			return 0;
+		else
+			{
+			return getTo()%3 + 4;
+			}
+		}
 	}

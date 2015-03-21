@@ -66,7 +66,7 @@ public class PaneEnzymeList extends QWidget
 	private QLabel labTempInactivation=new QLabel();
 	private ProjectWindow projwindow;
 
-	public QSignalEmitter.Signal1<SelectedRestrictionEnzyme> signalUpdated=new Signal1<SelectedRestrictionEnzyme>();
+	public QSignalEmitter.Signal1<EventSelectedRestrictionEnzyme> signalUpdated=new Signal1<EventSelectedRestrictionEnzyme>();
 	private SequenceWindow seqwindow;
 	
 	/**
@@ -74,11 +74,14 @@ public class PaneEnzymeList extends QWidget
 	 */
 	public void setSequence(AnnotatedSequence seq)
 		{
-		this.seq=seq;
-		
+		this.seq=seq;		
 		updateView();
 		}
 	
+	
+	/**
+	 * Fill in new information
+	 */
 	public void updateView()
 		{
 		//Fill table with enzymes
@@ -95,18 +98,18 @@ public class PaneEnzymeList extends QWidget
 			if(menuSettings.allowsRestrictionSiteCount(enz, sites.size()))
 				{
 				tableAvailableEnzymes.setRowCount(currow+1);
-				QTableWidgetItem it=roItem(enz.name);
+				QTableWidgetItem it=createReadOnlyItem(enz.name);
 				it.setData(Qt.ItemDataRole.UserRole, enz);
 				
 				tableAvailableEnzymes.setItem(currow, 0, it);
-				tableAvailableEnzymes.setItem(currow, 1, roItem(""+sites.size()));
+				tableAvailableEnzymes.setItem(currow, 1, createReadOnlyItem(""+sites.size()));
 				
 				currow++;
 				}
 			}
 		}
 
-	private QTableWidgetItem roItem(String s)
+	private QTableWidgetItem createReadOnlyItem(String s)
 		{
 		QTableWidgetItem it=new QTableWidgetItem(s);
 		it.setFlags(new ItemFlags(ItemFlag.ItemIsSelectable, ItemFlag.ItemIsEnabled));
@@ -185,12 +188,17 @@ public class PaneEnzymeList extends QWidget
 		return null;
 		}
 
+	/**
+	 * Action: Go to website for enzyme
+	 */
 	public void actionGoWebsite()
 		{
 		RestrictionEnzyme enz=getCurrentEnzyme();
 		if(enz!=null && enz.url!=null)
 			QDesktopServices.openUrl(new QUrl(enz.url));
 		}
+	
+	
 	/**
 	 * Action: An enzyme was selected
 	 */
@@ -203,6 +211,10 @@ public class PaneEnzymeList extends QWidget
 			}
 		}
 
+	
+	/**
+	 * Update information about current enzyme
+	 */
 	private void updateDisplayedEnzyme()
 		{
 		RestrictionEnzyme enz=getCurrentEnzyme();
@@ -240,13 +252,17 @@ public class PaneEnzymeList extends QWidget
 			}
 		}
 	
-	private SelectedRestrictionEnzyme getSelection()
+	private EventSelectedRestrictionEnzyme getSelection()
 		{
-		SelectedRestrictionEnzyme e=new SelectedRestrictionEnzyme();
+		EventSelectedRestrictionEnzyme e=new EventSelectedRestrictionEnzyme();
 		e.enzymes=getSelectedEnzymes();
 		return e;
 		}
 	
+	
+	/**
+	 * Format temperature
+	 */
 	private String formatTemp(Double t)
 		{
 		if(t==null)
@@ -254,6 +270,8 @@ public class PaneEnzymeList extends QWidget
 		else
 			return ""+t+"°C";
 		}
+	
+	
 	
 	/**
 	 * Get currently selected enzymes
@@ -284,7 +302,7 @@ public class PaneEnzymeList extends QWidget
 		}
 
 	private boolean isUpdating=false;
-	public void setRestrictionEnzyme(SelectedRestrictionEnzyme enz)
+	public void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
 		{
 		isUpdating=true;
 		tableAvailableEnzymes.selectionModel().clear();

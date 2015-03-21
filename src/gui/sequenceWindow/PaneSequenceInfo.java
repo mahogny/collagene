@@ -101,7 +101,7 @@ public class PaneSequenceInfo extends QWidget
 			seq.name=tfName.text();
 			seq.isCircular=cbIsCircular.checkState()==CheckState.Checked;
 			updateseqnotes();
-			signalUpdated.emit(null);
+			signalUpdated.emit(new EventSequenceModified());
 			}
 		}
 

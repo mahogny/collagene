@@ -13,11 +13,12 @@ import com.trolltech.qt.gui.QWidget;
 
 /**
  * 
+ * Ruler showing positions
  * 
  * @author Johan Henriksson
  *
  */
-public class QGraphicsLinSeqPosItem extends QGraphicsRectItem
+public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 	{
 	public AnnotatedSequence seq;
 	

@@ -6,9 +6,9 @@ import gui.QtProgramInfo;
 import gui.colors.ColorSet;
 import gui.paneCircular.PaneCircularSequence;
 import gui.paneLinear.PaneLinearSequence;
-import gui.paneLinear.SignalNewSequence;
+import gui.paneLinear.EventNewSequence;
 import gui.paneRestriction.PaneEnzymeList;
-import gui.paneRestriction.SelectedRestrictionEnzyme;
+import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.primer.PrimerPropertyWindow;
 import gui.qt.QTutil;
 import gui.resource.ImgResource;
@@ -338,13 +338,13 @@ public class SequenceWindow extends QMainWindow
 	 */
 	public void onViewUpdated(Object ob)
 		{
-		if(ob==null)
+		if(ob instanceof EventSequenceModified)
 			{
 			setSequence(seq);
 			}
-		else if(ob instanceof SignalNewSequence)
+		else if(ob instanceof EventNewSequence)
 			{
-			AnnotatedSequence seq=((SignalNewSequence) ob).seq;
+			AnnotatedSequence seq=((EventNewSequence) ob).seq;
 			projwindow.addSequenceToProject(seq);
 			projwindow.showSequence(seq);
 			}
@@ -357,12 +357,16 @@ public class SequenceWindow extends QMainWindow
 			viewCircular.setSelection(range);
 			updateStatusbar();
 			}
-		else if(ob instanceof SelectedRestrictionEnzyme)
+		else if(ob instanceof EventSelectedRestrictionEnzyme)
 			{
-			SelectedRestrictionEnzyme enz=(SelectedRestrictionEnzyme)ob;
+			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
 			viewLinear.setRestrictionEnzyme(enz);
 			viewCircular.setRestrictionEnzyme(enz);
 			viewEnz.setRestrictionEnzyme(enz);
+			}
+		else
+			{
+			viewLinear.handleEvent(ob);
 			}
 		}
 	

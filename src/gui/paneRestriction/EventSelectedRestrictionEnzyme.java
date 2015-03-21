@@ -10,7 +10,7 @@ import restrictionEnzyme.RestrictionEnzyme;
  * @author Johan Henriksson
  *
  */
-public class SelectedRestrictionEnzyme
+public class EventSelectedRestrictionEnzyme
 	{
 	public LinkedList<RestrictionEnzyme> enzymes=new LinkedList<RestrictionEnzyme>();
 

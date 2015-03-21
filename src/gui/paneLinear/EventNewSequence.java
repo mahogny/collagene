@@ -2,11 +2,11 @@ package gui.paneLinear;
 
 import seq.AnnotatedSequence;
 
-public class SignalNewSequence
+public class EventNewSequence
 	{
 	public AnnotatedSequence seq;
 
-	public SignalNewSequence(AnnotatedSequence seq)
+	public EventNewSequence(AnnotatedSequence seq)
 		{
 		this.seq = seq;
 		}
