@@ -5,6 +5,7 @@ import gui.ProjectWindow;
 import gui.QtProgramInfo;
 import gui.colors.ColorSet;
 import gui.paneCircular.PaneCircularSequence;
+import gui.paneInfo.PaneSequenceInfo;
 import gui.paneLinear.PaneLinearSequence;
 import gui.paneLinear.EventNewSequence;
 import gui.paneRestriction.PaneEnzymeList;
@@ -35,6 +36,7 @@ import sequtil.OrfFinder;
 import com.trolltech.qt.core.QUrl;
 import com.trolltech.qt.gui.QApplication;
 import com.trolltech.qt.gui.QClipboard;
+import com.trolltech.qt.gui.QCloseEvent;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
@@ -61,10 +63,10 @@ import com.trolltech.qt.gui.QWidget;
  */
 public class SequenceWindow extends QMainWindow
 	{
-	private PaneLinearSequence viewLinear=new PaneLinearSequence();
+	private PaneLinearSequence viewLinear;
 	private PaneCircularSequence viewCircular=new PaneCircularSequence();
 	private PaneEnzymeList viewEnz;
-	private PaneSequenceInfo viewInfo=new PaneSequenceInfo();
+	private PaneSequenceInfo viewInfo;
 	private QLineEdit tfSearch=new QLineEdit();
 	private QStatusBar statusbar=new QStatusBar();
 	private QLabel labelTm=new QLabel("");
@@ -344,9 +346,7 @@ public class SequenceWindow extends QMainWindow
 			}
 		else if(ob instanceof EventNewSequence)
 			{
-			AnnotatedSequence seq=((EventNewSequence) ob).seq;
-			projwindow.addSequenceToProject(seq);
-			projwindow.showSequence(seq);
+			projwindow.updateEvent(ob); //if it did not already go there?
 			}
 		else if(ob instanceof SequenceRange)
 			{
@@ -432,7 +432,11 @@ public class SequenceWindow extends QMainWindow
 	public SequenceWindow(ProjectWindow projwindow)
 		{
 		viewEnz=new PaneEnzymeList(this, projwindow);
+		viewLinear=new PaneLinearSequence(projwindow);
+		viewInfo=new PaneSequenceInfo(projwindow);
 		this.projwindow=projwindow;
+		
+
 		
 		ImgResource.setWindowIcon(this);
 		
@@ -754,4 +758,12 @@ public class SequenceWindow extends QMainWindow
 				QTutil.showNotice(this, tr("Failed to find good primers"));
 			}
 		}
+	
+	
+	protected void closeEvent(QCloseEvent arg__1)
+		{
+		super.closeEvent(arg__1);
+		projwindow.hasclosed(this);
+		}
+
 	}

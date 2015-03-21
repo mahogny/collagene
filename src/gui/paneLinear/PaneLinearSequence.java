@@ -1,5 +1,6 @@
 package gui.paneLinear;
 
+import gui.ProjectWindow;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.resource.ImgResource;
 import seq.AnnotatedSequence;
@@ -29,7 +30,7 @@ public class PaneLinearSequence extends QWidget
 	private QSlider sliderZoom=new QSlider(Orientation.Horizontal);
 	private QPushButton bSettings=new QPushButton(new QIcon(ImgResource.imgSettings), "");
 
-	private ViewLinearSequence view=new ViewLinearSequence();
+	private ViewLinearSequence view;
 	
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
 
@@ -37,8 +38,10 @@ public class PaneLinearSequence extends QWidget
 	/**
 	 * Constructor
 	 */
-	public PaneLinearSequence()
+	public PaneLinearSequence(ProjectWindow w)
 		{
+		view=new ViewLinearSequence(w);
+
 		sliderZoom.setRange(0, 5000);
 		sliderZoom.setValue(0);
 		sliderZoom.valueChanged.connect(this,"updateview()");

@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a simple piece of software for cloning, written in Java+QT
+This is a simple piece of software for cloning, written in Java + QT
 
 ## Features
 
@@ -43,10 +43,12 @@ This is a simple piece of software for cloning, written in Java+QT
    * PCR, with mutagenesis
    * Ligation
    * Annealing of oligos
+   * Site directed mutagenesis
   TODO Gibson
 
 
 * Wizards for cloning strategies   
+   * Site direced mutagenesis
    * TODO pcr/restriction
    * TODO gibson
    * TODO topo

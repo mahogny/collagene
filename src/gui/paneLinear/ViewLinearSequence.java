@@ -1,13 +1,13 @@
 package gui.paneLinear;
 
+import gui.ProjectWindow;
 import gui.paneCircular.CircView;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
-import gui.sequenceWindow.AnnotationWindow;
+import gui.primer.MenuPrimer;
 import gui.sequenceWindow.EventSelectedAnnotation;
-import gui.sequenceWindow.EventSequenceModified;
+import gui.sequenceWindow.MenuAnnotation;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,17 +16,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import primer.Primer;
-import primer.PrimerPairInfo;
-import melting.CalcTm;
-import melting.CalcTmSanta98;
-import melting.TmException;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.Orientation;
 import seq.RestrictionSite;
 import seq.SequenceRange;
 import seq.SeqAnnotation;
-import sequtil.NucleotideUtil;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
@@ -35,7 +30,6 @@ import com.trolltech.qt.core.QTimer;
 import com.trolltech.qt.core.Qt.BrushStyle;
 import com.trolltech.qt.core.Qt.MouseButton;
 import com.trolltech.qt.core.Qt.ScrollBarPolicy;
-import com.trolltech.qt.gui.QAction;
 import com.trolltech.qt.gui.QBrush;
 import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QContextMenuEvent;
@@ -47,7 +41,6 @@ import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QGraphicsScene;
 import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QGraphicsView;
-import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMouseEvent;
 import com.trolltech.qt.gui.QPainterPath;
 import com.trolltech.qt.gui.QPen;
@@ -67,11 +60,7 @@ public class ViewLinearSequence extends QGraphicsView
 	
 	public int widthInChars=-1; //-1 means to choose automatically. 
 
-	//Current annotation, if a context menu is opened
-	private SeqAnnotation curAnnotation=null;
-
 	private QTimer timerAnimation=new QTimer();
-
 	
 	private HashMap<QRectF,SeqAnnotation> mapAnnotations=new HashMap<QRectF, SeqAnnotation>();
 	
@@ -101,6 +90,8 @@ public class ViewLinearSequence extends QGraphicsView
 	public boolean showPositionRuler=true;
 
 	public int currentReadingFrame=0;
+
+	private ProjectWindow w;
 
 
 	/**
@@ -177,8 +168,9 @@ public class ViewLinearSequence extends QGraphicsView
 	/**
 	 * Constructor
 	 */
-	public ViewLinearSequence()
+	public ViewLinearSequence(ProjectWindow w)
 		{
+		this.w=w;
 		setBackgroundBrush(new QBrush(QColor.fromRgb(255,255,255)));
 		
     setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);  //is there a newer version??
@@ -220,8 +212,6 @@ public class ViewLinearSequence extends QGraphicsView
 			newy=currentMovetopos;
 			timerAnimation.stop();
 			}
-
-		//System.out.println("timer "+movetopos+"  "+currentY+"   "+dy);
 
 		centerOn(width()/2, newy);
 		
@@ -822,21 +812,7 @@ public class ViewLinearSequence extends QGraphicsView
 
 
 
-	/**
-	 * For PCRing from the pop-up menu
-	 */
-	public class PCRhandler
-		{
-		PrimerPairInfo pair;
-		public void dopcr()
-			{
-			AnnotatedSequence newseq=pair.dopcr(seq);
-			newseq.name=seq.name+"-pcr-"+pair.primerA.name+"_"+pair.primerB.name;
-			signalUpdated.emit(new EventNewSequence(newseq));
-			}
-		}
-	
-	
+
 	
 	/**
 	 * Create a context menu if right-clicking
@@ -845,70 +821,25 @@ public class ViewLinearSequence extends QGraphicsView
 	protected void contextMenuEvent(QContextMenuEvent event)
 		{
 		QPointF pos=mapToScene(event.pos());
-		curAnnotation=getAnnotationAt(pos);
+		SeqAnnotation curAnnotation=getAnnotationAt(pos);
 		if(curAnnotation!=null)
 			{
-			QMenu mPopup=new QMenu();
-			QAction miEdit=mPopup.addAction("Edit annotation");
-			QAction miDeleteAnnot=mPopup.addAction("Delete annotation");
-			
-			miEdit.triggered.connect(this,"actionEditAnnotation()");
-			miDeleteAnnot.triggered.connect(this,"actionDeleteAnnotation()");
+			MenuAnnotation mPopup=new MenuAnnotation(w, seq, curAnnotation);
 			
 			mPopup.exec(event.globalPos());
 			}
-		curPrimer=getPrimerAt(pos);
+		Primer curPrimer=getPrimerAt(pos);
 		if(curPrimer!=null)
 			{
-			String tm="?";
-			String pseq=curPrimer.sequence;
-			try
-				{
-				NumberFormat nf=NumberFormat.getNumberInstance();
-				nf.setMaximumFractionDigits(1);
-				nf.setMinimumFractionDigits(1);
-				CalcTm tmc=new CalcTmSanta98();
-				double d=tmc.calcTm(pseq, NucleotideUtil.complement(pseq));
-				tm=nf.format(d)+"C";
-				}
-			catch (TmException e)
-				{
-				e.printStackTrace();
-				}
-			
-			QMenu mPopup=new QMenu();
-			mPopup.addAction("Sequence: "+curPrimer.sequence);
-			mPopup.addAction("Tm: "+tm);
-			mPopup.addSeparator();
-			
-			for(PrimerPairInfo other:curPrimer.getPairInfo(seq))
-				{
-				//could maybe sort here?
-				PCRhandler h=new PCRhandler();
-				h.pair=other;
-				mPopup.addAction(other.productsize+"bp  =>  "+other.primerB.name, h, "dopcr()");
-				}
-			
-			mPopup.addSeparator();
-			QAction miDeleteAnnot=mPopup.addAction("Delete primer");
-			
-			miDeleteAnnot.triggered.connect(this,"actionDeletePrimer()");
-			
+			MenuPrimer mPopup=new MenuPrimer(w, seq, curPrimer, true);
 			mPopup.exec(event.globalPos());
 			}
 
 		}
 
-	public void actionDeletePrimer()
-		{
-		if(curPrimer!=null)
-			seq.primers.remove(curPrimer);
-		//TODO major update here
-		setSequence(seq);
-		}
-	
-	Primer curPrimer=null;
-	
+	/**
+	 * Get primer at location
+	 */
 	private Primer getPrimerAt(QPointF pos)
 		{
 		for(Primer p:primerPosition.keySet())
@@ -940,24 +871,6 @@ public class ViewLinearSequence extends QGraphicsView
 		}
 
 	
-	/**
-	 * Action: Edit current annotation
-	 */
-	public void actionEditAnnotation()
-		{
-		AnnotationWindow w=new AnnotationWindow();
-		SeqAnnotation a=curAnnotation;
-		w.setAnnotation(a);
-		w.exec();
-		if(w.getAnnotation()!=null)
-			signalUpdated.emit(new EventSequenceModified());
-		}
-	
-	public void actionDeleteAnnotation()
-		{
-		seq.annotations.remove(curAnnotation);
-		signalUpdated.emit(new EventSequenceModified());
-		}
 	
 	
 	/**
@@ -973,42 +886,21 @@ public class ViewLinearSequence extends QGraphicsView
 		
 		if(event.button()==MouseButton.LeftButton)
 			{
-			SeqAnnotation oldseqannotation=curAnnotation;
+//			SeqAnnotation oldseqannotation=curAnnotation;
 			
 			//Look for annotation
-			curAnnotation=getAnnotationAt(pos);
-			curPrimer=getPrimerAt(pos);
+			SeqAnnotation curAnnotation=getAnnotationAt(pos);
+			Primer curPrimer=getPrimerAt(pos);
 			hoveringRestrictionSite=getRestrictionSiteAt(pos);
+
 			
-			if(oldseqannotation!=curAnnotation)
-				{
+			
+			if(curAnnotation!=null)
 				signalUpdated.emit(new EventSelectedAnnotation(curAnnotation));
-				}
-			/*
-			if(curAnnotation!=null)
-				{
-				selection=new SequenceRange(curAnnotation.range);
-				isSelecting=false;
-				signalUpdated.emit(selection);
-				updateSelectionGraphics();  
-				}*/
-			if(curAnnotation!=null)
-				;
 			else if(curPrimer!=null)
 				{
-				selection=new SequenceRange();
-				if(curPrimer.orientation==Orientation.FORWARD)
-					{
-					selection.from=curPrimer.targetPosition-curPrimer.length();
-					selection.to=curPrimer.targetPosition;
-					}
-				else
-					{
-					selection.from=curPrimer.targetPosition;
-					selection.to=curPrimer.targetPosition+curPrimer.length();
-					}
 				isSelecting=false;
-				signalUpdated.emit(selection);
+				signalUpdated.emit(curPrimer.getRange());
 				updateSelectionGraphics();  
 				}
 			else if(hoveringRestrictionSite!=null)
@@ -1101,7 +993,5 @@ public class ViewLinearSequence extends QGraphicsView
 			}
 		}
 
-	
-	
 	
 	}

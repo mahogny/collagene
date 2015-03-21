@@ -1,5 +1,7 @@
 package melting;
 
+import sequtil.NucleotideUtil;
+
 /**
  * Wallace RB et al. (1979) Nucleic Acids Res 6:3543-3557, PMID 158748
  * 
@@ -23,4 +25,11 @@ public class CalcTmWallace implements CalcTm
 				throw new RuntimeException("Unknown nucleotide: "+c);
 		return 64.9 + 41*(numgc-16.4)/seq1.length();
 		}
+	
+	@Override
+	public double calcTm(String sequence) throws TmException
+		{
+		return calcTm(sequence, NucleotideUtil.complement(sequence));
+		}
+
 	}

@@ -107,7 +107,7 @@ public class AnnotationWindow extends QDialog
 
 	public void setAnnotation(SeqAnnotation a)
 		{
-		annot=a;
+		this.annot=a;
 		tfName.setText(a.name);
 		spFrom.setValue(IndexUtil.fromTogui(a.getFrom()));
 		spTo.setValue(IndexUtil.toTogui(a.getTo()));

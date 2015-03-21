@@ -2,6 +2,8 @@ package melting;
 
 import java.util.HashMap;
 
+import sequtil.NucleotideUtil;
+
 /**
  * Santa lucia 98
  * 
@@ -187,5 +189,11 @@ public class CalcTmSanta98 implements CalcTm
 		concMg2=0e-3;
 		concNa=50e-3;
 		concDntp=0e-3;
+		}
+
+	@Override
+	public double calcTm(String sequence) throws TmException
+		{
+		return calcTm(sequence, NucleotideUtil.complement(sequence));
 		}
 	}

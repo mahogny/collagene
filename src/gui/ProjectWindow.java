@@ -21,8 +21,10 @@ import sequtil.LigationUtil;
 import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
 import gui.cloneAssembler.CloneAssembler;
+import gui.paneLinear.EventNewSequence;
 import gui.qt.QTutil;
 import gui.resource.ImgResource;
+import gui.sequenceWindow.EventSequenceModified;
 import gui.sequenceWindow.SequenceWindow;
 import alignment.PairwiseAlignment;
 import alignment.emboss.EmbossCost;
@@ -234,11 +236,11 @@ public class ProjectWindow extends QMainWindow
 		AnnotatedSequence seq=currentlySelectedSequence();
 		if(seq!=null)
 			{
-			SequenceWindow w=new SequenceWindow(this);
-			w.setSequence(seq);
+			showSequence(seq);
 			}
 		}
 	
+	private LinkedList<SequenceWindow> seqwindows=new LinkedList<SequenceWindow>();
 	
 	/**
 	 * Update project view
@@ -309,6 +311,7 @@ public class ProjectWindow extends QMainWindow
 	public void showSequence(AnnotatedSequence seq)
 		{
 		SequenceWindow w=new SequenceWindow(this);
+		seqwindows.add(w);
 		w.setSequence(seq);
 		}
 	
@@ -633,6 +636,36 @@ public class ProjectWindow extends QMainWindow
 		QCoreApplication.setApplicationName(QtProgramInfo.programName);
 		/*MainWindow w=*/new ProjectWindow();
 		QTutil.execStaticQApplication();		
+		}
+
+
+	
+	
+	public void updateEvent(Object ob)
+		{
+		if(ob instanceof EventNewSequence)
+			{
+			AnnotatedSequence seq=((EventNewSequence) ob).seq;
+			addSequenceToProject(seq);
+			showSequence(seq);
+			}
+		else if(ob instanceof EventSequenceModified)
+			{
+			//Find views that might be interested
+			AnnotatedSequence seq=((EventSequenceModified)ob).seq;
+			for(SequenceWindow w:seqwindows)
+				{
+				if(w.getSequence()==seq)
+					w.onViewUpdated(ob);
+				}
+			}
+
+		}
+
+
+	public void hasclosed(SequenceWindow sequenceWindow)
+		{
+		seqwindows.remove(sequenceWindow);
 		}
 
 	}
