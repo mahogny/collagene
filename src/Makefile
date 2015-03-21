@@ -136,8 +136,8 @@ gitaddall:
 	git add \
 	*/*java \
 	*/*/*java \
-	*/*/*/*java 
-
+	*/*/*/*java \
+	*/*/*png
 
 testrest:
 	curl http://localhost:8080/sf
