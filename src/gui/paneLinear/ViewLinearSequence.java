@@ -4,6 +4,7 @@ import gui.ProjectWindow;
 import gui.paneCircular.CircView;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.primer.MenuPrimer;
+import gui.qt.QTutil;
 import gui.sequenceWindow.EventSelectedAnnotation;
 import gui.sequenceWindow.MenuAnnotation;
 import gui.sequenceWindow.SeqViewSettingsMenu;
@@ -902,7 +903,13 @@ public class ViewLinearSequence extends QGraphicsView
 			else if(hoveringRestrictionSite!=null)
 				{
 				EventSelectedRestrictionEnzyme s=new EventSelectedRestrictionEnzyme();
-				s.add(hoveringRestrictionSite.enzyme);
+				if(QTutil.addingKey(event))
+					{
+					selectedEnz.add(hoveringRestrictionSite.enzyme);
+					s.enzymes.addAll(selectedEnz.enzymes);
+					}
+				else
+					s.add(hoveringRestrictionSite.enzyme);
 				signalUpdated.emit(s);
 				}
 			else

@@ -13,7 +13,9 @@ import restrictionEnzyme.RestrictionEnzyme;
 public class EventSelectedRestrictionEnzyme
 	{
 	public LinkedList<RestrictionEnzyme> enzymes=new LinkedList<RestrictionEnzyme>();
-
+	
+	
+	
 	public boolean hasEnzyme(RestrictionEnzyme thisenz)
 		{
 		return enzymes.contains(thisenz);

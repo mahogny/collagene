@@ -27,9 +27,6 @@ public class QGraphicsCircPlasmidSequence extends QGraphicsEllipseItem
 		{
 		double plasmidRadius=view.plasmidRadius;
 
-		
-		
-		
 		QPen pen=new QPen();
 		pen.setColor(new QColor(100,100,100));
 		painter.setPen(pen);
@@ -39,13 +36,13 @@ public class QGraphicsCircPlasmidSequence extends QGraphicsEllipseItem
 
 		//The plasmid 0-position
 		double angPlasmid0=view.circPan*2*Math.PI;
-		double rPlasmid0=plasmidRadius-5;
+		double rPlasmid0=plasmidRadius*0.95;
 		painter.drawLine(
 				new QPointF(rPlasmid0*Math.cos(angPlasmid0), rPlasmid0*Math.sin(angPlasmid0)),
 				new QPointF(plasmidRadius*Math.cos(angPlasmid0), plasmidRadius*Math.sin(angPlasmid0)));
 		
 		QFont font=new QFont();
-		font.setPointSizeF(4.0/view.circZoom);
+		font.setPointSizeF(plasmidRadius*0.04/view.circZoom);
 		font.setFamily("Arial");
 		painter.setFont(font);
 
@@ -77,7 +74,7 @@ public class QGraphicsCircPlasmidSequence extends QGraphicsEllipseItem
 	@Override
 	public QRectF boundingRect()
 		{
-		double r=view.plasmidRadius+10;  //this could be improved
+		double r=view.plasmidRadius*1.1;  //this could be improved
 		return new QRectF(-r,-r,2*r,2*r);
 		}
 

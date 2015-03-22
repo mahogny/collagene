@@ -27,6 +27,7 @@ import com.trolltech.qt.core.Qt.ItemFlags;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHeaderView.ResizeMode;
+import com.trolltech.qt.gui.QItemSelectionModel.SelectionFlag;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
 import com.trolltech.qt.gui.QLabel;
@@ -315,12 +316,17 @@ public class PaneEnzymeList extends QWidget
 	public void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
 		{
 		isUpdating=true;
-		tableAvailableEnzymes.selectionModel().clear();
 		for(int i=0;i<tableAvailableEnzymes.rowCount();i++)
 			{
 			RestrictionEnzyme thisenz=(RestrictionEnzyme)tableAvailableEnzymes.item(i,0).data(Qt.ItemDataRole.UserRole);
-			if(enz.hasEnzyme(thisenz))
-				tableAvailableEnzymes.selectRow(i);
+			SelectionFlag flag=SelectionFlag.Select;
+			if(!enz.hasEnzyme(thisenz))
+				flag=SelectionFlag.Deselect;
+			for(int col=0;col<tableAvailableEnzymes.columnCount();col++)
+				{
+				QModelIndex ind=tableAvailableEnzymes.model().index(i, col);
+				tableAvailableEnzymes.selectionModel().select(ind, flag);
+				}
 			}
 		isUpdating=false;
 		updateDisplayedEnzyme();

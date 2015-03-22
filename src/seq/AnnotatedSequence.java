@@ -20,6 +20,14 @@ public class AnnotatedSequence
 	public String name="";
 	public String notes="";
 	public boolean isCircular;
+
+	//These are not yet stored properly
+	public String author="";
+	public String accessionID="";
+	public long created=0;
+	////////////////////////////////
+	
+	
 	
 	public LinkedList<SeqAnnotation> annotations=new LinkedList<SeqAnnotation>();	
 	public HashMap<RestrictionEnzyme,LinkedList<RestrictionSite>> restrictionSites=new HashMap<RestrictionEnzyme, LinkedList<RestrictionSite>>();

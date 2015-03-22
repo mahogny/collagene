@@ -44,7 +44,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		}
 	private double getRadius(int height)
 		{
-		return view.plasmidRadius-11*(height+1)/getZoom();
+		return view.plasmidRadius-(view.plasmidRadius*0.11)*(height+1)/getZoom();
 		}
 	
 	
@@ -61,8 +61,8 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		
 		QPen pen=new QPen();
 		
-		double radw=8.0/circZoom;
-		double arrowsize=0.01;
+		double arrowWidth=view.plasmidRadius*0.08/circZoom;
+		double arrowsizeAngle=0.01;
 		
 		QPolygonF poly=new QPolygonF();
 		
@@ -75,14 +75,14 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		double sf=(ang2-ang1)/(double)(numdiv);
 		for(int i=0;i<=numdiv;i++)
 			{
-			double rad=r+radw;
+			double rad=r+arrowWidth;
 			double ang=ang1 + i*sf;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		if(annot.orientation==Orientation.FORWARD)
 			{
-			double rad=r+radw/2;
-			double ang=ang2+arrowsize/circZoom;
+			double rad=r+arrowWidth/2;
+			double ang=ang2+arrowsizeAngle/circZoom;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		for(int i=numdiv;i>=0;i--)
@@ -93,8 +93,8 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 			}
 		if(annot.orientation==Orientation.REVERSE)
 			{
-			double rad=r+radw/2;
-			double ang=ang1-arrowsize/circZoom;
+			double rad=r+arrowWidth/2;
+			double ang=ang1-arrowsizeAngle/circZoom;
 			poly.add(rad*Math.cos(2*Math.PI*ang), rad*Math.sin(2*Math.PI*ang));
 			}
 		QBrush brush=new QBrush();
@@ -110,16 +110,16 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		painter.setPen(pen);
 		
 		QFont font=new QFont();
-		font.setPointSizeF(4.0/circZoom);
+		font.setPointSizeF(view.plasmidRadius*0.04/circZoom);
 		font.setFamily("Arial");
 		painter.setFont(font);
 
 		
 		double totalTextWidth=painter.fontMetrics().width(annot.name);
 		
-		double textoffset=3.0/circZoom;
+		double textoffset=view.plasmidRadius*0.03/circZoom;
 		
-		double textRadius=r+2.0/circZoom;
+		double textRadius=r+view.plasmidRadius*0.02/circZoom;
 		double curang=ang1+textoffset/(2*Math.PI*textRadius);
 		if(totalTextWidth+textoffset>(ang2-ang1)*2*Math.PI*textRadius) //If the text does not fit then draw it afterwards
 			curang=ang2+0.01/circZoom;
@@ -137,12 +137,6 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 			}
 		}
 
-	
-	/*
-	public double getHeight()
-		{
-		
-		}*/
 
 	public boolean pointWithin(QPointF p)
 		{
@@ -156,20 +150,12 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		if(rad2>=rinner2 && rad2<=router2)
 			{
 			double angle=Math.atan2(p.y(), p.x());
-//				angle-=circPan*2*Math.PI;
 			while(angle<0)
 					angle+=Math.PI*2;
 			angle/=2*Math.PI;
 
-			/*
-			System.out.println();
-			System.out.println(annot.name);
-			System.out.println("r "+rinner2+"  "+rad2+"   "+router2);*/
-//			double angle=view.getAngle(p)/2.0/Math.PI;
 			double ang1=getAng1();
 			double ang2=getEstAng2wtext();
-
-//			System.out.println("a "+ang1+"  "+angle+"   "+ang2);
 
 			if(ang1<=ang2)
 				return angle>=ang1 && angle<=ang2;
@@ -189,14 +175,12 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 //			textwest=4.0/view.circZoom*annot.name.length(); //estimator
 			
 			QFont font=new QFont();
-			font.setPointSizeF(4.0/circZoom);
+			font.setPointSizeF(view.plasmidRadius*0.04/circZoom);
 			font.setFamily("Arial");
 			QGraphicsTextItem ti=new QGraphicsTextItem();
 			ti.setFont(font);
 			ti.setPlainText(annot.name);
 			textwest=ti.boundingRect().width();		
-			//System.out.println("---- "+bah+"\t"+textwest);
-			
 			}
 		return textwest;
 		}
@@ -209,7 +193,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		double ang1=getAng1();
 		double ang2=(double)annot.getTo()/seq.getLength()+view.circPan;
 
-		double textoffset=3.0/circZoom;
+		double textoffset=view.plasmidRadius*0.03/circZoom;
 		double textRadius=getRadius()+2.0/circZoom;
 		if(getEstimatedTextWidth()+textoffset>(ang2-ang1)*2*Math.PI*textRadius) //If the text does not fit then draw it afterwards
 			ang2+=0.01/circZoom + getEstimatedTextWidth()/(textRadius*2*Math.PI);
@@ -226,12 +210,12 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 		{
 		if(o.height==height)
 			{
-			double x=5.0/360.0/getZoom();
-			double thisAng1=getAng1()-x;
-			double thisAng2=getEstAng2wtext()+x;  //TODO handle ang1>ang2
+			double angspacing=5.0/360.0/getZoom();
+			double thisAng1=getAng1()-angspacing;
+			double thisAng2=getEstAng2wtext()+angspacing;  //TODO handle ang1>ang2
 			
-			double oAng1=o.getAng1()-x;
-			double oAng2=o.getEstAng2wtext()+x;
+			double oAng1=o.getAng1()-angspacing;
+			double oAng2=o.getEstAng2wtext()+angspacing;
 			
 			return thisAng1 <= oAng2 && thisAng2>=oAng1;
 			}
@@ -243,7 +227,7 @@ public class QGraphicsCircSeqAnnotationItem extends QGraphicsEllipseItem
 	@Override
 	public QRectF boundingRect()
 		{
-		int r=100;  //this could be improved
+		double r=view.plasmidRadius;  //this could be improved
 		return new QRectF(-r,-r,2*r,2*r);
 		}
 

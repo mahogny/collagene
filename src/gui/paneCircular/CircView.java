@@ -4,6 +4,7 @@ package gui.paneCircular;
 
 import gui.ProjectWindow;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
+import gui.qt.QTutil;
 import gui.sequenceWindow.EventSelectedAnnotation;
 import gui.sequenceWindow.MenuAnnotation;
 import gui.sequenceWindow.SeqViewSettingsMenu;
@@ -57,21 +58,23 @@ public class CircView extends QGraphicsView
 	{
 	//Might be best to work from ChemView. Support arbitrary transformations. Then have a special one on top for common use
 	
-	double plasmidRadius=100;
+	double plasmidRadius=100000;
 	private QTimer timerAnimation=new QTimer();
-	
 	
 	public AnnotatedSequence seq=new AnnotatedSequence();
 	private HashMap<SeqAnnotation, QGraphicsCircSeqAnnotationItem> mapAnnot=new HashMap<SeqAnnotation, QGraphicsCircSeqAnnotationItem>();
 
-	public class EmittedText
+	public abstract class EmittedText
 		{
-		String txt;
-		QColor col;
+		public QRectF rect;
+		public String txt;
+		public QColor col;
+		public abstract void leftclick(QMouseEvent event);
 		}
 	
 	private QFont emittedTextFont=new QFont();
-	private LinkedList<EmittedText> emittedText=new LinkedList<EmittedText>();
+	private ArrayList<EmittedText> allEmittedText=new ArrayList<EmittedText>();
+	private ArrayList<EmittedText> emittedText=new ArrayList<EmittedText>();
 	private double emittedAngle;
 	private ArrayList<QRectF> emittedTextRegions=new ArrayList<QRectF>();
 
@@ -128,7 +131,7 @@ public class CircView extends QGraphicsView
 			int ang2=(int)((circPan + rangeun.to/(double)seq.getLength())*360*16);
 			QGraphicsEllipseItem itemSelect=new QGraphicsEllipseItem();
 			itemSelect.setPen(penSelect);
-			double r=plasmidRadius+10/circZoom;
+			double r=plasmidRadius+plasmidRadius*0.1/circZoom;
 			itemSelect.setRect(-r,-r,2*r,2*r);
 			itemSelect.setStartAngle(-ang1);
 			itemSelect.setSpanAngle(ang1-ang2);
@@ -175,20 +178,14 @@ public class CircView extends QGraphicsView
 		QTransform trans=QTransform.fromScale(scale,scale);
 		setTransform(trans,false);
 	
-		double dy=Math.max(0,(plasmidRadius+50/circZoom)*scale-height()/2)/scale;
+		double dy=Math.max(0,(plasmidRadius+plasmidRadius*0.5/circZoom)*scale-height()/2)/scale;
 		double y=-dy;
 		
 		//and here another thing. when getting the line to mid, should keep it in the mid
 		
-//		if(scale>sHeight)
-//			y=-plasmidRadius;
-		
 		//Center on mid point
 		setViewCenter(new QPointF(0,  y));
-
 		
-		
-//		centerOnRect(new QRectF(-cr,-cr-1,cr*2,2), 0.6*circZoom);
 		buildSceneFromDoc();
 		}
 
@@ -210,39 +207,46 @@ public class CircView extends QGraphicsView
 		{
 		if(!emittedText.isEmpty())
 			{
+			ArrayList<String> partialStrings=new ArrayList<String>(emittedText.size()+1);
+			partialStrings.add("");
 			StringBuilder tottext=new StringBuilder();
-//			String tottext=LabnoteUtil.commaSeparateLowlevel(emittedText);
+			StringBuilder tottext2=new StringBuilder();
 			for(EmittedText t:emittedText)
 				{
 				if(tottext.length()>0)
+					{
 					tottext.append(",");
+					tottext2.append(",");
+					}
 				tottext.append("<font color=\""+t.col.name()+"\">"+t.txt+"</font>");
+				tottext2.append(t.txt);//.replace("-", " ")); //work around for qt bug?
+				partialStrings.add(tottext2.toString());
 				}
 			
 			QPen pen=new QPen();
 			pen.setColor(new QColor(0,0,0));
 
-			double rad=plasmidRadius+5/circZoom;
+			double rad=plasmidRadius+plasmidRadius*0.05/circZoom;
 			emittedAngle=emittedAngle-(int)(emittedAngle);
 
-			QGraphicsTextItem itemt=new QGraphicsTextItem();
-			itemt.setFont(emittedTextFont);
-			itemt.setHtml(tottext.toString());
-			scene().addItem(itemt);
+			QGraphicsTextItem itemText=new QGraphicsTextItem();
+			itemText.setFont(emittedTextFont);
+			itemText.setHtml(tottext.toString());
+			scene().addItem(itemText);
 
 			QPointF textPos=new QPointF(rad*Math.cos(emittedAngle*2*Math.PI), rad*Math.sin(emittedAngle*2*Math.PI));
 			QPointF textHandlePos=new QPointF(textPos.x(),textPos.y());
 			if(emittedAngle>0.25 && emittedAngle<0.75)
-				textPos.setX(textPos.x()-itemt.boundingRect().width()+3);
+				textPos.setX(textPos.x()-itemText.boundingRect().width()+3);
 			else
 				textPos.setX(textPos.x()-3);
-			textPos.setY(textPos.y()-itemt.boundingRect().height()/2);
-			itemt.setPos(textPos);
+			textPos.setY(textPos.y()-itemText.boundingRect().height()/2);
+			itemText.setPos(textPos);
 
 			//Find a suitable location for the text
 			textpositions: for(;;)
 				{
-				QRectF cur=textBR(itemt);
+				QRectF cur=textBR(itemText);
 				for(int i=emittedTextRegions.size()-1;i>=0;i--) //Scanning backwards I suspect is more likely to give hits early
 					{
 					QRectF reg=emittedTextRegions.get(i);
@@ -257,21 +261,33 @@ public class CircView extends QGraphicsView
 						
 						textPos.setY(textPos.y()+dy);
 						textHandlePos.setY(textHandlePos.y()+dy);
-						itemt.setPos(textPos);
+						itemText.setPos(textPos);
 						continue textpositions;
 						}
 					}
 				break;
 				}
-			emittedTextRegions.add(textBR(itemt));
+			emittedTextRegions.add(textBR(itemText));
 
 			//Put text on screen
 			QGraphicsLineItem itemS=new QGraphicsLineItem();
 			itemS.setPen(pen);
 			itemS.setLine(
 					plasmidRadius*Math.cos(emittedAngle*2*Math.PI),   plasmidRadius*Math.sin(emittedAngle*2*Math.PI),
-					textHandlePos.x(),textHandlePos.y());//rad2*Math.cos(lastAng*2*Math.PI), rad2*Math.sin(lastAng*2*Math.PI));
+					textHandlePos.x(),textHandlePos.y());
 			scene().addItem(itemS);
+			
+			//Figure out bounding boxes for each item
+			QFontMetricsF m=new QFontMetricsF(itemText.font());
+			double textH=m.height();
+			ArrayList<Double> tx=new ArrayList<Double>(partialStrings.size());
+			for(int i=0;i<partialStrings.size();i++)
+				tx.add(m.boundingRect(partialStrings.get(i)).width());
+			for(int i=0;i<emittedText.size();i++)
+				{
+				double w=tx.get(i+1) - tx.get(i);
+				emittedText.get(i).rect=new QRectF(itemText.x()+tx.get(i), itemText.y(), w, textH);
+				}
 			
 			emittedText.clear();
 			}
@@ -280,24 +296,37 @@ public class CircView extends QGraphicsView
 	/**
 	 * Add annotation text at given angle. Emit text if it is time
 	 */
-	private void addAnnotationText(double ang, RestrictionEnzyme enz)
+	private void addAnnotationText(double ang, final RestrictionEnzyme enz)
 		{
 		double minang=0.01/circZoom;
 		
-		EmittedText txt=new EmittedText();
+		EmittedText txt=new EmittedText(){
+			public void leftclick(QMouseEvent e)
+				{
+				EventSelectedRestrictionEnzyme sel=new EventSelectedRestrictionEnzyme();
+				if(QTutil.addingKey(e))
+					{
+					selectedEnz.add(enz);
+					sel.enzymes.addAll(selectedEnz.enzymes);
+					}
+				else
+					sel.add(enz);
+				signalUpdated.emit(sel);
+				}
+		};
 		txt.txt=enz.name;
 		if(selectedEnz.enzymes.contains(enz))
 			txt.col=QColor.fromRgb(255,0,0);
 		else
 			txt.col=QColor.fromRgb(0,0,0);
 		
-		if(Math.abs(emittedAngle-ang)>minang)
+		if(Math.abs(emittedAngle-ang)>minang || emittedText.size()>4)
 			emitAnnotationText();
 		
 		if(emittedText.isEmpty())
 			emittedAngle=ang;
 		emittedText.add(txt);
-
+		allEmittedText.add(txt);
 		}
 	
 	/**
@@ -319,7 +348,8 @@ public class CircView extends QGraphicsView
 		scene.clear();
 		selectionItems.clear();
 
-		emittedTextFont.setPointSizeF(4.0/circZoom);
+		allEmittedText.clear();
+		emittedTextFont.setPointSizeF(plasmidRadius*0.04/circZoom);
 		emittedTextFont.setFamily("Arial");
 
 		//Note - it is good to have a separate scene builder class, for making PDFs
@@ -338,7 +368,7 @@ public class CircView extends QGraphicsView
 		double fzoom=getFeatureZoom();
 		for(Primer p:seq.primers)
 			{
-			double primerRadius=plasmidRadius-1.5/fzoom;
+			double primerRadius=plasmidRadius-plasmidRadius*0.015/fzoom;
 			SequenceRange r=p.getRange().toNormalizedRange(seq);
 			
 			double rfrom=r.from/(double)seq.getLength();
@@ -364,7 +394,7 @@ public class CircView extends QGraphicsView
 		
 		
 		//Find restriction sites to draw
-		LinkedList<RestrictionSite> totSites=new LinkedList<RestrictionSite>();
+		ArrayList<RestrictionSite> totSites=new ArrayList<RestrictionSite>(200);
 		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
 			{
 			Collection<RestrictionSite> sites=seq.restrictionSites.get(enz);
@@ -396,18 +426,6 @@ public class CircView extends QGraphicsView
 	
 	private void addsceneAnnotation()
 		{
-
-		//Figure out the level of each annotation, to avoid overlap.
-		//First step is to sort from left to right. BUT NOT REALLY NEEDED
-		/*
-		Collections.sort(seq.annotations, new Comparator<SeqAnnotation>()
-			{
-			public int compare(SeqAnnotation o1, SeqAnnotation o2)
-				{
-				return Double.compare(o1.from, o2.from);
-				}
-			});
-			*/
 		//Now place them all
 		mapAnnot.clear();
 		QGraphicsCircSeqAnnotationItem[] annotlist=new QGraphicsCircSeqAnnotationItem[seq.annotations.size()];
@@ -501,12 +519,18 @@ public class CircView extends QGraphicsView
 		}
 
 	
+	/**
+	 * Get angle at mouse position, 0..2PI
+	 */
 	double getAngle(QMouseEvent event)
 		{
 		QPointF p = mapToScene(event.pos());
 		return getAngle(p);
 		}
 	
+	/**
+	 * Get angle at scene position, 0..2PI
+	 */
 	double getAngle(QPointF p)
 		{
 		double angle=Math.atan2(p.y(), p.x());
@@ -516,7 +540,9 @@ public class CircView extends QGraphicsView
 		return angle;
 		}
 
-	
+	/**
+	 * Get annotation at position
+	 */
 	public SeqAnnotation getAnnotationAt(QPointF p)
 		{
 		for(SeqAnnotation annot:mapAnnot.keySet())
@@ -527,6 +553,19 @@ public class CircView extends QGraphicsView
 			}
 		return null;
 		}
+
+	
+	/**
+	 * Get emitted text at position
+	 */
+	public EmittedText getEmittedTextAt(QPointF p)
+		{
+		for(EmittedText e:allEmittedText)
+			if(e.rect.contains(p))
+				return e;
+		return null;
+		}
+	
 	
 	/**
 	 * Handle mouse button pressed events 
@@ -537,11 +576,13 @@ public class CircView extends QGraphicsView
 			{
 			QPointF p = mapToScene(event.pos());
 			SeqAnnotation annot=getAnnotationAt(p);
+			EmittedText et=getEmittedTextAt(p);
 			
 			if(annot!=null)
-				{
-				System.out.println(annot.name);
 				signalUpdated.emit(new EventSelectedAnnotation(annot));
+			else if(et!=null)
+				{
+				et.leftclick(event);
 				}
 			else
 				{

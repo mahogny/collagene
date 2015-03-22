@@ -18,6 +18,7 @@ import com.trolltech.qt.core.QDate;
 import com.trolltech.qt.core.QObject;
 import com.trolltech.qt.core.QRegExp;
 import com.trolltech.qt.core.QTime;
+import com.trolltech.qt.core.Qt.KeyboardModifier;
 import com.trolltech.qt.gui.QApplication;
 import com.trolltech.qt.gui.QFileDialog;
 import com.trolltech.qt.gui.QFileDialog.AcceptMode;
@@ -30,6 +31,7 @@ import com.trolltech.qt.gui.QLabel;
 import com.trolltech.qt.gui.QLayout;
 import com.trolltech.qt.gui.QMessageBox;
 import com.trolltech.qt.gui.QMessageBox.StandardButton;
+import com.trolltech.qt.gui.QMouseEvent;
 import com.trolltech.qt.gui.QRegExpValidator;
 import com.trolltech.qt.gui.QTableView;
 import com.trolltech.qt.gui.QVBoxLayout;
@@ -422,6 +424,12 @@ public class QTutil
 		msgBox.setDefaultButton(StandardButton.Yes);
 		int ret = msgBox.exec();
 		return ret==StandardButton.Yes.value();
+		}
+
+
+	public static boolean addingKey(QMouseEvent event)
+		{
+		return event.modifiers().isSet(KeyboardModifier.ShiftModifier) || event.modifiers().isSet(KeyboardModifier.ControlModifier);
 		}
 
 	}
