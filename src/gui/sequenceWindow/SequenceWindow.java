@@ -10,6 +10,7 @@ import gui.paneLinear.PaneLinearSequence;
 import gui.paneLinear.EventNewSequence;
 import gui.paneRestriction.PaneEnzymeList;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
+import gui.primer.FitPrimerWindow;
 import gui.primer.PrimerPropertyWindow;
 import gui.qt.QTutil;
 import gui.resource.ImgResource;
@@ -40,7 +41,6 @@ import com.trolltech.qt.gui.QCloseEvent;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
-import com.trolltech.qt.gui.QInputDialog;
 import com.trolltech.qt.gui.QLabel;
 import com.trolltech.qt.gui.QLineEdit;
 import com.trolltech.qt.gui.QMainWindow;
@@ -723,25 +723,23 @@ public class SequenceWindow extends QMainWindow
 	 */
 	public void actionFitExistingPrimer()
 		{
-		String pname=QInputDialog.getText(this, tr("Fit primer"), tr("Name:"));
-		if(pname!=null)
+		FitPrimerWindow w=new FitPrimerWindow(projwindow);
+		w.exec();
+		if(w.wasOk)
 			{
-			String pseq=QInputDialog.getText(this, tr("Fit primer"), tr("Sequence:"));
-			if(pseq!=null)
+			Primer selp=w.getPrimer();
+			AnnotatedSequence seq=getSequence();
+			PrimerFitter f=new PrimerFitter();
+			f.run(seq, selp.name, selp.sequence);
+			Primer p=f.getBestPrimer();
+			if(p!=null)
 				{
-				AnnotatedSequence seq=getSequence();
-				PrimerFitter f=new PrimerFitter();
-				f.run(seq, pname, pseq);
-				Primer p=f.getBestPrimer();
-				if(p!=null)
-					{
-					seq.primers.add(p);
-					updateSequence();
-					onViewUpdated(p.getRange());
-					}
-				else
-					QTutil.showNotice(this, tr("Failed to fit"));
+				seq.primers.add(p);
+				updateSequence();
+				onViewUpdated(p.getRange());
 				}
+			else
+				QTutil.showNotice(this, tr("Failed to fit"));
 			}
 		}
 	

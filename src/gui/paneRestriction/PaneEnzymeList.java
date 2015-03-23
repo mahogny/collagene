@@ -2,6 +2,7 @@ package gui.paneRestriction;
 
 import gui.ProjectWindow;
 import gui.digest.SimulatedDigestWindow;
+import gui.qt.QTutil;
 import gui.resource.ImgResource;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 import gui.sequenceWindow.SequenceWindow;
@@ -22,8 +23,6 @@ import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.QUrl;
 import com.trolltech.qt.core.Qt;
-import com.trolltech.qt.core.Qt.ItemFlag;
-import com.trolltech.qt.core.Qt.ItemFlags;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
 import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHeaderView.ResizeMode;
@@ -99,26 +98,17 @@ public class PaneEnzymeList extends QWidget
 			if(menuSettings.allowsRestrictionSiteCount(enz, sites.size()))
 				{
 				tableAvailableEnzymes.setRowCount(currow+1);
-				QTableWidgetItem it=createReadOnlyItem(enz.name);
+				QTableWidgetItem it=QTutil.createReadOnlyItem(enz.name);
 				it.setData(Qt.ItemDataRole.UserRole, enz);
 				
 				tableAvailableEnzymes.setItem(currow, 0, it);
-				tableAvailableEnzymes.setItem(currow, 1, createReadOnlyItem(""+sites.size()));
+				tableAvailableEnzymes.setItem(currow, 1, QTutil.createReadOnlyItem(""+sites.size()));
 				
 				currow++;
 				}
 			}
 		}
 
-	private QTableWidgetItem createReadOnlyItem(String s)
-		{
-		QTableWidgetItem it=new QTableWidgetItem(s);
-		it.setFlags(new ItemFlags(ItemFlag.ItemIsSelectable, ItemFlag.ItemIsEnabled));
-		return it;
-		}
-
-
-	
 	/**
 	 * Constructor
 	 */

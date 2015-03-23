@@ -668,4 +668,10 @@ public class ProjectWindow extends QMainWindow
 		seqwindows.remove(sequenceWindow);
 		}
 
+
+	public MadgeneProject getProject()
+		{
+		return proj;
+		}
+
 	}

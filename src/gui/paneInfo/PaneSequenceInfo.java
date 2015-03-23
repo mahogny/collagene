@@ -16,6 +16,7 @@ import seq.SequenceRange;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.Qt.CheckState;
+import com.trolltech.qt.core.Qt.TextInteractionFlag;
 import com.trolltech.qt.gui.QCheckBox;
 import com.trolltech.qt.gui.QGroupBox;
 import com.trolltech.qt.gui.QHBoxLayout;
@@ -71,6 +72,9 @@ public class PaneSequenceInfo extends QScrollArea
 			{
 			setTitle(tr("Primer"));
 			
+			lName.setTextInteractionFlags(TextInteractionFlag.TextSelectableByMouse);
+			lSequence.setTextInteractionFlags(TextInteractionFlag.TextSelectableByMouse);
+			
 			QVBoxLayout lay=new QVBoxLayout();
 			lay.addWidget(lName);
 			lay.addWidget(lSequence);
@@ -122,7 +126,9 @@ public class PaneSequenceInfo extends QScrollArea
 		public PaneAnnotation()
 			{
 			setTitle(tr("Annotation"));
-			
+
+			lName.setTextInteractionFlags(TextInteractionFlag.TextSelectableByMouse);
+
 			QVBoxLayout lay=new QVBoxLayout();
 			lay.addWidget(lName);
 			lay.setMargin(0);
