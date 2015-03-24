@@ -17,6 +17,8 @@ import gui.resource.ImgResource;
 
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 import primer.Primer;
@@ -497,6 +499,12 @@ public class SequenceWindow extends QMainWindow
 		bSearchNext.clicked.connect(this,"actionSearchNext()");
 		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
 
+		
+		QPushButton bPrimerNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
+		QPushButton bPrimerPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
+		bPrimerNext.clicked.connect(this,"actionPrimerNext()");
+		bPrimerPrev.clicked.connect(this,"actionPrimerPrev()");
+
 		QHBoxLayout laySearch=new QHBoxLayout();
 		laySearch.addWidget(new QLabel(tr("Search:")));
 		laySearch.addWidget(tfSearch);
@@ -505,8 +513,16 @@ public class SequenceWindow extends QMainWindow
 		laySearch.setMargin(0);
 		laySearch.setSpacing(0);
 
+		QHBoxLayout layPrimer=new QHBoxLayout();
+		layPrimer.addWidget(new QLabel("  "+tr("Go to primer:")));
+		layPrimer.addWidget(bPrimerPrev);
+		layPrimer.addWidget(bPrimerNext);
+		layPrimer.setMargin(0);
+		layPrimer.setSpacing(0);
+
 		QHBoxLayout layToolbar=new QHBoxLayout();
 		layToolbar.addLayout(laySearch);
+		layToolbar.addLayout(layPrimer);
 		layToolbar.addStretch();
 		layToolbar.setMargin(0);
 		layToolbar.setSpacing(2);
@@ -621,6 +637,75 @@ public class SequenceWindow extends QMainWindow
 		else
 			QTutil.showNotice(this, tr("Can only move 0-position on circular plasmids"));
 			
+		}
+
+
+	/**
+	 * Get primers, in sorted order (by start of range)
+	 */
+	private LinkedList<Primer> getSortedPrimers()
+		{
+		LinkedList<Primer> list=new LinkedList<Primer>();
+		list.addAll(seq.primers);
+		Collections.sort(list, new Comparator<Primer>()
+			{
+			public int compare(Primer a, Primer b)
+				{
+				return Integer.compare(a.getRange().from, b.getRange().from);
+				}
+			});
+		return list;
+		}
+	
+	/**
+	 * Action: Select next primer
+	 */
+	public void actionPrimerNext()
+		{
+		LinkedList<Primer> list=getSortedPrimers();
+		if(!list.isEmpty())
+			{
+			SequenceRange r=getSelection();
+			if(r==null)
+				onViewUpdated(list.get(0).getRange());
+			else
+				{
+				for(Primer p:list)
+					if(p.getRange().from>r.from)
+						{
+						onViewUpdated(p.getRange());
+						return;
+						}
+				onViewUpdated(list.get(0).getRange());
+				}
+			}
+		}
+	
+	/**
+	 * Action: Select previous primer
+	 */
+	public void actionPrimerPrev()
+		{
+		LinkedList<Primer> list=getSortedPrimers();
+		if(!list.isEmpty())
+			{
+			SequenceRange r=getSelection();
+			if(r==null)
+				onViewUpdated(list.get(0).getRange());
+			else
+				{
+				for(int i=list.size()-1;i>=0;i--)
+					{
+					Primer p=list.get(i);
+					if(p.getRange().from<r.from)
+						{
+						onViewUpdated(p.getRange());
+						return;
+						}
+					}
+				onViewUpdated(list.get(list.size()-1).getRange());
+				}
+			}
 		}
 
 	/**
