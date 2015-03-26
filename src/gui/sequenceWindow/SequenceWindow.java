@@ -465,6 +465,7 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction(tr("Add annotation"), this, "addAnnotation()");
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Find ORFs"), this, "actionFindORFs()");
+		mannotation.addAction(tr("Remove unnamed ORFs"), this, "actionRemoveORFs()");
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
 		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
@@ -590,6 +591,16 @@ public class SequenceWindow extends QMainWindow
 			}
 		setSequence(seq);
 		}
+	
+	/**
+	 * Action: Remove unnamed ORFs
+	 */
+	public void actionRemoveORFs()
+		{
+		OrfFinder.removeUnnamedOrfs(getSequence());
+		setSequence(seq);
+		}
+
 
 	/**
 	 * Get the sequence

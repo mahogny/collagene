@@ -28,9 +28,6 @@ import gui.resource.ImgResource;
 import gui.sequenceWindow.EventSequenceModified;
 import gui.sequenceWindow.SequenceWindow;
 import alignment.AnnotatedSequenceAlignment;
-import alignment.PairwiseAlignment;
-import alignment.emboss.EmbossCost;
-
 import com.trolltech.qt.core.QCoreApplication;
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
@@ -172,17 +169,28 @@ public class ProjectWindow extends QMainWindow
 	public void actionAlign()
 		{
 		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
-		if(seqs.size()==1)
+		if(seqs.size()==1 || seqs.size()==2)
 			{
-			String otherseq=QInputDialog.getText(this, tr("Align sequence"), tr("Sequence to align to:"));
-			if(otherseq!=null)
+			AnnotatedSequence seqA=seqs.get(0);
+			AnnotatedSequence seqB;
+			if(seqs.size()==1)
 				{
+				String otherseq=QInputDialog.getText(this, tr("Align sequence"), tr("Sequence to align to:"));
+				if(otherseq==null)
+					return;
 				otherseq=NucleotideUtil.normalize(otherseq);
-				
-				AnnotatedSequenceAlignment al=new AnnotatedSequenceAlignment();
-				AnnotatedSequence seqB=new AnnotatedSequence();
+				seqB=new AnnotatedSequence();
 				seqB.setSequence(otherseq);
-				al.align(seqs.get(0), seqB);
+				seqB.name="<no name>";
+				}
+			else
+				seqB=seqs.get(1);
+				
+			AlignmentWindow w=new AlignmentWindow(seqA, seqB);
+			w.exec();
+			if(w.wasOk)
+				{
+				AnnotatedSequenceAlignment al=w.performAlignment();
 				
 				AnnotatedSequence seq=al.alSeqAwithB;
 						
@@ -190,20 +198,6 @@ public class ProjectWindow extends QMainWindow
 				addSequenceToProject(seq);
 				showSequence(seq);
 				}
-			}
-		else if(seqs.size()==2)
-			{
-			PairwiseAlignment al=new PairwiseAlignment();
-			al.costtable=EmbossCost.tableBlosum62;
-			al.isLocalA=false;
-			al.align(seqs.get(0).getSequence(), seqs.get(1).getSequence());
-			
-			AnnotatedSequence seq=new AnnotatedSequence();
-			seq.setSequence(al.alignedSequenceA, al.alignedSequenceB);
-
-			giveNewName(seq);
-			addSequenceToProject(seq);
-			showSequence(seq);
 			}
 		else
 			QTutil.showNotice(this, tr("Select 1 or 2 sequences"));

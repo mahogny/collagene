@@ -24,6 +24,9 @@ public class AnnotatedSequenceAlignment
 	public AnnotatedSequence alSeqA, alSeqB, alSeqAwithB;
 
 	public AlignmentCostTable costtable=EmbossCost.tableBlosum62;
+
+	public boolean isLocalA=false;
+	public boolean isLocalB=true;
 	
 	public void align(AnnotatedSequence seqA, AnnotatedSequence seqB)
 		{
@@ -36,21 +39,25 @@ public class AnnotatedSequenceAlignment
 		
 		PairwiseAlignment alB=new PairwiseAlignment();
 		PairwiseAlignment alC=new PairwiseAlignment();
-		alB.isLocalA=false;
-		alC.isLocalA=false;
+		alB.isLocalA=isLocalA;
+		alC.isLocalA=isLocalA;
+		alB.isLocalB=isLocalB;
+		alC.isLocalB=isLocalB;
+		
+		
 		alB.costtable=costtable;
 		alC.costtable=costtable;
 		alB.align(seqA.getSequence(), seqB.getSequence());
 		alC.align(seqA.getSequence(), seqC.getSequence());
 
-		
+		/*
 		System.out.println("X "+seqA.getSequence());
 		System.out.println("B "+alB.alignedSequenceA);
 		System.out.println("B "+alB.alignedSequenceB);
 		System.out.println("!!!!");
 		System.out.println("C "+alC.alignedSequenceA);
 		System.out.println("C "+alC.alignedSequenceB);
-		
+		*/
 		if(alB.bestCost>alC.bestCost)
 			{
 			bestal=alB;
@@ -62,25 +69,28 @@ public class AnnotatedSequenceAlignment
 			rotateB=true;
 			}
 	
-		alSeqA=new AnnotatedSequence();
+		alSeqA=new AnnotatedSequence(seqA);
 		alSeqA.setSequence(bestal.alignedSequenceA);
-		alSeqA.isCircular=seqA.isCircular;
+		if(!isLocalA)
+			alSeqA.isCircular=seqA.isCircular;
 		
-		alSeqB=new AnnotatedSequence();
+		alSeqB=new AnnotatedSequence(seqB);
 		alSeqB.setSequence(bestal.alignedSequenceB);
-		alSeqB.isCircular=seqB.isCircular;
+		if(!isLocalB)
+			alSeqB.isCircular=seqB.isCircular;
 		
 		shiftFeatures(alSeqA, computeCumulativeGaps(moveFeaturesByGaps(bestal.alignedSequenceA)));
-		shiftFeatures(alSeqB, computeCumulativeGaps(moveFeaturesByGaps(bestal.alignedSequenceB))); //This will be wrong!!!
+		shiftFeatures(alSeqB, computeCumulativeGaps(moveFeaturesByGaps(bestal.alignedSequenceB))); 
+				//This will be wrong!!! need to take first index into account
 		
 		alSeqAwithB=new AnnotatedSequence(alSeqA);
 		alSeqAwithB.setSequence(bestal.alignedSequenceA, NucleotideUtil.complement(bestal.alignedSequenceB));
-		
+		/*
 		System.out.println(bestal.alignedIndexB);
 		
 		System.out.println(
 				computeCumulativeGaps(moveFeaturesByGaps(alC.alignedSequenceB))
-				);
+				);*/
 		}
 
 	

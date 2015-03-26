@@ -89,5 +89,19 @@ public class OrfFinder
 		AnnotatedSequence seq=new AnnotatedSequence();
 		seq.setSequence("atgTTTAAATTTAAATTTtag");
 		System.out.println(new OrfFinder().find(seq));
+		} 
+
+
+	/**
+	 * Remove all annotations with a name starting with "ORF "
+	 */
+	public static void removeUnnamedOrfs(AnnotatedSequence seq)
+		{
+		for(SeqAnnotation a:new LinkedList<SeqAnnotation>(seq.annotations))
+			{
+			if(a.name.startsWith("ORF "))
+				seq.annotations.remove(a);
+			}
 		}
+
 	}
