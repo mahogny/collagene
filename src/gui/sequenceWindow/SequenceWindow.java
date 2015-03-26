@@ -182,38 +182,26 @@ public class SequenceWindow extends QMainWindow
 	public void copyUpperOrig()
 		{
 		QClipboard cb=QApplication.clipboard();
-		String s=getSelectionSequence();
-		if(s!=null)
-			cb.setText(s);
-		else
-			errNoSelection();
+		String s=seq.getSequence(getSelectionOrAll());
+		cb.setText(s);
 		}
 	public void copyUpperRev()
 		{
 		QClipboard cb=QApplication.clipboard();
-		String s=getSelectionSequence();
-		if(s!=null)
-			cb.setText(NucleotideUtil.reverse(s));
-		else
-			errNoSelection();
+		String s=seq.getSequence(getSelectionOrAll());
+		cb.setText(NucleotideUtil.reverse(s));
 		}
 	public void copyUpperRevComp()
 		{
 		QClipboard cb=QApplication.clipboard();
-		String s=getSelectionSequence();
-		if(s!=null)
-			cb.setText(NucleotideUtil.revcomplement(s));
-		else
-			errNoSelection();
+		String s=seq.getSequence(getSelectionOrAll());
+		cb.setText(NucleotideUtil.revcomplement(s));
 		}
 	public void copyUpperComp()
 		{
 		QClipboard cb=QApplication.clipboard();
-		String s=getSelectionSequence();
-		if(s!=null)
-			cb.setText(NucleotideUtil.complement(s));
-		else
-			errNoSelection();
+		String s=seq.getSequence(getSelectionOrAll());
+		cb.setText(NucleotideUtil.complement(s));
 		}
 	
 	
@@ -260,6 +248,14 @@ public class SequenceWindow extends QMainWindow
 		}
 	
 	
+	public SequenceRange getSelectionOrAll()
+		{
+		SequenceRange r=getSelection();
+		if(r==null)
+			return new SequenceRange(0,seq.getLength());
+		else
+			return r;
+		}
 	public SequenceRange getSelection()
 		{
 		return viewLinear.getSelection();
@@ -450,21 +446,12 @@ public class SequenceWindow extends QMainWindow
 		
 		//Build menus
 		QMenuBar menubar=new QMenuBar();
+
 		
 		QMenu mseq=menubar.addMenu(tr("Sequence"));
 		QMenu mannotation=menubar.addMenu(tr("Annotation"));
 		
 		mseq.addAction(tr("Select everything"), this, "actionSelectAll()");
-		mseq.addSeparator();
-		mseq.addAction(tr("Copy upper 5-3' as-is"), this, "copyUpperOrig()");
-		mseq.addAction(tr("Copy upper 5-3' reversed"), this, "copyUpperRev()");
-		mseq.addAction(tr("Copy upper 5-3' complemented"), this, "copyUpperComp()");
-		mseq.addAction(tr("Copy upper 5-3' reverse-complemented"), this, "copyUpperRevComp()");
-		mseq.addSeparator();
-		mseq.addAction(tr("Copy lower 5-3' as-is"), this, "copyLowerOrig()");
-		mseq.addAction(tr("Copy lower 5-3' reversed"), this, "copyLowerRev()");
-		mseq.addAction(tr("Copy lower 5-3' complemented"), this, "copyLowerComp()");
-		mseq.addAction(tr("Copy lower 5-3' reverse-complemented"), this, "copyLowerRevComp()");
 		mseq.addSeparator();
 		mseq.addAction(tr("BLAST (NCBI)"), this, "blastNCBI()");
 		mseq.addAction(tr("CRISPR design"), this, "crispr()");
@@ -485,6 +472,23 @@ public class SequenceWindow extends QMainWindow
 		mannotation.addAction(tr("Fit existing primer"),this,"actionFitExistingPrimer()");
 		mannotation.addAction(tr("Find good primer location in selection"),this,"actionFindPrimer()");
 		
+		QMenu mCopy=menubar.addMenu(tr("Copy"));
+		mCopy.addAction(tr("Copy upper 5-3' as-is"), this, "copyUpperOrig()");
+		mCopy.addAction(tr("Copy upper 5-3' reversed"), this, "copyUpperRev()");
+		mCopy.addAction(tr("Copy upper 5-3' complemented"), this, "copyUpperComp()");
+		mCopy.addAction(tr("Copy upper 5-3' reverse-complemented"), this, "copyUpperRevComp()");
+		mCopy.addSeparator();
+		mCopy.addAction(tr("Copy lower 5-3' as-is"), this, "copyLowerOrig()");
+		mCopy.addAction(tr("Copy lower 5-3' reversed"), this, "copyLowerRev()");
+		mCopy.addAction(tr("Copy lower 5-3' complemented"), this, "copyLowerComp()");
+		mCopy.addAction(tr("Copy lower 5-3' reverse-complemented"), this, "copyLowerRevComp()");
+
+		QMenu mFind=menubar.addMenu(tr("Find"));
+		mFind.addAction(tr("Go to next ambigous nucleotide"),this,"actionNextAmbnuc()");
+		mFind.addAction(tr("Go to previous ambigous nucleotide"),this,"actionPrevAmbnuc()");
+		mFind.addSeparator();
+		mFind.addAction(tr("Go to next nucleotide mismatch"),this,"actionNextMismatch()");
+		mFind.addAction(tr("Go to previous nucleotide mismatch"),this,"actionPrevMismatch()");
 		
 		
 		viewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
@@ -656,7 +660,123 @@ public class SequenceWindow extends QMainWindow
 			});
 		return list;
 		}
+	public void actionNextMismatch()
+		{
+		goNext(classifyMismatch());
+		}
+	public void actionPrevMismatch()
+		{
+		goPrev(classifyMismatch());
+		
+		}
+
+
+	/**
+	 * Go to next true position in array
+	 */
+	private void goNext(boolean[] b)
+		{
+		int curpos=-1;
+		SequenceRange r=getSelection();
+		if(r!=null)
+			curpos=r.from;
+		for(int i=curpos+1;i<b.length;i++)
+			{
+			if(b[i])
+				{
+				onViewUpdated(new SequenceRange(i,i+1));
+				return;
+				}
+			}
+		for(int i=0;i<curpos;i++)
+			{
+			if(b[i])
+				{
+				onViewUpdated(new SequenceRange(i,i+1));
+				return;
+				}
+			}
+		QTutil.showNotice(this, tr("None found"));
+		}
 	
+	/**
+	 * Go to previous true position in array
+	 */
+	private void goPrev(boolean[] b)
+		{
+		int curpos=-1;
+		SequenceRange r=getSelection();
+		if(r!=null)
+			curpos=r.from;
+		String s=seq.getSequence();
+		for(int i=curpos-1;i>=0;i--)
+			{
+			if(b[i])
+				{
+				onViewUpdated(new SequenceRange(i,i+1));
+				return;
+				}
+			}
+		for(int i=s.length()-1;i>curpos;i--)
+			{
+			if(b[i])
+				{
+				onViewUpdated(new SequenceRange(i,i+1));
+				return;
+				}
+			}
+		QTutil.showNotice(this, tr("None found"));
+		}
+	
+	/**
+	 * Classify nucleotides as ambiguous
+	 */
+	private boolean[] classifyAmbnuc()
+		{
+		String s=seq.getSequence();
+		boolean[] arr=new boolean[seq.getLength()];
+		for(int i=0;i<s.length();i++)
+			{
+			char c=s.charAt(i);
+			arr[i]=!NucleotideUtil.isATGC(c) && c!=' ';
+			}
+		return arr;
+		}
+
+	/**
+	 * Classify nucleotides as mismatches
+	 * @return
+	 */
+	private boolean[] classifyMismatch()
+		{
+		String s=seq.getSequence();
+		String s2=seq.getSequenceLower();
+		boolean[] arr=new boolean[seq.getLength()];
+		for(int i=0;i<s.length();i++)
+			{
+			char letterUpper=s.charAt(i);
+			char letterLower=s2.charAt(i);
+			arr[i] = !NucleotideUtil.areComplementary(letterUpper,letterLower) && (!NucleotideUtil.isSpacing(letterLower) && !NucleotideUtil.isSpacing(letterUpper));
+			}
+		return arr;
+		}
+
+	/**
+	 * Go to next ambiguous nucleotide
+	 */
+	public void actionNextAmbnuc()
+		{
+		goNext(classifyAmbnuc());
+		}
+	
+	/**
+	 * Go to previous ambiguous nucleotide
+	 */
+	public void actionPrevAmbnuc()
+		{
+		goPrev(classifyAmbnuc());
+		}
+
 	/**
 	 * Action: Select next primer
 	 */

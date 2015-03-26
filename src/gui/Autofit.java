@@ -26,7 +26,7 @@ public class Autofit
 		if(reference.isCircular)
 			seqA=seqA+seqA;
 		
-		//Try all variations of the sequence
+		//Try all variations of the sequence (or? maybe only 2?)
 		PairwiseAlignment al1=getal(reference);
 		PairwiseAlignment al2=getal(reference);
 		PairwiseAlignment al3=getal(reference);
@@ -67,7 +67,7 @@ public class Autofit
 	private PairwiseAlignment getal(AnnotatedSequence reference)
 		{
 		PairwiseAlignment al=new PairwiseAlignment();
-		al.isLocal=true; //Later: try to fit all of B? or?
+		al.isLocalA=true; //Later: try to fit all of B? or?
 		return al;
 		}
 	

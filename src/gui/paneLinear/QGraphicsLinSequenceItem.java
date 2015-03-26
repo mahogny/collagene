@@ -1,6 +1,7 @@
 package gui.paneLinear;
 
 import seq.AnnotatedSequence;
+import sequtil.NucleotideUtil;
 import sequtil.ProteinTranslator;
 
 import com.trolltech.qt.core.QPointF;
@@ -9,6 +10,7 @@ import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QPainter;
+import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QStyleOptionGraphicsItem;
 import com.trolltech.qt.gui.QWidget;
 
@@ -41,6 +43,12 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 		
 		SkylineDNArenderer p=new SkylineDNArenderer();
 		
+		QFont fontMismatch=new QFont(view.fontSequence);
+		fontMismatch.setBold(true);
+		QPen penOK=new QPen();
+		QPen penMismatch=new QPen();
+		penMismatch.setColor(QColor.fromRgb(255, 0, 0));
+		
 		//Draw the sequence text
 		for(int i=0;i<charsPerLine;i++)
 			{
@@ -50,6 +58,7 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 			char letterUpper=seq.getSequence().charAt(cpos);
 			char letterLower=seq.getSequenceLower().charAt(cpos);
 
+			painter.setPen(penOK);
 			painter.setFont(view.fontSequence);
 			if(view.settings.showSkyline)
 				{
@@ -60,12 +69,23 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 				}
 			else
 				{
-				painter.drawText(new QPointF(view.mapCharToX(i), currentY+fonth()), ""+letterUpper);
-				painter.drawText(new QPointF(view.mapCharToX(i), currentY+fonth()*2), ""+letterLower);
+				double y1=currentY+fonth();
+				double y2=currentY+fonth()*2;
+				if(!NucleotideUtil.areComplementary(letterUpper,letterLower) && (!NucleotideUtil.isSpacing(letterLower) && !NucleotideUtil.isSpacing(letterUpper)))
+					{
+					painter.setFont(fontMismatch);
+					painter.setPen(penMismatch);
+					y1-=fonth()*0.2;
+					y2+=fonth()*0.2;
+					}
+
+				painter.drawText(new QPointF(view.mapCharToX(i), y1), ""+letterUpper);
+				painter.drawText(new QPointF(view.mapCharToX(i), y2), ""+letterLower);
 				}
 			}
 
 		//Draw protein translation beneath
+		painter.setPen(penOK);
 		currentY+=fonth()*2;
 		if(view.showProteinTranslation)
 			{

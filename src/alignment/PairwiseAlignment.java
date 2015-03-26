@@ -16,12 +16,14 @@ import sequtil.NucleotideUtil;
  */
 public class PairwiseAlignment
 	{
-	public boolean isLocal=true;
+	public boolean isLocalA=true;
+	public boolean isLocalB=true;
 	public AlignmentCostTable costtable=new AlignmentCostTable();
 	
 	public double penaltySkip   = -10;
 	public double penaltyExtend = -0.5;  //taken from http://www.ebi.ac.uk/Tools/psa/emboss_needle/
 
+	public double bestCost;
 	
 	private static int TRAJ_LEFT=3, TRAJ_UP=1, TRAJ_MATCH=2, TRAJ_END=6;
 
@@ -31,6 +33,8 @@ public class PairwiseAlignment
 	public LinkedList<Integer> alignedIndexA=new LinkedList<Integer>();
 	public LinkedList<Integer> alignedIndexB=new LinkedList<Integer>();
 
+	public char gapSymbol=' ';
+	
 	/**
 	 * Compute the alignment
 	 */
@@ -55,12 +59,14 @@ public class PairwiseAlignment
 		//Fill in main table upper/left border
 		for(int i=0;i<seqA.length();i++)
 			{
-			cost[i+1][0]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
+			if(!isLocalA)
+				cost[i+1][0]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
 			traj[i+1][0]=TRAJ_UP;
 			}
 		for(int i=0;i<seqB.length();i++)
 			{
-			cost[0][i+1]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
+			if(!isLocalB)
+				cost[0][i+1]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
 			traj[0][i+1]=TRAJ_LEFT;
 			}
 		cost[0][0]=0;
@@ -111,20 +117,20 @@ public class PairwiseAlignment
 					}
 				
 				//The restart condition for local alignment
-				if(isLocal && cost[mati][matj]<0)
+				if((isLocalA || isLocalB) && cost[mati][matj]<0)
 					{
 					traj[mati][matj]=TRAJ_END;
 					cost[mati][matj]=0;
 					}
 				}
-		
+			
 
 		//Find optimal end point
 		double bestcost=Integer.MIN_VALUE;
 		int besti=0, bestj=0;
 		int fromi=0;
 		int fromj=0;
-		if(!isLocal)
+		if(!isLocalA)
 			{
 			fromi=seqA.length();
 			fromj=seqB.length();
@@ -145,6 +151,7 @@ public class PairwiseAlignment
 			System.out.println();
 			}
 		System.out.println("best cost "+bestcost);
+		this.bestCost=bestcost;
 		
 		//Traverse back to find alignment
 		StringBuilder sbA=new StringBuilder();
@@ -170,14 +177,14 @@ public class PairwiseAlignment
 			else if(traj[mati][matj]==TRAJ_UP)
 				{
 				sbA.append(seqA.charAt(mati-1));
-				sbB.append('_');
+				sbB.append(gapSymbol);
 				alignedIndexA.add(mati);
 				alignedIndexB.add(-1);
 				mati--;
 				}
 			else if(traj[mati][matj]==TRAJ_LEFT)
 				{
-				sbA.append('_');
+				sbA.append(gapSymbol);
 				sbB.append(seqB.charAt(matj-1));
 				alignedIndexA.add(-1);
 				alignedIndexB.add(matj);
@@ -188,12 +195,36 @@ public class PairwiseAlignment
 			else
 				throw new RuntimeException("Unknown traj code "+traj[mati][matj]);
 			}
+
+		
 		
 		alignedSequenceA=NucleotideUtil.reverse(sbA.toString());
 		alignedSequenceB=NucleotideUtil.reverse(sbB.toString());
-		
+
 		Collections.reverse(alignedIndexA);
 		Collections.reverse(alignedIndexB);
+
+		//If the alignment is only partially local, add missing letters for the other sequence.
+		//It went from (besti,bestj) to (mati,matj)
+		if(!isLocalA)
+			{
+			//Include the full A
+			alignedSequenceA=seqA.substring(0,mati) + alignedSequenceA + seqA.substring(besti,seqA.length());
+			alignedSequenceB=NucleotideUtil.getRepeatOligo(gapSymbol, mati) + alignedSequenceB + NucleotideUtil.getRepeatOligo(gapSymbol, seqA.length()-besti);
+			for(int i=mati;i>=0;i--)
+				{
+				alignedIndexA.addFirst(i);
+				alignedIndexB.addFirst(-1);
+				}
+			for(int i=besti;i<seqA.length();i++)
+				{
+				alignedIndexA.add(i);
+				alignedIndexB.add(-1);
+				}
+			}
+		
+		//TODO
+		
 		}
 	
 	

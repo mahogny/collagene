@@ -19,7 +19,6 @@ jars:
 	*/*.txt \
 	*/*/*.png \
 	*/*/*.txt \
-	*/*/*/*.txt \
 	*/*/EPAM*
 
 ############################################################################################
@@ -101,7 +100,7 @@ cleanports:
 
 
 upload:
-	cd ../release; scp *.dmg *.zip *.deb labstory_winjre.exe qtversion.txt 177655_mahogny@ssh.binero.se:/storage/content/55/177655/labstory.se/public_html/release/
+	cd ../release; scp *.dmg *.zip *.deb quickfacs_winjre.exe qtversion.txt mahogny@www.endrov.net:/home/mahogny/hp/other
 
 uploadwin:
 	cd ../release; scp *.exe 177655_mahogny@ssh.binero.se:/storage/content/55/177655/labstory.se/public_html/release/

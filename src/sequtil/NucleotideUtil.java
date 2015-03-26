@@ -14,54 +14,57 @@ public class NucleotideUtil
 		{
 		StringBuilder sb=new StringBuilder();
 		for(char c:s.toCharArray())
-			{
-			c=Character.toUpperCase(c);
-			if(c=='A')
-				sb.append('T');
-			else if(c=='T')
-				sb.append('A');
-			else if(c=='C')
-				sb.append('G');
-			else if(c=='G')
-				sb.append('C');
-			
-			else if(c=='N')
-				sb.append('N');
-			
-			else if(c=='R')
-				sb.append('Y');
-			else if(c=='Y')
-				sb.append('R'); 
-
-			else if(c=='M')
-				sb.append('K');
-			else if(c=='K')
-				sb.append('M'); 
-
-			else if(c=='S')
-				sb.append('W');
-			else if(c=='W')
-				sb.append('S'); 
-
-			
-			else if(c=='H')
-				sb.append('D'); 
-			else if(c=='D')
-				sb.append('H'); 
-			
-			else if(c=='B')
-				sb.append('V'); 
-			else if(c=='V')
-				sb.append('B'); 
-
-			else
-				sb.append('?');
-//				throw new RuntimeException("Bad DNA letter: "+c);
-			//TODO: might want to have a flag for this
-			}
+			sb.append(complement(c));
 		return sb.toString();
 		}
 	
+
+	public static char complement(char c)
+		{
+		c=Character.toUpperCase(c); //Really do this?
+		if(c=='A')
+			return ('T');
+		else if(c=='T')
+			return ('A');
+		else if(c=='C')
+			return ('G');
+		else if(c=='G')
+			return ('C');
+		
+		else if(c=='N')
+			return ('N');
+		
+		else if(c=='R')
+			return ('Y');
+		else if(c=='Y')
+			return ('R'); 
+
+		else if(c=='M')
+			return ('K');
+		else if(c=='K')
+			return ('M'); 
+
+		else if(c=='S')
+			return ('W');
+		else if(c=='W')
+			return ('S'); 
+
+		
+		else if(c=='H')
+			return ('D'); 
+		else if(c=='D')
+			return ('H'); 
+		
+		else if(c=='B')
+			return ('V'); 
+		else if(c=='V')
+			return ('B'); 
+		else if(c==' ')
+			return (' '); 
+		else
+			return ('?');
+		}
+
 	
 	public static String reverse(String s)
 		{
@@ -115,5 +118,25 @@ public class NucleotideUtil
 		for(int i=0;i<n;i++)
 			arr[i]=c;
 		return new String(arr);
+		}
+
+	public static boolean isATGC(char c)
+		{
+		return c=='A' || c=='T' || c=='C' || c=='G';
+		}
+
+	public static String normalize(String s)
+		{
+		return s.toUpperCase().replace(" ", "").replace("\t", "").replace("\n", "");
+		}
+
+	public static boolean isSpacing(char c)
+		{
+		return c==' ' || c=='_';
+		}
+
+	public static boolean areComplementary(char letterUpper, char letterLower)
+		{
+		return letterUpper==complement(letterLower);
 		}
 	}

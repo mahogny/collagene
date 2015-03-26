@@ -86,8 +86,6 @@ public class PaneSequenceInfo extends QScrollArea
 			hlay.setMargin(0);
 			setLayout(hlay);
 
-			//setMinimumHeight(100);
-			//lSequence.setMinimumHeight(30);
 			bAction.clicked.connect(this,"action()");
 			}
 		
@@ -296,6 +294,8 @@ public class PaneSequenceInfo extends QScrollArea
 		tw.setLayout(lay);
 		setWidget(tw);
 		
+		tfLength.setTextInteractionFlags(TextInteractionFlag.TextSelectableByMouse);
+		tfWeight.setTextInteractionFlags(TextInteractionFlag.TextSelectableByMouse);
 		
 		tfName.textChanged.connect(this,"updateseq()");
 		cbIsCircular.clicked.connect(this,"updateseq()");

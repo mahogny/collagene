@@ -18,6 +18,7 @@ import restrictionEnzyme.RestrictionEnzymeSet;
 import seq.AnnotatedSequence;
 import sequtil.LigationCandidate;
 import sequtil.LigationUtil;
+import sequtil.NucleotideUtil;
 import sequtil.ProteinTranslator;
 import gui.anneal.AnnealWindow;
 import gui.cloneAssembler.CloneAssembler;
@@ -26,6 +27,7 @@ import gui.qt.QTutil;
 import gui.resource.ImgResource;
 import gui.sequenceWindow.EventSequenceModified;
 import gui.sequenceWindow.SequenceWindow;
+import alignment.AnnotatedSequenceAlignment;
 import alignment.PairwiseAlignment;
 import alignment.emboss.EmbossCost;
 
@@ -170,11 +172,30 @@ public class ProjectWindow extends QMainWindow
 	public void actionAlign()
 		{
 		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
-		if(seqs.size()==2)
+		if(seqs.size()==1)
+			{
+			String otherseq=QInputDialog.getText(this, tr("Align sequence"), tr("Sequence to align to:"));
+			if(otherseq!=null)
+				{
+				otherseq=NucleotideUtil.normalize(otherseq);
+				
+				AnnotatedSequenceAlignment al=new AnnotatedSequenceAlignment();
+				AnnotatedSequence seqB=new AnnotatedSequence();
+				seqB.setSequence(otherseq);
+				al.align(seqs.get(0), seqB);
+				
+				AnnotatedSequence seq=al.alSeqAwithB;
+						
+				giveNewName(seq);
+				addSequenceToProject(seq);
+				showSequence(seq);
+				}
+			}
+		else if(seqs.size()==2)
 			{
 			PairwiseAlignment al=new PairwiseAlignment();
 			al.costtable=EmbossCost.tableBlosum62;
-			al.isLocal=false;
+			al.isLocalA=false;
 			al.align(seqs.get(0).getSequence(), seqs.get(1).getSequence());
 			
 			AnnotatedSequence seq=new AnnotatedSequence();
@@ -185,7 +206,7 @@ public class ProjectWindow extends QMainWindow
 			showSequence(seq);
 			}
 		else
-			QTutil.showNotice(this, "select 2");
+			QTutil.showNotice(this, tr("Select 1 or 2 sequences"));
 		}
 	
 	/**
