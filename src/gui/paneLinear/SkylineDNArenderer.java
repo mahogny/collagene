@@ -14,9 +14,6 @@ import com.trolltech.qt.gui.QPolygonF;
  */
 public class SkylineDNArenderer
 	{
-
-	
-
 	public void draw(QPainter painter, double w, double h, QPointF p, char letter)
 		{
 		int ind="GATC".indexOf(letter);
@@ -49,8 +46,6 @@ public class SkylineDNArenderer
 			painter.drawPolygon(poly);
 			}
 		else
-			{
 			painter.drawText(p, ""+letter);
-			}
 		}
 	}

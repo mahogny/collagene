@@ -24,10 +24,11 @@ import com.trolltech.qt.gui.QWidget;
 public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 	{
 	public AnnotatedSequence seq;
-	
-	int currentY;
-	int curline;
-	ViewLinearSequence view;
+
+	public int cposLeft;
+	public int currentY;
+	//public int curline;
+	public ViewLinearSequence view;
 
 	
 	public double fonth()
@@ -61,7 +62,8 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 		//Draw the sequence text
 		for(int i=0;i<charsPerLine;i++)
 			{
-			int cpos=curline*charsPerLine + i;
+			//int cpos=curline*charsPerLine + i;
+			int cpos=cposLeft + i;
 			if(cpos>=seq.getLength())
 				break;
 			char letterUpper=seq.getSequence().charAt(cpos);
@@ -106,7 +108,8 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 				painter.setFont(font);
 				for(int i=frame;i<charsPerLine;i+=3)
 					{
-					int cpos=curline*charsPerLine + i - 1;
+					int cpos=cposLeft + i - 1;
+					//int cpos=curline*charsPerLine + i - 1;
 					int cpos2=cpos+3;
 					if(cpos>=0 && cpos2<=seq.getLength())
 						{

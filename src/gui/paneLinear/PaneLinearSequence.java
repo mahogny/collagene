@@ -78,7 +78,7 @@ public class PaneLinearSequence extends QWidget
 	public void updateview()
 		{
 		view.charWidth=8+(sliderZoom.value()/(double)sliderZoom.maximum())*10;
-		setSequence(view.seq); //cruel
+		setSequence(view.getSequence()); //cruel
 		}
 
 	public void setSequence(AnnotatedSequence seq)
@@ -112,7 +112,7 @@ public class PaneLinearSequence extends QWidget
 	
 	public void setSeeWhole()
 		{
-		view.setSeeWhole(true);
+		view.setFullsizeMode(true);
 		}
 
 	}
