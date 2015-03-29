@@ -69,6 +69,7 @@ public class SequenceWindow extends QMainWindow
 	private PaneCircularSequence viewCircular;
 	private PaneEnzymeList viewEnz;
 	private PaneSequenceInfo viewInfo;
+	private PaneLinearSequence viewOverviewLinear;
 	private QLineEdit tfSearch=new QLineEdit();
 	private QStatusBar statusbar=new QStatusBar();
 	private QLabel labelTm=new QLabel("");
@@ -89,6 +90,7 @@ public class SequenceWindow extends QMainWindow
 		range.from=0;
 		range.to=seq.getLength();
 		viewLinear.setSelection(range);
+		viewOverviewLinear.setSelection(range);
 		viewCircular.setSelection(range);
 		updateStatusbar();
 		}
@@ -302,6 +304,11 @@ public class SequenceWindow extends QMainWindow
 		}
 	
 	
+	public void actionAutofitAnnotation()
+		{
+		
+		}
+	
 	/**
 	 * Set current sequence
 	 */
@@ -320,18 +327,23 @@ public class SequenceWindow extends QMainWindow
 	
 	public void updateSequence()
 		{
-		layc.removeWidget(viewCircular);
+		//layc.removeWidget(viewCircular);
 		if(seq.isCircular)
 			{
-			layc.addWidget(viewCircular);
+			//layc.addWidget(viewCircular);
 			viewCircular.show();
+			viewOverviewLinear.hide();
 			}
 		else
+			{
 			viewCircular.hide();
+			viewOverviewLinear.show();
+			}
 
 		//Brutal, works
 		viewCircular.setSequence(seq);
 		viewLinear.setSequence(seq);
+		viewOverviewLinear.setSequence(seq);
 		viewEnz.setSequence(seq);
 		viewInfo.setSequence(seq);
 		setWindowTitle(QtProgramInfo.programName+" - "+seq.name);
@@ -357,6 +369,7 @@ public class SequenceWindow extends QMainWindow
 			if(range.isNoRange)
 				range=null;
 			viewLinear.setSelection(range);
+			viewOverviewLinear.setSelection(range);
 			viewCircular.setSelection(range);
 			updateStatusbar();
 			}
@@ -364,6 +377,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
 			viewLinear.setRestrictionEnzyme(enz);
+			viewOverviewLinear.setRestrictionEnzyme(enz);
 			viewCircular.setRestrictionEnzyme(enz);
 			viewEnz.setRestrictionEnzyme(enz);
 			}
@@ -377,6 +391,7 @@ public class SequenceWindow extends QMainWindow
 				}
 
 			viewLinear.handleEvent(ob);
+			viewOverviewLinear.handleEvent(ob);
 			}
 		}
 	
@@ -436,10 +451,12 @@ public class SequenceWindow extends QMainWindow
 		{
 		viewEnz=new PaneEnzymeList(this, projwindow);
 		viewLinear=new PaneLinearSequence(projwindow);
+		viewOverviewLinear=new PaneLinearSequence(projwindow);
 		viewCircular=new PaneCircularSequence(projwindow);
 		viewInfo=new PaneSequenceInfo(projwindow);
 		this.projwindow=projwindow;
 		
+		viewOverviewLinear.setSeeWhole();
 
 		
 		ImgResource.setWindowIcon(this);
@@ -463,6 +480,7 @@ public class SequenceWindow extends QMainWindow
 		mseq.addAction(tr("Close"), this, "close()");
 
 		mannotation.addAction(tr("Add annotation"), this, "addAnnotation()");
+		mannotation.addAction(tr("Autofit annotation"), this, "actionAutofitAnnotation()");
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Find ORFs"), this, "actionFindORFs()");
 		mannotation.addAction(tr("Remove unnamed ORFs"), this, "actionRemoveORFs()");
@@ -493,6 +511,7 @@ public class SequenceWindow extends QMainWindow
 		
 		
 		viewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
+		viewOverviewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
 		viewEnz.signalUpdated.connect(this,"onViewUpdated(Object)");
 		viewCircular.signalUpdated.connect(this,"onViewUpdated(Object)");
 		viewInfo.signalUpdated.connect(this,"onViewUpdated(Object)");
@@ -540,6 +559,8 @@ public class SequenceWindow extends QMainWindow
 		statusbar.addPermanentWidget(labelGC);
 		statusbar.addPermanentWidget(labelLength);
 		
+		layc.addWidget(viewCircular);
+		layc.addWidget(viewOverviewLinear);
 		layc.setMargin(0);
 		layc.setSpacing(0);
 		

@@ -41,6 +41,15 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 
 		int currentY=this.currentY;
 		
+		if(view.fontSequence.pointSizeF()<2)
+			{
+			painter.setPen(QColor.fromRgb(0,0,0));
+			painter.drawLine(
+					new QPointF(view.mapCharToX(0), currentY),
+					new QPointF(view.mapCharToX(charsPerLine), currentY));
+			return;
+			}
+		
 		SkylineDNArenderer p=new SkylineDNArenderer();
 		
 		QFont fontMismatch=new QFont(view.fontSequence);

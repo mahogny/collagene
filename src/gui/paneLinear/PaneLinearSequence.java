@@ -108,5 +108,11 @@ public class PaneLinearSequence extends QWidget
 		{
 		view.handleEvent(ob);
 		}
+	
+	
+	public void setSeeWhole()
+		{
+		view.setSeeWhole(true);
+		}
 
 	}

@@ -79,7 +79,7 @@ public class ViewLinearSequence extends QGraphicsView
 	QFont fontSequence=new QFont();
 	private ArrayList<Integer> sequenceLineY=new ArrayList<Integer>();
 	int charsPerLine;
-	public double charWidth=10;
+	public double charWidth;// set externally =10;
 	public double charHeight=17;
 	
 	private RestrictionSite hoveringRestrictionSite=null;
@@ -224,6 +224,8 @@ public class ViewLinearSequence extends QGraphicsView
 
 	
 	private double currentMovetopos=0;
+
+	public boolean seeWhole=false;
 	
 	/**
 	 * Scroll to a certain position, with animation
@@ -241,6 +243,9 @@ public class ViewLinearSequence extends QGraphicsView
 	 */
 	public void buildSceneFromDoc()
 		{
+		if(seeWhole)
+			widthInChars=seq.getLength();
+		
 		QGraphicsScene scene=scene();
 		scene.clear();
 		mapAnnotations.clear();
@@ -250,7 +255,27 @@ public class ViewLinearSequence extends QGraphicsView
 		QPen penSequence=new QPen();
 		penSequence.setColor(new QColor(100,100,100));
 		penSequence.setWidth(2);
-		
+
+		//charWidth=10;
+		//charHeight=17;
+
+		if(seeWhole)
+			{
+			//Adapt to width
+			setMinimumWidth(0);
+			charsPerLine=(int)(1.1*seq.getLength());
+			charWidth=width()/(double)charsPerLine;
+			}
+		else
+			{
+			//Update how many chars fit on each line
+			charsPerLine=widthInChars;
+			if(charsPerLine==-1)
+				charsPerLine=80; //TODO try and figure out optimum
+			setMinimumWidth((int)mapCharToX(charsPerLine)+100);    //TODO need to be redone once in a while!
+			}
+
+		//Update font choices
 		fontSequence.setFamily("Courier");
 		fontSequence.setPointSizeF(charWidth);
 		charHeight=fontSequence.pointSizeF()*2;
@@ -264,12 +289,7 @@ public class ViewLinearSequence extends QGraphicsView
 		QFont fontPrimer=new QFont();
 		fontPrimer.setPointSize(10);
 
-		//Update how many chars fit on each line
-		charsPerLine=widthInChars;
-		if(charsPerLine==-1)
-			charsPerLine=80; //TODO try and figure out optimum
 		
-		setMinimumWidth((int)mapCharToX(charsPerLine)+100);    //TODO need to be redone once in a while!
 
 		//Render each line. Remember position
 		sequenceLineY.clear();
@@ -994,6 +1014,12 @@ public class ViewLinearSequence extends QGraphicsView
 				buildSceneFromDoc();
 				}
 			}
+		}
+
+
+	public void setSeeWhole(boolean b)
+		{
+		seeWhole=true;
 		}
 
 	
