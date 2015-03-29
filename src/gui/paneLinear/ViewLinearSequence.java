@@ -5,8 +5,6 @@ import gui.paneLinear.tracks.LinTrack;
 import gui.paneLinear.tracks.LinTrackAnnotation;
 import gui.paneLinear.tracks.LinTrackPrimer;
 import gui.paneLinear.tracks.LinTrackSequence;
-import gui.paneRestriction.EventSelectedRestrictionEnzyme;
-import gui.sequenceWindow.EventSelectedAnnotation;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.util.ArrayList;
@@ -15,8 +13,6 @@ import java.util.LinkedList;
 
 import seq.AnnotatedSequence;
 import seq.SequenceRange;
-import seq.SeqAnnotation;
-
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
@@ -26,7 +22,6 @@ import com.trolltech.qt.core.Qt.ScrollBarPolicy;
 import com.trolltech.qt.gui.QBrush;
 import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QContextMenuEvent;
-import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsLineItem;
 import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QGraphicsScene;
@@ -46,7 +41,7 @@ public class ViewLinearSequence extends QGraphicsView
 	{
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	
-	private LinTrackSequence trackSequence=new LinTrackSequence(this);
+	LinTrackSequence trackSequence=new LinTrackSequence(this);
 	
 	private QTimer timerAnimation=new QTimer();
 	
@@ -58,19 +53,14 @@ public class ViewLinearSequence extends QGraphicsView
 	public SequenceRange selection=null;
 	private boolean isSelecting=false;
 
-	QFont fontSequence=new QFont();
 	public int charsPerLine;
 	public int widthInChars=-1; //-1 means to choose automatically. 
 	public double charWidth;// set externally =10;
-	public double charHeight=17;
 	
-	public EventSelectedRestrictionEnzyme selectedEnz=new EventSelectedRestrictionEnzyme();
 
-	public boolean showProteinTranslation=true;
 	public boolean showPositionRuler=true;
 	private double currentMovetopos=0;
 	private boolean isFullsizeMode=false;
-	public int currentReadingFrame=0;
 
 	public ProjectWindow w;
 
@@ -167,18 +157,15 @@ public class ViewLinearSequence extends QGraphicsView
 		tracks.add(new LinTrackPrimer(this));
 		tracks.add(new LinTrackAnnotation(this));
 
-    setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);  //is there a newer version??
+    setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff); 
     setVerticalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOn);
-
+		setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);
 		setMouseTracking(true);
 		setEnabled(true);
 
-		setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);
-
-		charsPerLine=80; //not proper
+		//charsPerLine=80; //not proper
 		
 		setScene(new QGraphicsScene());
-		
 		buildSceneFromDoc();
 		
 		timerAnimation.timeout.connect(this,"timermove()");
@@ -254,10 +241,6 @@ public class ViewLinearSequence extends QGraphicsView
 			setMinimumWidth((int)mapCharToX(charsPerLine)+100);    
 			}
 
-		//Update font choices
-		fontSequence.setFamily("Courier");
-		fontSequence.setPointSizeF(charWidth);
-		charHeight=fontSequence.pointSizeF()*2;
 
 		//Render each line. Remember position
 		int currentY=10;
@@ -280,7 +263,6 @@ public class ViewLinearSequence extends QGraphicsView
 			pitem.view=this;
 			scene.addItem(pitem);
 			currentY+=pitem.boundingRect().height();
-
 			
 			//Move to next line
 			currentY+=10;
@@ -449,15 +431,8 @@ public class ViewLinearSequence extends QGraphicsView
 	 */
 	public void handleEvent(Object ob)
 		{
-		if(ob instanceof EventSelectedAnnotation)
-			{
-			SeqAnnotation annot=((EventSelectedAnnotation)ob).annot;
-			if(annot!=null)
-				{
-				currentReadingFrame=annot.getFrame();
-				buildSceneFromDoc();
-				}
-			}
+		for(LinTrack track:tracks)
+			track.handleEvent(ob);
 		}
 
 

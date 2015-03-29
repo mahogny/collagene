@@ -1,7 +1,6 @@
 package gui.paneLinear;
 
 import gui.ProjectWindow;
-import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.resource.ImgResource;
 import seq.AnnotatedSequence;
 import seq.SequenceRange;
@@ -66,9 +65,9 @@ public class PaneLinearSequence extends QWidget
 		view.signalUpdated.connect(this,"onViewUpdated(Object)");
 		
 		updateview();
-		
-		
 		}
+	
+	
 	public void onViewUpdated(Object o)
 		{
 		signalUpdated.emit(o);
@@ -97,11 +96,6 @@ public class PaneLinearSequence extends QWidget
 		return view.getSelection();
 		}
 	
-	public void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
-		{
-		view.selectedEnz=enz;
-		updateview();
-		}
 	
 	
 	public void handleEvent(Object ob)
@@ -110,7 +104,7 @@ public class PaneLinearSequence extends QWidget
 		}
 	
 	
-	public void setSeeWhole()
+	public void setFullsizeMode()
 		{
 		view.setFullsizeMode(true);
 		}

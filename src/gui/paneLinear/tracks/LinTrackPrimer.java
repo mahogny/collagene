@@ -50,7 +50,7 @@ public class LinTrackPrimer implements LinTrack
 		font.setPointSize(10);
 
 		double charWidth=view.charWidth;
-		double charHeight=view.charHeight;
+		double charHeight=font.pointSizeF();//view.charHeight;
 		AnnotatedSequence seq=view.getSequence();
 		
 		//////////////////////////////////////////////// Place primers
@@ -179,6 +179,11 @@ public class LinTrackPrimer implements LinTrack
 
 	@Override
 	public void mouseMoveEvent(QMouseEvent event, QPointF pos)
+		{
+		}
+
+	@Override
+	public void handleEvent(Object ob)
 		{
 		}
 

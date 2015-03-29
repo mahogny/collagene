@@ -190,4 +190,9 @@ public class LinTrackAnnotation implements LinTrack
 		{
 		}
 
+	@Override
+	public void handleEvent(Object ob)
+		{
+		}
+
 	}

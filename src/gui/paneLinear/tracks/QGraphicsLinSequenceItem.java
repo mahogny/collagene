@@ -1,5 +1,7 @@
-package gui.paneLinear;
+package gui.paneLinear.tracks;
 
+import gui.paneLinear.SkylineDNArenderer;
+import gui.paneLinear.ViewLinearSequence;
 import seq.AnnotatedSequence;
 import sequtil.NucleotideUtil;
 import sequtil.ProteinTranslator;
@@ -29,11 +31,14 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 	public int currentY;
 	//public int curline;
 	public ViewLinearSequence view;
-
 	
+	LinTrackSequence track;
+	double charHeight;
+	QFont fontSequence;
+
 	public double fonth()
 		{
-		return view.charHeight-1;
+		return charHeight-1;
 		}
 	
 	public void paint(QPainter painter, QStyleOptionGraphicsItem option, QWidget widget) 
@@ -42,7 +47,7 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 
 		int currentY=this.currentY;
 		
-		if(view.fontSequence.pointSizeF()<2)
+		if(fontSequence.pointSizeF()<2)
 			{
 			painter.setPen(QColor.fromRgb(0,0,0));
 			painter.drawLine(
@@ -53,7 +58,7 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 		
 		SkylineDNArenderer p=new SkylineDNArenderer();
 		
-		QFont fontMismatch=new QFont(view.fontSequence);
+		QFont fontMismatch=new QFont(fontSequence);
 		fontMismatch.setBold(true);
 		QPen penOK=new QPen();
 		QPen penMismatch=new QPen();
@@ -70,13 +75,13 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 			char letterLower=seq.getSequenceLower().charAt(cpos);
 
 			painter.setPen(penOK);
-			painter.setFont(view.fontSequence);
+			painter.setFont(fontSequence);
 			if(view.settings.showSkyline)
 				{
-				double w=view.fontSequence.pointSizeF();
-				double h=view.fontSequence.pointSizeF()*1.5;
-				p.draw(painter, w, h, new QPointF(view.mapCharToX(i), currentY+view.charHeight), letterUpper);
-				p.draw(painter, w, h, new QPointF(view.mapCharToX(i), currentY+view.charHeight*2-2), letterLower);
+				double w=fontSequence.pointSizeF();
+				double h=fontSequence.pointSizeF()*1.5;
+				p.draw(painter, w, h, new QPointF(view.mapCharToX(i), currentY+charHeight), letterUpper);
+				p.draw(painter, w, h, new QPointF(view.mapCharToX(i), currentY+charHeight*2-2), letterLower);
 				}
 			else
 				{
@@ -98,13 +103,13 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 		//Draw protein translation beneath
 		painter.setPen(penOK);
 		currentY+=fonth()*2;
-		if(view.showProteinTranslation)
+		if(track.showProteinTranslation)
 			{
-			QFont font=new QFont(view.fontSequence);
+			QFont font=new QFont(fontSequence);
 			ProteinTranslator ptrans=new ProteinTranslator();
 			for(int frame=0;frame<3;frame++)
 				{
-				font.setBold((frame+1)%3+1==view.currentReadingFrame);
+				font.setBold((frame+1)%3+1==track.currentReadingFrame);
 				painter.setFont(font);
 				for(int i=frame;i<charsPerLine;i+=3)
 					{
@@ -132,7 +137,7 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 	public QRectF boundingRect()
 		{
 		double h=fonth()*2;
-		if(view.showProteinTranslation)
+		if(track.showProteinTranslation)
 			h+=fonth()*3+5;
 		return new QRectF(0,currentY, 100000, h);
 		}

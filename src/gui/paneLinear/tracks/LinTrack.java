@@ -21,4 +21,6 @@ public interface LinTrack
 
 	public void mouseMoveEvent(QMouseEvent event, QPointF pos);
 
+	public void handleEvent(Object ob);
+
 	}

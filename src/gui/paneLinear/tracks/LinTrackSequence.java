@@ -1,10 +1,10 @@
 package gui.paneLinear.tracks;
 
 import gui.paneCircular.CircView;
-import gui.paneLinear.QGraphicsLinSequenceItem;
 import gui.paneLinear.ViewLinearSequence;
 import gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import gui.qt.QTutil;
+import gui.sequenceWindow.EventSelectedAnnotation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import restrictionEnzyme.RestrictionEnzyme;
 import seq.AnnotatedSequence;
 import seq.RestrictionSite;
+import seq.SeqAnnotation;
 import seq.SequenceRange;
 
 import com.trolltech.qt.core.QPointF;
@@ -33,7 +34,7 @@ import com.trolltech.qt.gui.QPen;
 
 /**
  * 
- * Linear track: Primers
+ * Linear track: Sequence and restriction sites
  * 
  * @author Johan Henriksson
  *
@@ -43,10 +44,16 @@ public class LinTrackSequence implements LinTrack
 	public ArrayList<Integer> sequenceLineY=new ArrayList<Integer>();
 
 	private RestrictionSite hoveringRestrictionSite=null;
-	private HashMap<RestrictionSite, QRectF> revsitePosition=new HashMap<RestrictionSite, QRectF>();
+	private HashMap<RestrictionSite, QRectF> resSitePosition=new HashMap<RestrictionSite, QRectF>();
+	public EventSelectedRestrictionEnzyme selectedEnz=new EventSelectedRestrictionEnzyme();
+
+	double charHeight;
+	private ViewLinearSequence view;
+	public int currentReadingFrame=0;
+	public boolean showProteinTranslation=true;
 
 	
-	private ViewLinearSequence view;
+	
 	public LinTrackSequence(ViewLinearSequence view)
 		{
 		this.view=view;
@@ -55,7 +62,7 @@ public class LinTrackSequence implements LinTrack
 	public void init()
 		{
 		sequenceLineY.clear();
-		revsitePosition.clear();
+		resSitePosition.clear();
 		}
 	
 	public int place(QGraphicsScene scene, int currentY, int cposLeft, int cposRight)
@@ -69,6 +76,12 @@ public class LinTrackSequence implements LinTrack
 		penSequence.setColor(new QColor(100,100,100));
 		penSequence.setWidth(2);
 
+		//Update font choices
+		QFont fontSequence=new QFont();
+		fontSequence.setFamily("Courier");
+		fontSequence.setPointSizeF(view.charWidth);
+		charHeight=fontSequence.pointSizeF()*2;
+
 		//////////////////////////////////////////////// Place enzymes
 		
 		//Find all relevant restriction enzymes, and sort by position
@@ -76,7 +89,7 @@ public class LinTrackSequence implements LinTrack
 		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
 			{
 			Collection<RestrictionSite> sites=seq.restrictionSites.get(enz);
-			if(view.settings.allowsRestrictionSiteCount(enz,sites.size()) || view.selectedEnz.enzymes.contains(enz))
+			if(view.settings.allowsRestrictionSiteCount(enz,sites.size()) || selectedEnz.enzymes.contains(enz))
 				{
 				for(RestrictionSite site:sites)
 					if(site.cuttingUpperPos>=cposLeft && site.cuttingUpperPos<=cposRight)
@@ -100,7 +113,7 @@ public class LinTrackSequence implements LinTrack
 			{
 			QGraphicsTextItem it=new QGraphicsTextItem();
 			it.setFont(fontRestriction);
-			if(view.selectedEnz.enzymes.contains(site.enzyme))
+			if(selectedEnz.enzymes.contains(site.enzyme))
 				it.setDefaultTextColor(QColor.fromRgb(255,0,0));
 			else
 				it.setDefaultTextColor(QColor.fromRgb(0,0,0));
@@ -127,7 +140,7 @@ public class LinTrackSequence implements LinTrack
 				break;
 				}
 			scene.addItem(it);
-			revsitePosition.put(site,thisbr);
+			resSitePosition.put(site,thisbr);
 			revsitePositionPerLine.put(site,thisbr);
 			maxSiteHeight=Math.max(maxSiteHeight,thish);
 			}
@@ -152,6 +165,9 @@ public class LinTrackSequence implements LinTrack
 		titem.currentY=currentY;
 		titem.seq=seq;
 		titem.view=view;
+		titem.charHeight=charHeight;
+		titem.fontSequence=fontSequence;
+		titem.track=this;
 		scene.addItem(titem);
 		currentY+=titem.boundingRect().height();
 		return currentY;
@@ -167,8 +183,8 @@ public class LinTrackSequence implements LinTrack
 			EventSelectedRestrictionEnzyme s=new EventSelectedRestrictionEnzyme();
 			if(QTutil.addingKey(event))
 				{
-				view.selectedEnz.add(hoveringRestrictionSite.enzyme);
-				s.enzymes.addAll(view.selectedEnz.enzymes);
+				selectedEnz.add(hoveringRestrictionSite.enzyme);
+				s.enzymes.addAll(selectedEnz.enzymes);
 				}
 			else
 				s.add(hoveringRestrictionSite.enzyme);
@@ -189,7 +205,7 @@ public class LinTrackSequence implements LinTrack
 	public void updateSelectionGraphics(Collection<Object> selectionItems)
 		{
 		int charsPerLine=view.charsPerLine;
-		double charHeight=view.charHeight;
+		//double charHeight=charHeight;
 		SequenceRange selection=view.selection;
 		AnnotatedSequence seq=view.getSequence();
 		QGraphicsScene scene=view.scene();
@@ -399,9 +415,9 @@ public class LinTrackSequence implements LinTrack
 
 	private RestrictionSite getRestrictionSiteAt(QPointF pos)
 		{
-		for(RestrictionSite s:revsitePosition.keySet())
+		for(RestrictionSite s:resSitePosition.keySet())
 			{
-			QRectF r=revsitePosition.get(s);
+			QRectF r=resSitePosition.get(s);
 			if(r.contains(pos))
 				return s;
 			}
@@ -416,5 +432,25 @@ public class LinTrackSequence implements LinTrack
 		hoveringRestrictionSite=getRestrictionSiteAt(pos);
 		if(lastHover!=hoveringRestrictionSite)
 			view.updateSelectionGraphics();
+		}
+
+	@Override
+	public void handleEvent(Object ob)
+		{
+		if(ob instanceof EventSelectedAnnotation)
+			{
+			SeqAnnotation annot=((EventSelectedAnnotation)ob).annot;
+			if(annot!=null)
+				{
+				currentReadingFrame=annot.getFrame();
+				view.buildSceneFromDoc();
+				}
+			}		
+		else if(ob instanceof EventSelectedRestrictionEnzyme)
+			{
+			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
+			selectedEnz=enz;
+			view.buildSceneFromDoc();
+			}
 		}
 	}

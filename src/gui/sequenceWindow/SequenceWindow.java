@@ -380,8 +380,8 @@ public class SequenceWindow extends QMainWindow
 		else if(ob instanceof EventSelectedRestrictionEnzyme)
 			{
 			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
-			viewLinear.setRestrictionEnzyme(enz);
-			viewOverviewLinear.setRestrictionEnzyme(enz);
+			viewLinear.handleEvent(ob);
+			viewOverviewLinear.handleEvent(ob);
 			viewCircular.setRestrictionEnzyme(enz);
 			viewEnz.setRestrictionEnzyme(enz);
 			}
@@ -460,7 +460,7 @@ public class SequenceWindow extends QMainWindow
 		viewInfo=new PaneSequenceInfo(projwindow);
 		this.projwindow=projwindow;
 		
-		viewOverviewLinear.setSeeWhole();
+		viewOverviewLinear.setFullsizeMode();
 
 		
 		ImgResource.setWindowIcon(this);

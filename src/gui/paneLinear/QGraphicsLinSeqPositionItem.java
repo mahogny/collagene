@@ -5,6 +5,7 @@ import seq.AnnotatedSequence;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
 import com.trolltech.qt.gui.QColor;
+import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsRectItem;
 import com.trolltech.qt.gui.QPainter;
 import com.trolltech.qt.gui.QPen;
@@ -26,10 +27,11 @@ public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 	int curline;
 	ViewLinearSequence view;
 
+	int fontsize=8;
 	
 	public double fonth()
 		{
-		return view.charHeight-1;
+		return fontsize-1;
 		}
 	
 	public void paint(QPainter painter, QStyleOptionGraphicsItem option, QWidget widget) 
@@ -44,16 +46,30 @@ public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 			QPen pen=new QPen();
 			pen.setColor(QColor.fromRgb(0,0,0));
 			painter.setPen(pen);
-			painter.setFont(view.fontSequence);
+			
+			QFont font=new QFont();
+			font.setPointSize(fontsize);
+			painter.setFont(font);
 
-			int skippos=20; //automatically figure out a good number
+			//Figure out distance between ticks
+			int skippos;
+			if(view.charsPerLine<=100)
+				skippos=20;
+			else if(view.charsPerLine<=200)
+				skippos=50;
+			else if(view.charsPerLine<=1000)
+				skippos=100;
+			else if(view.charsPerLine<=5000)
+				skippos=500;
+			else
+				skippos=1000;
+			
+			//Draw ticks
 			for(int i=0;i<=charsPerLine;i+=skippos)
 				{
 				int cpos=curline*charsPerLine + i;
 				if(cpos>=seq.getLength())
 					break;
-
-
 				
 				double x1=view.mapCharToX(i);//+view.charWidth/2;
 				double y1=currentY;
