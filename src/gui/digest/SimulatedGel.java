@@ -24,7 +24,6 @@ import com.trolltech.qt.gui.QWidget;
  */
 public class SimulatedGel extends QWidget
 	{
-	
 	private LinkedList<SimulatedLane> lane=new LinkedList<SimulatedLane>();
 	
 	private Double current=null;

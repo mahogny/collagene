@@ -1,5 +1,7 @@
 package seq;
 
+import gui.paneLinear.tracks.PlacedTrace;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -32,6 +34,7 @@ public class AnnotatedSequence
 	public LinkedList<SeqAnnotation> annotations=new LinkedList<SeqAnnotation>();	
 	public HashMap<RestrictionEnzyme,LinkedList<RestrictionSite>> restrictionSites=new HashMap<RestrictionEnzyme, LinkedList<RestrictionSite>>();
 	public LinkedList<Primer> primers=new LinkedList<Primer>();
+	public LinkedList<PlacedTrace> traces=new LinkedList<PlacedTrace>();
 	
 	
 	/**
@@ -57,7 +60,8 @@ public class AnnotatedSequence
 	 */
 	public AnnotatedSequence()
 		{
-		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
+//		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
+		setSequence("atcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
 		}
 	
 	/**

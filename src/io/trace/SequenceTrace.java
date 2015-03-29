@@ -38,4 +38,32 @@ public class SequenceTrace
 		return sb.toString();
 		}
 
+
+	public int getNumBases()
+		{
+		return basecalls.size();
+		}
+
+
+	public int[] getLevel(char c)
+		{
+		if(c=='A')
+			return levelA;
+		else if(c=='C')
+			return levelC;
+		else if(c=='G')
+			return levelG;
+		else if(c=='T')
+			return levelT;
+		else
+			throw new RuntimeException("no such color "+c);
+		}
+
+	public int getMaxLevel(int pos)
+		{
+		return Math.max(
+				Math.max(levelA[pos], levelC[pos]),
+				Math.max(levelT[pos], levelG[pos]));
+		}
+
 	}

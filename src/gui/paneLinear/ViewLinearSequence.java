@@ -5,6 +5,7 @@ import gui.paneLinear.tracks.LinTrack;
 import gui.paneLinear.tracks.LinTrackAnnotation;
 import gui.paneLinear.tracks.LinTrackPrimer;
 import gui.paneLinear.tracks.LinTrackSequence;
+import gui.paneLinear.tracks.LinTrackTraces;
 import gui.sequenceWindow.SeqViewSettingsMenu;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.LinkedList;
 
 import seq.AnnotatedSequence;
 import seq.SequenceRange;
+
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
@@ -156,6 +158,7 @@ public class ViewLinearSequence extends QGraphicsView
 		tracks.add(trackSequence);
 		tracks.add(new LinTrackPrimer(this));
 		tracks.add(new LinTrackAnnotation(this));
+		tracks.add(new LinTrackTraces(this));
 
     setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff); 
     setVerticalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOn);
@@ -297,7 +300,7 @@ public class ViewLinearSequence extends QGraphicsView
 	
 	
 	
-	public double mapCharToX(int pos)
+	public double mapCharToX(double pos)
 		{
 		return 10+pos*charWidth;
 		}

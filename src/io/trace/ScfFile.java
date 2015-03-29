@@ -111,7 +111,10 @@ public class ScfFile
 				trace.basecalls.add(bc);
 				}
 			for(int i=0;i<h.bases;i++)
+				{
 				trace.basecalls.get(i).peakIndex=is.readInt();
+//				System.out.println(trace.basecalls.get(i).peakIndex);
+				}
 			for(int i=0;i<h.bases;i++)
 				trace.basecalls.get(i).pA=is.readByte();
 			for(int i=0;i<h.bases;i++)
@@ -279,6 +282,7 @@ public class ScfFile
 	public static void main(String[] args) throws IOException
 		{
 		SequenceTrace f=readFile(new File("/home/mahogny/Dropbox/ebi/_my protocols/retrovirus/sangerseq/pbabe/T205_data_pbabe.w2kseq1.scf"));
-		System.out.println(f.properties);
+//		System.out.println(f.properties);
+		System.out.println("B:"+f.getCalledSequence());
 		}
 	}
