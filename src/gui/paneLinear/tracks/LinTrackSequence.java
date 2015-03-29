@@ -59,7 +59,7 @@ public class LinTrackSequence implements LinTrack
 		this.view=view;
 		}
 	
-	public void init()
+	public void initPlacing()
 		{
 		sequenceLineY.clear();
 		resSitePosition.clear();

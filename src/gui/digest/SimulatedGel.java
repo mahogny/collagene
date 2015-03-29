@@ -2,15 +2,15 @@ package gui.digest;
 
 import java.util.LinkedList;
 
+import com.trolltech.qt.core.QRectF;
 import com.trolltech.qt.core.Qt.BrushStyle;
-import com.trolltech.qt.core.Qt.ScrollBarPolicy;
 import com.trolltech.qt.gui.QBrush;
 import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QFont;
-import com.trolltech.qt.gui.QGraphicsRectItem;
-import com.trolltech.qt.gui.QGraphicsScene;
-import com.trolltech.qt.gui.QGraphicsView;
+import com.trolltech.qt.gui.QPaintEvent;
+import com.trolltech.qt.gui.QPainter;
 import com.trolltech.qt.gui.QPen;
+import com.trolltech.qt.gui.QWidget;
 
 /**
  * 
@@ -22,55 +22,47 @@ import com.trolltech.qt.gui.QPen;
  * @author Johan Henriksson
  *
  */
-public class SimulatedGel extends QGraphicsView
+public class SimulatedGel extends QWidget
 	{
-
 	
-	private double scaling=50;
+	private LinkedList<SimulatedLane> lane=new LinkedList<SimulatedLane>();
 	
-	
-	LinkedList<SimulatedLane> lane=new LinkedList<SimulatedLane>();
-	
-	
+	private Double current=null;
+	public double zoom=1;
+	private int offsetSide=20;
 	
 	
 	public SimulatedGel()
 		{
-		setScene(new QGraphicsScene());
-		updategraph();
-//		setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);
-//		setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);
-    setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);  
-    setVerticalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);
-//    setbac
-
-    //TODO black background
-    
-    updategraph();
+		repaint();
 		}
 
+	double scaling=50;
+	private int lanespacing=30;
 
-	private void updategraph()
+	@Override
+	protected void paintEvent(QPaintEvent event)
 		{
-		QGraphicsScene scene=scene();
-		scene.clear();
+		super.paintEvent(event);
 		
-		QPen penSelect=new QPen();
-		penSelect.setColor(new QColor(0,0,0));
-		penSelect.setWidth(2);
+		QPainter pm=new QPainter(this);
+		pm.fillRect(0, 0, width(), height(), QColor.fromRgb(255,255,255));
+		
+		QPen penBand=new QPen();
+		penBand.setColor(new QColor(0,0,0));
+		penBand.setWidth(2);
 	
 		QBrush brush=new QBrush();
 		brush.setColor(QColor.fromRgb(0));
 		brush.setStyle(BrushStyle.SolidPattern);
-		
-		
+	
+	
 		QFont font=new QFont();
 		font.setFamily("Courier");
 		font.setPointSize(10);
-
-		int lanespacing=30;
+	
 		int lanewidth=20;
-		
+	
 		Double minbp=null;
 		for(int i=0;i<getNumLanes();i++)
 			{
@@ -82,37 +74,34 @@ public class SimulatedGel extends QGraphicsView
 					minbp=d;
 				}
 			}
-		System.out.println("minbp "+minbp);
 		if(minbp!=null)
-			scaling=500*Math.sqrt(minbp); 
-		
+			scaling=height()*zoom*Math.sqrt(minbp); 
+
+		if(current!=null)
+			{
+			QPen penCurrent=new QPen();
+			penCurrent.setColor(new QColor(255,0,0));
+			pm.setPen(penCurrent);
+			pm.drawLine(0, mapSize(current), width(), mapSize(current));
+			}
+
 		for(int i=0;i<getNumLanes();i++)
 			{
 			SimulatedLane thelane=lane.get(i);
 			for(double size:thelane.mapPosWeight.keySet())
 				{
-				QGraphicsRectItem ri=new QGraphicsRectItem();
-				int x1=i*lanespacing;
-				int x2=i*lanespacing+lanewidth;
+				int x1=offsetSide+i*lanespacing;
+				int x2=x1+lanewidth;
 				int y1=mapSize(size)+1;
 				int y2=mapSize(size)-1;
-				ri.setRect(x1, y1, x2-x1, y2-y1);
-				ri.setPen(penSelect);
-				ri.setBrush(brush);
-				scene.addItem(ri);
+				
+				pm.setPen(penBand);
+				pm.setBrush(brush);
+				pm.drawRect(new QRectF(x1, y1, x2-x1, y2-y1));
 				}
 			}
-		
-		
-			
-				/*
-				QGraphicsTextItem tiUpper=new QGraphicsTextItem();
-				tiUpper.setPlainText(""+enz.sequence.charAt(i));
-				tiUpper.setFont(font);
-				tiUpper.setPos(10+charw*i, 10);
-				scene.addItem(tiUpper);
-				*/
-		setSceneRect(0, 0, getNumLanes()*lanespacing,500);
+	
+		pm.end();
 		}
 
 
@@ -130,7 +119,21 @@ public class SimulatedGel extends QGraphicsView
 	public void addLane(SimulatedLane simulatedLane)
 		{
 		lane.add(simulatedLane);
-		updategraph();
+		setMinimumWidth(offsetSide*2+getNumLanes()*lanespacing);
+		repaint();
+		}
+
+	public void setCurrent(Double current)
+		{
+		this.current=current;
+		repaint();
+		}
+
+
+	public void clearLanes()
+		{
+		lane.clear();
+		repaint();
 		}
 
 

@@ -316,6 +316,7 @@ public class QTutil
 		QHBoxLayout layout=new QHBoxLayout();
 		for(QWidget w:widgets)
 			layout.addWidget(w);
+		layout.setMargin(0);
 		return layout;
 		}
 

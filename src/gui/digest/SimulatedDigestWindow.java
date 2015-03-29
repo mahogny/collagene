@@ -1,6 +1,8 @@
 package gui.digest;
 
 import gui.ProjectWindow;
+import gui.paneLinear.PaneLinearSequence;
+import gui.qt.QTutil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,11 +19,14 @@ import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
 import com.trolltech.qt.core.Qt.ItemFlag;
 import com.trolltech.qt.core.Qt.ItemFlags;
+import com.trolltech.qt.core.Qt.Orientation;
 import com.trolltech.qt.gui.QAbstractItemView.SelectionBehavior;
 import com.trolltech.qt.gui.QComboBox;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QHeaderView.ResizeMode;
 import com.trolltech.qt.gui.QPushButton;
+import com.trolltech.qt.gui.QSizePolicy.Policy;
+import com.trolltech.qt.gui.QSlider;
 import com.trolltech.qt.gui.QTableWidget;
 import com.trolltech.qt.gui.QTableWidgetItem;
 import com.trolltech.qt.gui.QVBoxLayout;
@@ -43,8 +48,12 @@ public class SimulatedDigestWindow extends QWidget
 	private ProjectWindow projwindow;
 	
 	private DNALadderSet ladders=new DNALadderSet();
-	private SimulatedGel wget=new SimulatedGel();
+	private SimulatedGel wGel=new SimulatedGel();
 	private SimulatedLane lane2=new SimulatedLane();
+	
+	private PaneLinearSequence paneSeq;
+
+	private QSlider zoomGel=new QSlider(Orientation.Vertical);
 	
 	/**
 	 * Constructor
@@ -52,6 +61,14 @@ public class SimulatedDigestWindow extends QWidget
 	public SimulatedDigestWindow(ProjectWindow projwindow)
 		{
 		this.projwindow=projwindow;
+		
+		paneSeq=new PaneLinearSequence(projwindow);
+		paneSeq.setEditable(false);
+		paneSeq.setFullsizeMode(true);
+		
+		zoomGel.setRange(0, 10000);
+		zoomGel.setValue(9000);
+		
 		try
 			{
 			ladders.load();
@@ -71,28 +88,50 @@ public class SimulatedDigestWindow extends QWidget
 		tableSeqs.setSelectionBehavior(SelectionBehavior.SelectRows);
 		tableSeqs.horizontalHeader().setResizeMode(ResizeMode.ResizeToContents);
 		tableSeqs.horizontalHeader().setStretchLastSection(true);		
+		tableSeqs.clicked.connect(this,"actionShowSeq()");
 		tableSeqs.doubleClicked.connect(this,"actionPick()");
+
+		tableSeqs.setSizePolicy(Policy.Expanding, Policy.MinimumExpanding);
+		comboLadder.setSizePolicy(Policy.MinimumExpanding, Policy.Minimum);
+		wGel.setSizePolicy(Policy.Minimum, Policy.MinimumExpanding);
+		
+		zoomGel.sliderMoved.connect(this,"updateGel()");
 		
 		bClose.clicked.connect(this,"close()");
 		bPickSequence.clicked.connect(this,"actionPick()");
 
 		QHBoxLayout layButtons=new QHBoxLayout();
+		layButtons.addStretch();
 		layButtons.addWidget(bPickSequence);
 		layButtons.addWidget(bClose);
+		layButtons.setSpacing(2);
+		layButtons.setMargin(0);
 
-		QVBoxLayout layLadder=new QVBoxLayout();
-		layLadder.addWidget(comboLadder);
-		layLadder.addWidget(wget);
+		QVBoxLayout layRight=new QVBoxLayout();
+		layRight.addWidget(tableSeqs);
+		layRight.addWidget(paneSeq);
+		layRight.setSpacing(2);
+		layRight.setMargin(0);
+		
+		QVBoxLayout layLeft=new QVBoxLayout();
+		layLeft.addWidget(comboLadder);
+		layLeft.addLayout(QTutil.layoutHorizontal(zoomGel,wGel));
+		layLeft.setSpacing(2);
+		layLeft.setMargin(0);
 
 		QHBoxLayout layHoriz=new QHBoxLayout();
-		layHoriz.addLayout(layLadder);
-		layHoriz.addWidget(tableSeqs);
+		layHoriz.addLayout(layLeft);
+		layHoriz.addLayout(layRight);
+		layHoriz.setSpacing(2);
+		layHoriz.setMargin(0);
 
 		QVBoxLayout totlay=new QVBoxLayout();
 		totlay.addLayout(layHoriz);
 		totlay.addLayout(layButtons);
+		totlay.setSpacing(2);
 		setLayout(totlay);
 
+		tableSeqs.setMinimumWidth(500);
 		setMinimumWidth(500);
 		updategraphics();
 		}
@@ -119,6 +158,23 @@ public class SimulatedDigestWindow extends QWidget
 			projwindow.giveNewName(s);
 			projwindow.addSequenceToProject(s);
 			projwindow.showSequence(s);
+			}
+		}
+	
+	public void actionShowSeq()
+		{
+		RestrictionDigestFragment f=getSelected();
+		if(f!=null)
+			{
+			AnnotatedSequence s=f.getFragmentSequence();
+			paneSeq.setSequence(s);
+			paneSeq.setVisible(true);
+			wGel.setCurrent((double)f.getUpperLength());
+			}
+		else
+			{
+			paneSeq.setVisible(false);
+			wGel.setCurrent(null);
 			}
 		}
 	
@@ -180,10 +236,16 @@ public class SimulatedDigestWindow extends QWidget
 	 */
 	private void updategraphics()
 		{
-		DNALadder ladder=ladders.get(comboLadder.currentIndex());
-		wget.lane.clear();
-		wget.addLane(new SimulatedLane(ladder));
-		wget.addLane(lane2);
+		updateGel();
+		actionShowSeq();
 		}
 	
+	public void updateGel()
+		{
+		DNALadder ladder=ladders.get(comboLadder.currentIndex());
+		wGel.zoom=(10000-zoomGel.value())/1000.0;
+		wGel.clearLanes();
+		wGel.addLane(new SimulatedLane(ladder));
+		wGel.addLane(lane2); 
+		}
 	}

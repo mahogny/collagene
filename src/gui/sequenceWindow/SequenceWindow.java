@@ -460,7 +460,7 @@ public class SequenceWindow extends QMainWindow
 		viewInfo=new PaneSequenceInfo(projwindow);
 		this.projwindow=projwindow;
 		
-		viewOverviewLinear.setFullsizeMode();
+		viewOverviewLinear.setFullsizeMode(true);
 
 		
 		ImgResource.setWindowIcon(this);

@@ -9,6 +9,7 @@ import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.Qt.Orientation;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
+import com.trolltech.qt.gui.QLabel;
 import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QPushButton;
 import com.trolltech.qt.gui.QSlider;
@@ -28,7 +29,8 @@ public class PaneLinearSequence extends QWidget
 
 	private QSlider sliderZoom=new QSlider(Orientation.Horizontal);
 	private QPushButton bSettings=new QPushButton(new QIcon(ImgResource.imgSettings), "");
-
+	private QLabel labelZoom=ImgResource.label(ImgResource.search);
+	
 	private ViewLinearSequence view;
 	
 	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
@@ -46,7 +48,7 @@ public class PaneLinearSequence extends QWidget
 		sliderZoom.valueChanged.connect(this,"updateview()");
 		
 		QHBoxLayout laycirc=new QHBoxLayout();
-		laycirc.addWidget(ImgResource.label(ImgResource.search));
+		laycirc.addWidget(labelZoom);
 		laycirc.addWidget(sliderZoom);
 		laycirc.addWidget(bSettings);
 		laycirc.setMargin(0);
@@ -104,9 +106,17 @@ public class PaneLinearSequence extends QWidget
 		}
 	
 	
-	public void setFullsizeMode()
+	public void setFullsizeMode(boolean b)
 		{
-		view.setFullsizeMode(true);
+		sliderZoom.setVisible(!b); //or? just have a full size?
+		labelZoom.setVisible(!b); //or? just have a full size?
+		view.setFullsizeMode(b);
+		}
+
+
+	public void setEditable(boolean b)
+		{
+		view.setEditable(b);
 		}
 
 	}

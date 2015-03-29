@@ -50,9 +50,10 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 		if(fontSequence.pointSizeF()<2)
 			{
 			painter.setPen(QColor.fromRgb(0,0,0));
+			int lastx=Math.min(charsPerLine, seq.getLength());
 			painter.drawLine(
 					new QPointF(view.mapCharToX(0), currentY),
-					new QPointF(view.mapCharToX(charsPerLine), currentY));
+					new QPointF(view.mapCharToX(lastx), currentY));
 			return;
 			}
 		

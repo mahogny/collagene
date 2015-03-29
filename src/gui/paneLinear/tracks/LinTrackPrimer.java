@@ -39,7 +39,7 @@ public class LinTrackPrimer implements LinTrack
 		this.view=view;
 		}
 	
-	public void init()
+	public void initPlacing()
 		{
 		primerPosition.clear();
 		}
@@ -48,15 +48,16 @@ public class LinTrackPrimer implements LinTrack
 		{
 		QFont font=new QFont();
 		font.setPointSize(10);
+		font.setItalic(true);
 
 		double charWidth=view.charWidth;
-		double charHeight=font.pointSizeF();//view.charHeight;
+		double charHeight=font.pointSizeF();
 		AnnotatedSequence seq=view.getSequence();
 		
 		//////////////////////////////////////////////// Place primers
 		int primerh=0;
 		LinkedList<QRectF> prevprimerplaced=new LinkedList<QRectF>();
-		double oneprimerh=charHeight;
+		double oneprimerh=charHeight*1.7;
 		for(Primer p:seq.primers)
 			{
 			if(p.targetPosition>=cposLeft && p.targetPosition<=cposRight)
@@ -153,7 +154,6 @@ public class LinTrackPrimer implements LinTrack
 		if(curPrimer!=null)
 			{
 			view.signalUpdated.emit(curPrimer.getRange());
-			//view.updateSelectionGraphics();  
 			return true;
 			}
 		else

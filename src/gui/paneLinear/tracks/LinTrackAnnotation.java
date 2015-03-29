@@ -1,11 +1,13 @@
 package gui.paneLinear.tracks;
 
+import gui.paneCircular.CircView;
 import gui.paneLinear.ViewLinearSequence;
 import gui.sequenceWindow.EventSelectedAnnotation;
 import gui.sequenceWindow.MenuAnnotation;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import seq.AnnotatedSequence;
 import seq.Orientation;
@@ -43,16 +45,19 @@ public class LinTrackAnnotation implements LinTrack
 		this.view=view;
 		}
 	
-	public void init()
+	public void initPlacing()
 		{
 		mapAnnotations.clear();
 		}
+
 	
 	public int place(QGraphicsScene scene, int currentY, int cposLeft, int cposRight)
 		{
 		AnnotatedSequence seq=view.getSequence();
 		
-		int currentAnnotationHeight=-1;
+		LinkedList<QRectF> prevPlaced=new LinkedList<QRectF>();
+		
+		int maxannoth=0;
 		int oneannoth=20;
 		for(SeqAnnotation annot:seq.annotations)
 			{
@@ -60,10 +65,10 @@ public class LinTrackAnnotation implements LinTrack
 			if(annot.getTo()>cposLeft && annot.getFrom()<cposRight)
 				{
 				//Annotation should go beneath sequence, above position line
-				currentAnnotationHeight++;
+//				int currentAnnotationHeight=0;
 //				if(currentAnnotationHeight==-1)
 //					currentAnnotationHeight=0;  //write a better allocator!
-				int thisannoth=currentAnnotationHeight;
+				int thisannoth=0;
 				
 				
 				int basey=currentY+thisannoth*oneannoth;
@@ -92,7 +97,7 @@ public class LinTrackAnnotation implements LinTrack
 					poly.add(frompos+3, polyyup+3); 
 					poly.add(frompos, polyyup); 
 					}
-
+				
 				double topos;
 				if(annot.getTo()<=cposRight)
 					{
@@ -113,10 +118,6 @@ public class LinTrackAnnotation implements LinTrack
 					poly.add(topos, polyydown); 
 					}
 				
-				QRectF newrect=new QRectF();
-				newrect.setRect(frompos, polyyup, topos-frompos, polyydown-polyyup);
-				mapAnnotations.put(newrect, annot);
-
 				QPen pen=new QPen();
 				pen.setColor(QColor.fromRgb(0,0,0));
 				
@@ -128,15 +129,38 @@ public class LinTrackAnnotation implements LinTrack
 				pi.setPolygon(poly);
 				pi.setPen(pen);
 				pi.setBrush(brush);
-				scene.addItem(pi);
 				
 				QGraphicsTextItem ti=new QGraphicsTextItem();
 				ti.setPlainText(annot.name);
 				ti.setPos(frompos+2, polyyup-2);
+
+				QRectF newrect=poly.boundingRect();
+				newrect.setRight(Math.max(newrect.right(),CircView.textBR(ti).right()));
+				
+				retry: for(;;)
+					{
+					for(QRectF oldrect:prevPlaced)
+						{
+						if(oldrect.intersects(newrect))
+							{
+							thisannoth++;
+							pi.moveBy(0, oneannoth);
+							ti.moveBy(0, oneannoth);
+							newrect.adjust(0, oneannoth, 0, oneannoth);
+							continue retry;
+							}
+						}
+					break;
+					}
+				maxannoth=Math.max(maxannoth,thisannoth+1);
+				mapAnnotations.put(newrect, annot);
+				prevPlaced.add(newrect);
+				
+				scene.addItem(pi);
 				scene.addItem(ti);
 				}
 			}
-		currentY+=(currentAnnotationHeight+1)*oneannoth;
+		currentY+=(maxannoth)*oneannoth;
 		return currentY;
 		}
 

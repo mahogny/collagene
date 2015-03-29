@@ -7,9 +7,16 @@ import com.trolltech.qt.gui.QContextMenuEvent;
 import com.trolltech.qt.gui.QGraphicsScene;
 import com.trolltech.qt.gui.QMouseEvent;
 
+/**
+ *
+ * One track in the linear sequence view
+ * 
+ * @author Johan Henriksson
+ *
+ */
 public interface LinTrack
 	{
-	public void init();
+	public void initPlacing();
 
 	public int place(QGraphicsScene scene, int currentY, int cposLeft, int cposRight);
 
@@ -22,5 +29,4 @@ public interface LinTrack
 	public void mouseMoveEvent(QMouseEvent event, QPointF pos);
 
 	public void handleEvent(Object ob);
-
 	}

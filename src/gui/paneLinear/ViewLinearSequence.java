@@ -57,7 +57,7 @@ public class ViewLinearSequence extends QGraphicsView
 	public int widthInChars=-1; //-1 means to choose automatically. 
 	public double charWidth;// set externally =10;
 	
-
+	private boolean isEditable=true;
 	public boolean showPositionRuler=true;
 	private double currentMovetopos=0;
 	private boolean isFullsizeMode=false;
@@ -245,7 +245,7 @@ public class ViewLinearSequence extends QGraphicsView
 		//Render each line. Remember position
 		int currentY=10;
 		for(LinTrack track:tracks)
-			track.init();
+			track.initPlacing();
 		for(int curline=0;curline<seq.getLength()/charsPerLine+1;curline++)
 			{
 			int cposLeft=curline*charsPerLine;
@@ -343,12 +343,14 @@ public class ViewLinearSequence extends QGraphicsView
 	@Override
 	protected void contextMenuEvent(QContextMenuEvent event)
 		{
-		QPointF pos=mapToScene(event.pos());
-		
-		for(LinTrack track:tracks)
+		if(isEditable)
 			{
-			if(track.contextMenuEvent(event, pos))
-				return;
+			QPointF pos=mapToScene(event.pos());
+			for(LinTrack track:tracks)
+				{
+				if(track.contextMenuEvent(event, pos))
+					return;
+				}
 			}
 		}
 	
@@ -362,26 +364,28 @@ public class ViewLinearSequence extends QGraphicsView
 	 */
 	public void mousePressEvent(QMouseEvent event)
 		{
-		QPointF pos=mapToScene(event.pos());
-		if(event.button()==MouseButton.LeftButton)
+		if(isEditable)
 			{
-			//See if tracks wants to do something
-			for(LinTrack track:tracks)
-				if(track.mousePressEvent(event, pos))
-					return;
-			
-			//Try to select a region
-			int curindex=mapXYtoPos(pos.x(), pos.y());
-			if(curindex!=-1)
+			QPointF pos=mapToScene(event.pos());
+			if(event.button()==MouseButton.LeftButton)
 				{
-				selection=new SequenceRange();
-				selection.from=selection.to=curindex;
-				isSelecting=true;
-				signalUpdated.emit(selection);
-				updateSelectionGraphics();  
+				//See if tracks wants to do something
+				for(LinTrack track:tracks)
+					if(track.mousePressEvent(event, pos))
+						return;
+				
+				//Try to select a region
+				int curindex=mapXYtoPos(pos.x(), pos.y());
+				if(curindex!=-1)
+					{
+					selection=new SequenceRange();
+					selection.from=selection.to=curindex;
+					isSelecting=true;
+					signalUpdated.emit(selection);
+					updateSelectionGraphics();  
+					}
 				}
 			}
-		
 		}
 
 	/**
@@ -442,6 +446,11 @@ public class ViewLinearSequence extends QGraphicsView
 	public void setFullsizeMode(boolean b)
 		{
 		isFullsizeMode=b;
+		}
+
+	public void setEditable(boolean b)
+		{
+		isEditable=b;
 		}
 
 	

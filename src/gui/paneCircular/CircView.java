@@ -196,7 +196,7 @@ public class CircView extends QGraphicsView
 	public static QRectF textBR(QGraphicsTextItem ti)
 		{
 		QFontMetricsF m=new QFontMetricsF(ti.font());
-		double w=m.width(ti.toPlainText());
+		double w=m.width(ti.toPlainText())*1.1;  //not sure this is a good idea!
 		double h=m.height();
 		return new QRectF(ti.x(), ti.y(), w, h);
 		}
