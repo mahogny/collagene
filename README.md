@@ -18,7 +18,7 @@ This is a simple piece of software for cloning, written in Java + QT
    * With smooth rotation and zooming
    * Live translation to protein
 * Sequence property calculation
-   * Melting temperature calculation, according to Santa lucia 98
+   * Melting temperature calculation (Santa lucia 98)
    * GC content
 * Primers
    * Annotation on sequence
@@ -38,6 +38,7 @@ This is a simple piece of software for cloning, written in Java + QT
    * Import from DNA Strider
    * Import from SerialCloner
    * Native XML format with extended metadata
+   * SCF files for sanger sequencing
 
 * Simulation of cloning steps
    * PCR, with mutagenesis
