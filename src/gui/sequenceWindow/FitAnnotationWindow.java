@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+
 import seq.AnnotatedSequence;
 import seq.SeqAnnotation;
 import gui.ProjectWindow;
 import gui.qt.QTutil;
 
+import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
 import com.trolltech.qt.gui.QDialog;
 import com.trolltech.qt.gui.QPushButton;
@@ -26,7 +28,7 @@ import com.trolltech.qt.gui.QHeaderView.ResizeMode;
  */
 public class FitAnnotationWindow extends QDialog
 	{
-	private QTableWidget tablePrimers=new QTableWidget();
+	private QTableWidget tableAnnot=new QTableWidget();
 	
 	
 	private QPushButton bCancel=new QPushButton(tr("Cancel"));
@@ -67,19 +69,15 @@ public class FitAnnotationWindow extends QDialog
 	
 	public FitAnnotationWindow(ProjectWindow pw)
 		{
-		tablePrimers.setColumnCount(2);
-		tablePrimers.verticalHeader().hide();
-		tablePrimers.setHorizontalHeaderLabels(Arrays.asList(tr("Name"),tr("Sequence")));
-		tablePrimers.setSelectionBehavior(SelectionBehavior.SelectRows);
-		tablePrimers.horizontalHeader().setResizeMode(ResizeMode.ResizeToContents);
-		tablePrimers.horizontalHeader().setStretchLastSection(true);
-		tablePrimers.selectionModel().selectionChanged.connect(this,"actionSelectedPrimer()");
-
-//		int row=tablePrimers.currentRow();
-	//	Primer p=(Primer)tablePrimers.item(row,0).data(Qt.ItemDataRole.UserRole);
+		tableAnnot.setColumnCount(2);
+		tableAnnot.verticalHeader().hide();
+		tableAnnot.setHorizontalHeaderLabels(Arrays.asList(tr("Name"),tr("Sequence")));
+		tableAnnot.setSelectionBehavior(SelectionBehavior.SelectRows);
+		tableAnnot.horizontalHeader().setResizeMode(ResizeMode.ResizeToContents);
+		tableAnnot.horizontalHeader().setStretchLastSection(true);
 
 		ArrayList<OneAnnotation> list=new ArrayList<OneAnnotation>(collectPrimers(pw));
-		tablePrimers.setRowCount(list.size());
+		tableAnnot.setRowCount(list.size());
 		for(int row=0;row<list.size();row++)
 			{
 			OneAnnotation p=list.get(row);
@@ -89,8 +87,8 @@ public class FitAnnotationWindow extends QDialog
 				itName=QTutil.createReadOnlyItem(p.annot.name);
 			else
 				itName=QTutil.createReadOnlyItem("<"+tr("Whole sequence")+">");
-			tablePrimers.setItem(row, 0, itSequence);
-			tablePrimers.setItem(row, 1, itName);
+			tableAnnot.setItem(row, 0, itSequence);
+			tableAnnot.setItem(row, 1, itName);
 			itSequence.setData(Qt.ItemDataRole.UserRole, p);
 			}
 		
@@ -98,16 +96,28 @@ public class FitAnnotationWindow extends QDialog
 		bOk.clicked.connect(this,"actionOK()");
 		bCancel.clicked.connect(this,"actionCancel()");
 
-		setLayout(QTutil.layoutVertical(tablePrimers,QTutil.layoutHorizontal(bCancel, bOk)));
+		setLayout(QTutil.layoutVertical(tableAnnot,QTutil.layoutHorizontal(bCancel, bOk)));
 		
 		bOk.setDefault(true);
 		setMinimumWidth(500);
+		setMinimumHeight(400);
 		}
 	
 	public boolean wasOk=false;
+
+	public void doit()
+		{
+		LinkedList<OneAnnotation> list=new LinkedList<FitAnnotationWindow.OneAnnotation>();
+		for(QModelIndex ind:tableAnnot.selectionModel().selectedRows())
+			list.add((OneAnnotation)tableAnnot.item(ind.row(),0).data(Qt.ItemDataRole.UserRole));
+		System.out.println(list);
+		
+		}
+	
 	
 	public void actionOK()
 		{
+		doit();
 		wasOk=true;
 		close();
 		}

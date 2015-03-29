@@ -303,10 +303,14 @@ public class SequenceWindow extends QMainWindow
 			}
 		}
 	
-	
+
+	/**
+	 * Action: Fit annotation
+	 */
 	public void actionAutofitAnnotation()
 		{
-		
+		FitAnnotationWindow w=new FitAnnotationWindow(projwindow);
+		w.exec();
 		}
 	
 	/**
