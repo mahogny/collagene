@@ -1,4 +1,4 @@
-Main-Class: gui.ProjectWindow
+Main-Class: collagene.gui.ProjectWindow
 Manifest-Version: 1.0
 Class-Path: jdom-2.0.4.jar  json-smart-1.2.jar qtjambi-4.6.3.jar  qtjam
  bi-macosx-gcc-4.6.3.jar qtjambi-util-4.6.3.jar qtjambi-win32-msvc2005-

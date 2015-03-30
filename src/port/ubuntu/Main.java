@@ -1,11 +1,10 @@
 package port.ubuntu;
 
-import gui.resource.LabnoteUtil;
-
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 
+import collagene.gui.resource.LabnoteUtil;
 import port.ubuntu.DebPackage.PkgType;
 
 

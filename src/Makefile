@@ -2,24 +2,31 @@ all:
 
 loc:
 	wc -l \
-	*/*java \
 	*/*/*java \
-	*/*/*/*java
-
-
-
-######################## todo include R-light in jar
+	*/*/*/*java \
+	*/*/*/*/*java \
+	*/*/*/*/*/*java
 
 jars: 
-	#todo separate qt from core
-	cd ../bin; jar cfvm ../madgene.jar ../src/MANIFEST.STARTQTCLIENT \
+	cd ../bin; jar cfvm ../collagene.jar ../src/MANIFEST.STARTQTCLIENT \
 	*/*.class \
 	*/*/*.class \
 	*/*/*/*.class \
-	*/*.txt \
-	*/*/*.png \
+	*/*/*/*/*.class \
 	*/*/*.txt \
-	*/*/EPAM*
+	*/*/*/*.png \
+	*/*/*/*.txt \
+	*/*/*/EPAM* \
+	*/*/*/EBLO*
+
+
+gitaddall:
+	git add \
+	*/*/*java \
+	*/*/*/*java \
+	*/*/*/*/*java \
+	*/*/*/*/*/*java \
+	*/*/*/*png
 
 ############################################################################################
 ############################ osx ###########################################################
@@ -28,7 +35,7 @@ jars:
 macport: jars
 	rm -Rf ../release/mac
 	cp -r ../ports/mac ../release/mac
-	cp ../madgene.jar ../lib/*jar ../lib/mac/*.jar ../release/mac/madgene.app/
+	cp ../collagene.jar ../lib/*jar ../lib/mac/*.jar ../release/mac/collagene.app/
 #	cp translations/* ../release/mac/labstory.app/translations/
 	cd ../release/mac/; make
 
@@ -66,15 +73,15 @@ linuxport: linuxport32 linuxport64 ubuntuport
 
 winportjre: jars
 	rm -Rf ../release/winjre/
-	mkdir -p ../release/winjre/madgene
-	cp ports/win/starter/madgene_bundledjre.exe ../release/winjre/madgene/madgene.exe
+	mkdir -p ../release/winjre/collagene
+	cp ports/win/starter/collagene_bundledjre.exe ../release/winjre/collagene/collagene.exe
 	cp ports/win/installer/* ../release/winjre/
-	cp madgene.jar lib/*jar lib/win32/*jar ../release/winjre/madgene/
-	cp -r R ../release/winjre/madgene/
-	cp -r translations ../release/winjre/madgene/
+	cp collagene.jar lib/*jar lib/win32/*jar ../release/winjre/collagene/
+	cp -r R ../release/winjre/collagene/
+	cp -r translations ../release/winjre/collagene/
 	cp -r ../support_programs/jre ../release/winjre/
 	cd ../release/winjre; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" bundledjre.nsi
-	cd ../release/winjre; mv install.exe ../madgene_winjre.exe
+	cd ../release/winjre; mv install.exe ../collagene_winjre.exe
 
 
 winport: winportjre # winport32 winport64 winportjre
@@ -100,7 +107,7 @@ cleanports:
 
 
 upload:
-	cd ../release; scp *.dmg *.zip *.deb madgene_winjre.exe qtversion.txt mahogny@www.endrov.net:/home/mahogny/hp/other
+	cd ../release; scp *.dmg *.zip *.deb collagene_winjre.exe qtversion.txt mahogny@www.endrov.net:/home/mahogny/hp/other
 
 uploadwin:
 	cd ../release; scp *.exe 177655_mahogny@ssh.binero.se:/storage/content/55/177655/labstory.se/public_html/release/
@@ -130,13 +137,6 @@ lupdate:
 
 
 
-
-gitaddall:
-	git add \
-	*/*java \
-	*/*/*java \
-	*/*/*/*java \
-	*/*/*png
 
 testrest:
 	curl http://localhost:8080/sf
