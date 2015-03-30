@@ -1,4 +1,4 @@
-# MadGene
+# Collagene
 
 ## Description
 
