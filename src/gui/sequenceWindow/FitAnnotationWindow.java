@@ -6,9 +6,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import seq.AnnotatedSequence;
+import seq.Orientation;
 import seq.SeqAnnotation;
+import seq.SequenceRange;
+import sequtil.NucleotideUtil;
 import gui.ProjectWindow;
+import gui.colors.ColorSet;
 import gui.qt.QTutil;
+import alignment.AnnotatedSequenceAlignment;
 
 import com.trolltech.qt.core.QModelIndex;
 import com.trolltech.qt.core.Qt;
@@ -35,6 +40,10 @@ public class FitAnnotationWindow extends QDialog
 	private QPushButton bOk=new QPushButton(tr("OK"));
 	
 	public AnnotatedSequence seq;
+	SequenceWindow sw;
+
+
+	private ProjectWindow pw;
 
 	
 	public static class OneAnnotation
@@ -67,8 +76,12 @@ public class FitAnnotationWindow extends QDialog
 
 
 	
-	public FitAnnotationWindow(ProjectWindow pw)
+	public FitAnnotationWindow(ProjectWindow pw, SequenceWindow sw)
 		{
+		this.pw=pw;
+		this.sw=sw;
+		
+		
 		tableAnnot.setColumnCount(2);
 		tableAnnot.verticalHeader().hide();
 		tableAnnot.setHorizontalHeaderLabels(Arrays.asList(tr("Name"),tr("Sequence")));
@@ -112,8 +125,74 @@ public class FitAnnotationWindow extends QDialog
 			list.add((OneAnnotation)tableAnnot.item(ind.row(),0).data(Qt.ItemDataRole.UserRole));
 		System.out.println(list);
 		
+		
+		AnnotatedSequence seqA=sw.getSequence();
+		for(OneAnnotation annot:list)
+			{
+			//Get sequence normalized to forward orientation
+			AnnotatedSequence seqB=new AnnotatedSequence();
+			Orientation or=Orientation.FORWARD;
+			SeqAnnotation prevannot=new SeqAnnotation();
+			prevannot.color=ColorSet.colorset.getRandomColor();
+			prevannot.name=annot.seq.name;
+			if(annot.annot!=null)
+				{
+				String seq=annot.seq.getSequence(annot.annot.range);
+				if(annot.annot.orientation==Orientation.REVERSE)
+					seq=NucleotideUtil.revcomplement(seq);
+				seqB.setSequence(seq);
+				if(annot.annot.orientation==Orientation.NOTORIENTED)
+					or=Orientation.NOTORIENTED;
+				prevannot=annot.annot;
+				}
+			else
+				{
+				seqB.setSequence(annot.seq.getSequence());
+				}
+			
+			
+			AnnotatedSequenceAlignment al=new AnnotatedSequenceAlignment();
+			al.isLocalA=true;
+			al.isLocalB=false;
+			al.align(seqA, seqB);
+
+			if(al.rotateB)
+				or=Orientation.reverse(or);
+
+			int posFirst=firstCharOfSeq(al.alSeqB.getSequence());
+			int posLast=lastCharOfSeq(al.alSeqB.getSequence());
+			
+			SeqAnnotation newannot=new SeqAnnotation();
+			newannot.orientation=or;
+			newannot.range=new SequenceRange(al.bestal.alignedIndexA.get(posFirst), al.bestal.alignedIndexA.get(posLast));
+			newannot.color=prevannot.color;
+			newannot.name=prevannot.name;
+			newannot.desc=prevannot.desc;
+			
+			System.out.println("cost: "+al.bestal.bestCost); //TODO compute best possible cost?
+			sw.getSequence().addAnnotation(newannot);
+			pw.updateEvent(new EventSequenceModified(seqA));
+			}
+		
+		
 		}
 	
+	
+	public int firstCharOfSeq(String s)
+		{
+		for(int i=0;i<s.length();i++)
+			if(s.charAt(i)!=' ')
+				return i;
+		return s.length();
+		}
+
+	public int lastCharOfSeq(String s)
+		{
+		for(int i=s.length()-1;i>=0;i--)
+			if(s.charAt(i)!=' ')
+				return i;
+		return 0;
+		}
 	
 	public void actionOK()
 		{
@@ -128,3 +207,4 @@ public class FitAnnotationWindow extends QDialog
 		}
 	
 	}
+	

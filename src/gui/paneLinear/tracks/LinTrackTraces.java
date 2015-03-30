@@ -1,9 +1,6 @@
 package gui.paneLinear.tracks;
 
 import gui.paneLinear.ViewLinearSequence;
-import io.trace.ScfFile;
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 

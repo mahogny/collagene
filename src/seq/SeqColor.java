@@ -68,4 +68,6 @@ public class SeqColor
 		else
 			return false;
 		}
+
+
 	}
