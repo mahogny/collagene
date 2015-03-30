@@ -14,7 +14,7 @@ public class RestrictionDigestFragment
 	public AnnotatedSequence origseq;
 	public RestrictionSite fromSite;
 	public RestrictionSite toSite;
-
+	public AnnotatedSequence newseq;
 	
 	public int getUpperFrom()
 		{
@@ -32,7 +32,7 @@ public class RestrictionDigestFragment
 			return toSite.cuttingUpperPos;
 		}
 	
-	private boolean isCircular()
+	private boolean goesAround()
 		{
 		return getUpperFrom()>getUpperTo();
 		}
@@ -45,15 +45,22 @@ public class RestrictionDigestFragment
 		return r.getSize(origseq);
 		}
 
+	
+	public void setSequence(AnnotatedSequence seq)
+		{
+		newseq=seq;
+		}
+	
 	public AnnotatedSequence getFragmentSequence()
 		{
-		AnnotatedSequence newseq=new AnnotatedSequence();
+		if(newseq!=null)
+			return newseq;
 		newseq.name=origseq.name+"_"+Math.random();
 		newseq.isCircular=false;
 
 		int featureshift=0;
 
-		if(isCircular())
+		if(goesAround())
 			{
 			//Pull out upper and lower rang separately
 			SequenceRange rangeUpper=new SequenceRange(fromSite.cuttingUpperPos, toSite.cuttingUpperPos);

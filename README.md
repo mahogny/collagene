@@ -27,8 +27,7 @@ This is a simple piece of software for cloning, written in Java + QT
 * Features
    * In different directions and colors
    * Automatic finding of ORFs
-   
-   TODO: automatic fitting of features
+   * Automatic fitting of features
    
    
 * Data import/export
@@ -45,7 +44,7 @@ This is a simple piece of software for cloning, written in Java + QT
    * Ligation
    * Annealing of oligos
    * Site directed mutagenesis
-  TODO Gibson
+  TODO Gibson/homology recomb/recirc after assembly
 
 
 * Wizards for cloning strategies   

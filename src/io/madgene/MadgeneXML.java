@@ -53,6 +53,7 @@ public class MadgeneXML
 		FileInputStream is=new FileInputStream(f);
 		proj=loadProject(is);
 		is.close();
+		proj.currentProjectFile=f;
 		return proj;
 		}
 	/**

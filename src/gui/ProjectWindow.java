@@ -62,7 +62,6 @@ public class ProjectWindow extends QMainWindow
 	private QTreeWidgetItem itemPlasmids=new QTreeWidgetItem(wtree, Arrays.asList("Plasmids"));
 	
 
-	private File currentProjectFile=null;
 	private File lastDirectory=new File(".");
 	
 	//Best is to add a hidden unique integer ID
@@ -97,7 +96,7 @@ public class ProjectWindow extends QMainWindow
 		QPushButton bDeleteSequence=new QPushButton(tr("Delete sequence"));
 		QPushButton bAlign=new QPushButton(tr("Align"));
 		QPushButton bLigate=new QPushButton(tr("Ligate"));
-		QPushButton bAssemble=new QPushButton(tr("Assemble"));
+		QPushButton bNewCloning=new QPushButton(tr("Perform cloning"));
 		
 		setMenuBar(menubar);
 		QMenu mfile=menubar.addMenu("File");
@@ -125,7 +124,7 @@ public class ProjectWindow extends QMainWindow
 		bDeleteSequence.clicked.connect(this,"actionDeleteSequence()");
 		bAlign.clicked.connect(this,"actionAlign()");
 		bLigate.clicked.connect(this,"actionLigate()");
-		bAssemble.clicked.connect(this,"actionAssemble()");
+		bNewCloning.clicked.connect(this,"actionNewClone()");
 		
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(wtree);
@@ -134,7 +133,7 @@ public class ProjectWindow extends QMainWindow
 		lay.addWidget(bAnnealOligos);
 		lay.addWidget(bAlign);
 		lay.addWidget(bLigate);
-		lay.addWidget(bAssemble);
+		lay.addWidget(bNewCloning);
 		lay.setMargin(2);
 		lay.setSpacing(2);
 		
@@ -335,6 +334,7 @@ public class ProjectWindow extends QMainWindow
 	 */
 	public void addSequenceToProject(AnnotatedSequence seq)
 		{
+		proj.isModified=true;
 		proj.sequenceLinkedList.add(seq);
 		updateView();
 		}
@@ -432,7 +432,6 @@ public class ProjectWindow extends QMainWindow
 		{
 		if(QTutil.showOkCancel(tr("Are you sure you want to create a new project?")))
 			{
-			currentProjectFile=null;
 			proj=new MadgeneProject();
 			updateView();
 			//TODO close all other windows too
@@ -456,7 +455,6 @@ public class ProjectWindow extends QMainWindow
 			try
 				{
 				proj=MadgeneXML.loadProject(f);
-				currentProjectFile=f;
 				}
 			catch (IOException e)
 				{
@@ -473,12 +471,12 @@ public class ProjectWindow extends QMainWindow
 	 */
 	public void actionSaveProject()
 		{
-		if(currentProjectFile==null)
+		if(proj.currentProjectFile==null)
 			actionSaveProjectAs();
-		if(currentProjectFile!=null)
+		if(proj.currentProjectFile!=null)
 			try
 				{
-				MadgeneXML.saveProject(currentProjectFile, proj);
+				proj.saveProject();
 				}
 			catch (IOException e)
 				{
@@ -504,7 +502,7 @@ public class ProjectWindow extends QMainWindow
 			{
 			File f=new File(dia.selectedFiles().get(0));
 			lastDirectory=f.getParentFile();
-			currentProjectFile=f;
+			proj.currentProjectFile=f;
 			actionSaveProject();
 			}
 		}
@@ -527,8 +525,7 @@ public class ProjectWindow extends QMainWindow
 			if(dia.exec()!=0)
 				{
 				File f=new File(dia.selectedFiles().get(0));
-				
-				
+								
 				SequenceExporter exp=SequenceFileHandlers.getExporter(f);
 				if(exp!=null)
 					{
@@ -635,7 +632,7 @@ public class ProjectWindow extends QMainWindow
 			QTutil.showNotice(this, tr("Select 1 or 2 sequences"));
 		}
 	
-	public void actionAssemble()
+	public void actionNewClone() //This sounds more like sequence assembly!!
 		{
 //		CloneAssembler ass=
 				new CloneAssembler();
@@ -666,6 +663,7 @@ public class ProjectWindow extends QMainWindow
 			}
 		else if(ob instanceof EventSequenceModified)
 			{
+			proj.isModified=true;
 			//Find views that might be interested
 			AnnotatedSequence seq=((EventSequenceModified)ob).seq;
 			for(SequenceWindow w:seqwindows)

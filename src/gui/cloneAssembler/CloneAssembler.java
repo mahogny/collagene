@@ -28,7 +28,9 @@ public class CloneAssembler extends QMainWindow
 
 	QVBoxLayout lay=new QVBoxLayout();
 
-	
+	/**
+	 * Constructor
+	 */
 	public CloneAssembler()
 		{
 		QPushButton bAssemble=new QPushButton(tr("Assemble"));

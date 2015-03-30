@@ -88,7 +88,7 @@ public class SimulatedDigestWindow extends QWidget
 		tableSeqs.setSelectionBehavior(SelectionBehavior.SelectRows);
 		tableSeqs.horizontalHeader().setResizeMode(ResizeMode.ResizeToContents);
 		tableSeqs.horizontalHeader().setStretchLastSection(true);		
-		tableSeqs.clicked.connect(this,"actionShowSeq()");
+		tableSeqs.selectionModel().selectionChanged.connect(this,"actionShowSeq()");
 		tableSeqs.doubleClicked.connect(this,"actionPick()");
 
 		tableSeqs.setSizePolicy(Policy.Expanding, Policy.MinimumExpanding);
@@ -196,18 +196,24 @@ public class SimulatedDigestWindow extends QWidget
 		DigestSimulator d=new DigestSimulator();
 		d.simulate(seq,enzymes);
 
+		setFragments(d.cutregions);
+		}
+
+	
+	public void setFragments(LinkedList<RestrictionDigestFragment> cutregions)
+		{
 		//Add all fragments to lane
 		lane2.mapPosWeight.clear();
-		for(RestrictionDigestFragment r:d.cutregions)
+		for(RestrictionDigestFragment r:cutregions)
 			lane2.mapPosWeight.put((double)r.getUpperLength(), 1.0);
-	
+
 		//Add all fragments to table
 		while(tableSeqs.rowCount()>0)
 			tableSeqs.removeRow(0);
-		tableSeqs.setRowCount(d.cutregions.size());
-		for(int i=0;i<d.cutregions.size();i++)
+		tableSeqs.setRowCount(cutregions.size());
+		for(int i=0;i<cutregions.size();i++)
 			{
-			RestrictionDigestFragment r=d.cutregions.get(i);
+			RestrictionDigestFragment r=cutregions.get(i);
 			
 			QTableWidgetItem it=roItem(""+r.getUpperFrom());
 			it.setData(Qt.ItemDataRole.UserRole, r);
@@ -219,9 +225,15 @@ public class SimulatedDigestWindow extends QWidget
 			tableSeqs.setItem(i, 3, roItem(r.fromSite==null ? "N/A" : r.fromSite.enzyme.name));
 			tableSeqs.setItem(i, 4, roItem(r.toSite==null ? "N/A" : r.toSite.enzyme.name));
 			}
-		
-		
 		updategraphics();
+		}
+	
+	
+	public void setFragment(RestrictionDigestFragment f)
+		{
+		LinkedList<RestrictionDigestFragment> list=new LinkedList<RestrictionDigestFragment>();
+		list.add(f);
+		setFragments(list);
 		}
 	
 	private QTableWidgetItem roItem(String s)

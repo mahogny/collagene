@@ -1,7 +1,7 @@
 package gui.primer;
 
 import gui.ProjectWindow;
-import gui.paneLinear.EventNewSequence;
+import gui.digest.SimulatedDigestWindow;
 import gui.sequenceWindow.EventSequenceModified;
 
 import java.text.NumberFormat;
@@ -11,6 +11,7 @@ import melting.CalcTmSanta98;
 import melting.TmException;
 import primer.Primer;
 import primer.PrimerPairInfo;
+import restrictionEnzyme.RestrictionDigestFragment;
 import seq.AnnotatedSequence;
 
 import com.trolltech.qt.gui.QAction;
@@ -55,8 +56,10 @@ public class MenuPrimer extends QMenu
 		
 		addSeparator();
 		QAction miDeleteAnnot=addAction("Delete primer");
-		
+		QAction miEditAnnot=addAction("Delete primer");
+			
 		miDeleteAnnot.triggered.connect(this,"actionDeletePrimer()");
+		miEditAnnot.triggered.connect(this,"actionEditPrimer()");
 		}
 	
 	
@@ -65,6 +68,16 @@ public class MenuPrimer extends QMenu
 		if(primer!=null)
 			seq.primers.remove(primer);
 		w.updateEvent(new EventSequenceModified(seq));
+		}
+	
+	
+	public void actionEditPrimer()
+		{
+		PrimerPropertyWindow w=new PrimerPropertyWindow();
+		w.setPrimer(primer);
+		w.exec();
+		if(w.wasOk)
+			this.w.updateEvent(new EventSequenceModified(seq));
 		}
 	
 	public static String formatTemp(double d)
@@ -83,9 +96,16 @@ public class MenuPrimer extends QMenu
 		PrimerPairInfo pair;
 		public void dopcr()
 			{
+			
 			AnnotatedSequence newseq=pair.dopcr(seq);
 			newseq.name=seq.name+"-pcr-"+pair.primerA.name+"_"+pair.primerB.name;
-			w.updateEvent(new EventNewSequence(newseq));
+			
+			RestrictionDigestFragment frag=new RestrictionDigestFragment();
+			frag.setSequence(newseq);
+			
+			SimulatedDigestWindow w=new SimulatedDigestWindow(MenuPrimer.this.w);
+			w.setFragment(frag);
+			w.show();
 			}
 		}
 
