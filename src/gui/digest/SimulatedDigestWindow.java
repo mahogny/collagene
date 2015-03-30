@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import ladder.DNALadder;
 import ladder.DNALadderSet;
 import restrictionEnzyme.DigestSimulator;
-import restrictionEnzyme.RestrictionDigestFragment;
 import restrictionEnzyme.RestrictionEnzyme;
+import restrictionEnzyme.SequenceFragment;
 import seq.AnnotatedSequence;
 
 import com.trolltech.qt.core.QModelIndex;
@@ -44,7 +44,7 @@ public class SimulatedDigestWindow extends QWidget
 	private QComboBox comboLadder=new QComboBox();
 	private QTableWidget tableSeqs=new QTableWidget();
 	private QPushButton bClose=new QPushButton(tr("Close"));
-	private QPushButton bPickSequence=new QPushButton(tr("Pick"));
+	private QPushButton bPickSequence=new QPushButton(tr("Add to workspace"));
 	private ProjectWindow projwindow;
 	
 	private DNALadderSet ladders=new DNALadderSet();
@@ -136,11 +136,11 @@ public class SimulatedDigestWindow extends QWidget
 		updategraphics();
 		}
 	
-	public RestrictionDigestFragment getSelected()
+	public SequenceFragment getSelected()
 		{
 		for(QModelIndex i:tableSeqs.selectionModel().selectedRows())
 			{
-			RestrictionDigestFragment f=(RestrictionDigestFragment)tableSeqs.item(i.row(),0).data(Qt.ItemDataRole.UserRole);
+			SequenceFragment f=(SequenceFragment)tableSeqs.item(i.row(),0).data(Qt.ItemDataRole.UserRole);
 			return f;
 			}
 		return null;
@@ -151,7 +151,7 @@ public class SimulatedDigestWindow extends QWidget
 	 */
 	public void actionPick()
 		{
-		RestrictionDigestFragment f=getSelected();
+		SequenceFragment f=getSelected();
 		if(f!=null)
 			{
 			AnnotatedSequence s=f.getFragmentSequence();
@@ -163,7 +163,7 @@ public class SimulatedDigestWindow extends QWidget
 	
 	public void actionShowSeq()
 		{
-		RestrictionDigestFragment f=getSelected();
+		SequenceFragment f=getSelected();
 		if(f!=null)
 			{
 			AnnotatedSequence s=f.getFragmentSequence();
@@ -200,11 +200,11 @@ public class SimulatedDigestWindow extends QWidget
 		}
 
 	
-	public void setFragments(LinkedList<RestrictionDigestFragment> cutregions)
+	public void setFragments(LinkedList<? extends SequenceFragment> cutregions)
 		{
 		//Add all fragments to lane
 		lane2.mapPosWeight.clear();
-		for(RestrictionDigestFragment r:cutregions)
+		for(SequenceFragment r:cutregions)
 			lane2.mapPosWeight.put((double)r.getUpperLength(), 1.0);
 
 		//Add all fragments to table
@@ -213,7 +213,7 @@ public class SimulatedDigestWindow extends QWidget
 		tableSeqs.setRowCount(cutregions.size());
 		for(int i=0;i<cutregions.size();i++)
 			{
-			RestrictionDigestFragment r=cutregions.get(i);
+			SequenceFragment r=cutregions.get(i);
 			
 			QTableWidgetItem it=roItem(""+r.getUpperFrom());
 			it.setData(Qt.ItemDataRole.UserRole, r);
@@ -222,16 +222,16 @@ public class SimulatedDigestWindow extends QWidget
 			tableSeqs.setItem(i, 1, roItem(""+r.getUpperTo()));
 			tableSeqs.setItem(i, 2, roItem(""+r.getUpperLength()));
 
-			tableSeqs.setItem(i, 3, roItem(r.fromSite==null ? "N/A" : r.fromSite.enzyme.name));
-			tableSeqs.setItem(i, 4, roItem(r.toSite==null ? "N/A" : r.toSite.enzyme.name));
+			tableSeqs.setItem(i, 3, roItem(r.getFromSite()==null ? "N/A" : r.getFromSite().enzyme.name));
+			tableSeqs.setItem(i, 4, roItem(r.getToSite()==null ? "N/A" : r.getToSite().enzyme.name));
 			}
 		updategraphics();
 		}
 	
 	
-	public void setFragment(RestrictionDigestFragment f)
+	public void setFragment(SequenceFragment f)
 		{
-		LinkedList<RestrictionDigestFragment> list=new LinkedList<RestrictionDigestFragment>();
+		LinkedList<SequenceFragment> list=new LinkedList<SequenceFragment>();
 		list.add(f);
 		setFragments(list);
 		}

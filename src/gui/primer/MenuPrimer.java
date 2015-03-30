@@ -11,7 +11,7 @@ import melting.CalcTmSanta98;
 import melting.TmException;
 import primer.Primer;
 import primer.PrimerPairInfo;
-import restrictionEnzyme.RestrictionDigestFragment;
+import restrictionEnzyme.SequenceFragmentPCR;
 import seq.AnnotatedSequence;
 
 import com.trolltech.qt.gui.QAction;
@@ -100,8 +100,8 @@ public class MenuPrimer extends QMenu
 			AnnotatedSequence newseq=pair.dopcr(seq);
 			newseq.name=seq.name+"-pcr-"+pair.primerA.name+"_"+pair.primerB.name;
 			
-			RestrictionDigestFragment frag=new RestrictionDigestFragment();
-			frag.setSequence(newseq);
+			SequenceFragmentPCR frag=new SequenceFragmentPCR();
+			frag.newseq=newseq;
 			
 			SimulatedDigestWindow w=new SimulatedDigestWindow(MenuPrimer.this.w);
 			w.setFragment(frag);

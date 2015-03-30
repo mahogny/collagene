@@ -16,7 +16,7 @@ import seq.RestrictionSite;
  */
 public class DigestSimulator
 	{
-	public LinkedList<RestrictionDigestFragment> cutregions=new LinkedList<RestrictionDigestFragment>();
+	public LinkedList<SequenceFragmentRestrictionDigest> cutregions=new LinkedList<SequenceFragmentRestrictionDigest>();
 
 	public void simulate(AnnotatedSequence seq, LinkedList<RestrictionEnzyme> enzymes)
 		{
@@ -39,7 +39,7 @@ public class DigestSimulator
 		//Create the fragments
 		for(int i=0;i<sites.size()-1;i++)
 			{
-			RestrictionDigestFragment r=new RestrictionDigestFragment();
+			SequenceFragmentRestrictionDigest r=new SequenceFragmentRestrictionDigest();
 			r.origseq=seq;
 			r.fromSite=sites.get(i);
 			r.toSite=sites.get(i+1);
@@ -49,7 +49,7 @@ public class DigestSimulator
 			{
 			if(seq.isCircular)
 				{
-				RestrictionDigestFragment r=new RestrictionDigestFragment();
+				SequenceFragmentRestrictionDigest r=new SequenceFragmentRestrictionDigest();
 				r.origseq=seq;
 				r.fromSite=sites.get(sites.size()-1);
 				r.toSite=sites.get(0);
@@ -58,13 +58,13 @@ public class DigestSimulator
 			else
 				{
 				//Keep first and last fragment
-				RestrictionDigestFragment r1=new RestrictionDigestFragment();
+				SequenceFragmentRestrictionDigest r1=new SequenceFragmentRestrictionDigest();
 				r1.origseq=seq;
 				r1.fromSite=null;
 				r1.toSite=sites.get(0);
 				cutregions.add(r1);
 				
-				RestrictionDigestFragment r2=new RestrictionDigestFragment();
+				SequenceFragmentRestrictionDigest r2=new SequenceFragmentRestrictionDigest();
 				r2.origseq=seq;
 				r2.fromSite=sites.get(sites.size()-1);
 				r2.toSite=null;

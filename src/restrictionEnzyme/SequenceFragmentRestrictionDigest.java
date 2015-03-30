@@ -9,7 +9,7 @@ import sequtil.NucleotideUtil;
 /**
  * One fragment from digest
  */
-public class RestrictionDigestFragment
+public class SequenceFragmentRestrictionDigest implements SequenceFragment
 	{
 	public AnnotatedSequence origseq;
 	public RestrictionSite fromSite;
@@ -27,7 +27,9 @@ public class RestrictionDigestFragment
 	public int getUpperTo()
 		{
 		if(toSite==null)
+			{
 			return origseq.getLength();
+			}
 		else
 			return toSite.cuttingUpperPos;
 		}
@@ -143,6 +145,18 @@ public class RestrictionDigestFragment
 			}
 		newseq.normalizeFeaturePos();
 		return newseq;
+		}
+
+	@Override
+	public RestrictionSite getFromSite()
+		{
+		return fromSite;
+		}
+
+	@Override
+	public RestrictionSite getToSite()
+		{
+		return toSite;
 		}
 	
 	
