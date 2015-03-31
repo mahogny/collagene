@@ -26,7 +26,7 @@ import com.trolltech.qt.gui.QHeaderView.ResizeMode;
 
 /**
  * 
- * Dialog to fit an existing primer
+ * Dialog to fit existing annotation
  * 
  * @author Johan Henriksson
  *

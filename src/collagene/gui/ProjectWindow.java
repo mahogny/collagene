@@ -13,6 +13,7 @@ import collagene.gui.cloneAssembler.CloneAssembler;
 import collagene.gui.paneLinear.EventNewSequence;
 import collagene.gui.qt.QTutil;
 import collagene.gui.resource.ImgResource;
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSequenceModified;
 import collagene.gui.sequenceWindow.SequenceWindow;
 import collagene.io.SequenceExporter;
@@ -653,7 +654,7 @@ public class ProjectWindow extends QMainWindow
 
 	
 	
-	public void updateEvent(Object ob)
+	public void updateEvent(CollageneEvent ob)
 		{
 		if(ob instanceof EventNewSequence)
 			{

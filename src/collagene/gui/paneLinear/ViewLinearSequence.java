@@ -10,6 +10,8 @@ import collagene.gui.paneLinear.tracks.LinTrackAnnotation;
 import collagene.gui.paneLinear.tracks.LinTrackPrimer;
 import collagene.gui.paneLinear.tracks.LinTrackSequence;
 import collagene.gui.paneLinear.tracks.LinTrackTraces;
+import collagene.gui.sequenceWindow.CollageneEvent;
+import collagene.gui.sequenceWindow.EventSelectedRegion;
 import collagene.gui.sequenceWindow.SeqViewSettingsMenu;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
@@ -48,7 +50,7 @@ public class ViewLinearSequence extends QGraphicsView
 	
 	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
 
-	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
+	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 
 	private Collection<Object> selectionItems=new LinkedList<Object>();
 	public SequenceRange selection=null;
@@ -383,7 +385,7 @@ public class ViewLinearSequence extends QGraphicsView
 					selection=new SequenceRange();
 					selection.from=selection.to=curindex;
 					isSelecting=true;
-					signalUpdated.emit(selection);
+					emitNewSelection(selection);
 					updateSelectionGraphics();  
 					}
 				}
@@ -412,7 +414,7 @@ public class ViewLinearSequence extends QGraphicsView
 		if(isSelecting && curindex!=-1)
 			{
 			selection.to=curindex;
-			signalUpdated.emit(selection);
+			emitNewSelection(selection);
 			updateSelectionGraphics();
 			}
 
@@ -453,6 +455,11 @@ public class ViewLinearSequence extends QGraphicsView
 	public void setEditable(boolean b)
 		{
 		isEditable=b;
+		}
+
+	public void emitNewSelection(SequenceRange range)
+		{
+		signalUpdated.emit(new EventSelectedRegion(getSequence(), range));
 		}
 
 	

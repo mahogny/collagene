@@ -57,6 +57,7 @@ public class SequenceFragmentRestrictionDigest implements SequenceFragment
 		{
 		if(newseq!=null)
 			return newseq;
+		newseq=new AnnotatedSequence();
 		newseq.name=origseq.name+"_"+Math.random();
 		newseq.isCircular=false;
 

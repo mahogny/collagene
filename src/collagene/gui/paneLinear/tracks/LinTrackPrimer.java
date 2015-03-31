@@ -7,9 +7,11 @@ import java.util.LinkedList;
 import collagene.gui.paneCircular.CircView;
 import collagene.gui.paneLinear.ViewLinearSequence;
 import collagene.gui.primer.MenuPrimer;
+import collagene.gui.sequenceWindow.EventSelectedRegion;
 import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.Orientation;
+import collagene.seq.SequenceRange;
 
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
@@ -152,12 +154,13 @@ public class LinTrackPrimer implements LinTrack
 		Primer curPrimer=getPrimerAt(pos);
 		if(curPrimer!=null)
 			{
-			view.signalUpdated.emit(curPrimer.getRange());
+			view.emitNewSelection(curPrimer.getRange());
 			return true;
 			}
 		else
 			return false;
 		}
+	
 
 	@Override
 	public boolean contextMenuEvent(QContextMenuEvent event, QPointF pos)

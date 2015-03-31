@@ -57,6 +57,7 @@ import com.trolltech.qt.gui.QWidget;
 
 
 /**
+ * 
  * Window showing one sequence
  * 
  * @author Johan Henriksson
@@ -352,11 +353,19 @@ public class SequenceWindow extends QMainWindow
 		setWindowTitle(QtProgramInfo.programName+" - "+seq.name);
 		projwindow.updateView();
 		}
-	
+
 	/**
 	 * Event: Whenever a selection is changed somewhere
 	 */
-	public void onViewUpdated(Object ob)
+	public void emitNewSelection(SequenceRange r)
+		{
+		onViewUpdated(new EventSelectedRegion(seq, r));
+		}
+	
+	/**
+	 * Event: For any kind of event
+	 */
+	public void onViewUpdated(CollageneEvent ob)
 		{
 		if(ob instanceof EventSequenceModified)
 			{
@@ -366,9 +375,9 @@ public class SequenceWindow extends QMainWindow
 			{
 			projwindow.updateEvent(ob); //if it did not already go there?
 			}
-		else if(ob instanceof SequenceRange)
+		else if(ob instanceof EventSelectedRegion)
 			{
-			SequenceRange range=(SequenceRange)ob;
+			SequenceRange range=((EventSelectedRegion) ob).range;
 			if(range.isNoRange)
 				range=null;
 			viewLinear.setSelection(range);
@@ -390,7 +399,7 @@ public class SequenceWindow extends QMainWindow
 				{
 				SeqAnnotation annot=((EventSelectedAnnotation) ob).annot;
 				if(annot!=null)
-					onViewUpdated(new SequenceRange(annot.range));
+					emitNewSelection(new SequenceRange(annot.range));
 				}
 
 			viewLinear.handleEvent(ob);
@@ -513,11 +522,11 @@ public class SequenceWindow extends QMainWindow
 		mFind.addAction(tr("Go to previous nucleotide mismatch"),this,"actionPrevMismatch()");
 		
 		
-		viewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
-		viewOverviewLinear.signalUpdated.connect(this,"onViewUpdated(Object)");
-		viewEnz.signalUpdated.connect(this,"onViewUpdated(Object)");
-		viewCircular.signalUpdated.connect(this,"onViewUpdated(Object)");
-		viewInfo.signalUpdated.connect(this,"onViewUpdated(Object)");
+		viewLinear.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
+		viewOverviewLinear.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
+		viewEnz.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
+		viewCircular.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
+		viewInfo.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 
 		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
@@ -719,7 +728,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			if(b[i])
 				{
-				onViewUpdated(new SequenceRange(i,i+1));
+				emitNewSelection(new SequenceRange(i,i+1));
 				return;
 				}
 			}
@@ -727,7 +736,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			if(b[i])
 				{
-				onViewUpdated(new SequenceRange(i,i+1));
+				emitNewSelection(new SequenceRange(i,i+1));
 				return;
 				}
 			}
@@ -748,7 +757,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			if(b[i])
 				{
-				onViewUpdated(new SequenceRange(i,i+1));
+				emitNewSelection(new SequenceRange(i,i+1));
 				return;
 				}
 			}
@@ -756,7 +765,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			if(b[i])
 				{
-				onViewUpdated(new SequenceRange(i,i+1));
+				emitNewSelection(new SequenceRange(i,i+1));
 				return;
 				}
 			}
@@ -822,16 +831,16 @@ public class SequenceWindow extends QMainWindow
 			{
 			SequenceRange r=getSelection();
 			if(r==null)
-				onViewUpdated(list.get(0).getRange());
+				emitNewSelection(list.get(0).getRange());
 			else
 				{
 				for(Primer p:list)
 					if(p.getRange().from>r.from)
 						{
-						onViewUpdated(p.getRange());
+						emitNewSelection(p.getRange());
 						return;
 						}
-				onViewUpdated(list.get(0).getRange());
+				emitNewSelection(list.get(0).getRange());
 				}
 			}
 		}
@@ -846,7 +855,7 @@ public class SequenceWindow extends QMainWindow
 			{
 			SequenceRange r=getSelection();
 			if(r==null)
-				onViewUpdated(list.get(0).getRange());
+				emitNewSelection(list.get(0).getRange());
 			else
 				{
 				for(int i=list.size()-1;i>=0;i--)
@@ -854,11 +863,11 @@ public class SequenceWindow extends QMainWindow
 					Primer p=list.get(i);
 					if(p.getRange().from<r.from)
 						{
-						onViewUpdated(p.getRange());
+						emitNewSelection(p.getRange());
 						return;
 						}
 					}
-				onViewUpdated(list.get(list.size()-1).getRange());
+				emitNewSelection(list.get(list.size()-1).getRange());
 				}
 			}
 		}
@@ -872,7 +881,7 @@ public class SequenceWindow extends QMainWindow
 			currentSearchString=null;
 		else
 			currentSearchString=new SequenceSearcher(getSequence(), tfSearch.text().toUpperCase());
-		onViewUpdated(SequenceRange.getNoRange());
+		emitNewSelection(SequenceRange.getNoRange());
 		actionSearchNext();
 		}
 	
@@ -884,7 +893,7 @@ public class SequenceWindow extends QMainWindow
 		if(currentSearchString!=null)
 			{
 			SequenceRange r=currentSearchString.next(getSelection());
-			onViewUpdated(r);
+			emitNewSelection(r);
 			}
 		}
 
@@ -896,7 +905,7 @@ public class SequenceWindow extends QMainWindow
 		if(currentSearchString!=null)
 			{
 			SequenceRange r=currentSearchString.prev(getSelection());
-			onViewUpdated(r);
+			emitNewSelection(r);
 			}
 		}
 
@@ -976,7 +985,7 @@ public class SequenceWindow extends QMainWindow
 				{
 				seq.primers.add(p);
 				updateSequence();
-				onViewUpdated(p.getRange());
+				emitNewSelection(p.getRange());
 				}
 			else
 				QTutil.showNotice(this, tr("Failed to fit"));
@@ -996,7 +1005,7 @@ public class SequenceWindow extends QMainWindow
 			if(!f.primerCandidates.isEmpty())
 				{
 				Primer p=f.primerCandidates.get(0).p;
-				onViewUpdated(p.getRange());
+				emitNewSelection(p.getRange());
 				}
 			else
 				QTutil.showNotice(this, tr("Failed to find good primers"));

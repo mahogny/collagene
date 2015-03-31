@@ -11,6 +11,7 @@ import collagene.gui.ProjectWindow;
 import collagene.gui.digest.SimulatedDigestWindow;
 import collagene.gui.qt.QTutil;
 import collagene.gui.resource.ImgResource;
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.SeqViewSettingsMenu;
 import collagene.gui.sequenceWindow.SequenceWindow;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
@@ -65,7 +66,7 @@ public class PaneEnzymeList extends QWidget
 	private QLabel labTempInactivation=new QLabel();
 	private ProjectWindow projwindow;
 
-	public QSignalEmitter.Signal1<EventSelectedRestrictionEnzyme> signalUpdated=new Signal1<EventSelectedRestrictionEnzyme>();
+	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 	private SequenceWindow seqwindow;
 	
 	/**
@@ -378,7 +379,7 @@ public class PaneEnzymeList extends QWidget
 	 */
 	private void selectSite(RestrictionSite s)
 		{
-		seqwindow.onViewUpdated(new SequenceRange(s.getEarliestPos(), s.getLatestPos()+1));
+		seqwindow.emitNewSelection(new SequenceRange(s.getEarliestPos(), s.getLatestPos()+1));
 		}
 	
 	/**

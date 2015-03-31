@@ -1,14 +1,13 @@
 package collagene.gui.paneLinear;
 
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.seq.AnnotatedSequence;
 
-public class EventNewSequence
+public class EventNewSequence extends CollageneEvent
 	{
-	public AnnotatedSequence seq;
-
 	public EventNewSequence(AnnotatedSequence seq)
 		{
-		this.seq = seq;
+		super(seq);
 		}
 	
 	

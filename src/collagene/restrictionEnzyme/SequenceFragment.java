@@ -3,6 +3,13 @@ package collagene.restrictionEnzyme;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.RestrictionSite;
 
+/**
+ * 
+ * One fragment of a sequence
+ * 
+ * @author Johan Henriksson
+ *
+ */
 public interface SequenceFragment
 	{
 	public int getUpperLength();

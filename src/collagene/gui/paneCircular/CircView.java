@@ -12,7 +12,9 @@ import java.util.LinkedList;
 import collagene.gui.ProjectWindow;
 import collagene.gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import collagene.gui.qt.QTutil;
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSelectedAnnotation;
+import collagene.gui.sequenceWindow.EventSelectedRegion;
 import collagene.gui.sequenceWindow.MenuAnnotation;
 import collagene.gui.sequenceWindow.SeqViewSettingsMenu;
 import collagene.primer.Primer;
@@ -96,7 +98,7 @@ public class CircView extends QGraphicsView
 	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
 	
 	
-	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
+	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 
 	EventSelectedRestrictionEnzyme selectedEnz=new EventSelectedRestrictionEnzyme();
 	private ProjectWindow pw;
@@ -609,7 +611,7 @@ public class CircView extends QGraphicsView
 			EmittedText et=getEmittedTextAt(p);
 			
 			if(annot!=null)
-				signalUpdated.emit(new EventSelectedAnnotation(annot));
+				signalUpdated.emit(new EventSelectedAnnotation(getSequence(), annot));
 			else if(et!=null)
 				{
 				et.leftclick(event);
@@ -621,9 +623,7 @@ public class CircView extends QGraphicsView
 				
 				selection=new SequenceRange();
 				selection.from=selection.to=(int)(seq.getLength()*angle/(Math.PI*2));
-				signalUpdated.emit(selection);
-
-				updateSelectionGraphics();
+				emitNewSelection(selection);
 				}
 			}
 		}
@@ -637,6 +637,12 @@ public class CircView extends QGraphicsView
 		}
 
 
+	public void emitNewSelection(SequenceRange range)
+		{
+		signalUpdated.emit(new EventSelectedRegion(getSequence(), range));
+		//updateSelectionGraphics(); //really?
+		}
+
 
 	/**
 	 * Handle mouse move events
@@ -648,9 +654,7 @@ public class CircView extends QGraphicsView
 			double angle=getAngle(event);
 
 			selection.to=(int)(seq.getLength()*(angle)/(Math.PI*2));
-			signalUpdated.emit(selection);
-
-			updateSelectionGraphics();
+			emitNewSelection(selection);
 			}
 		}
 	

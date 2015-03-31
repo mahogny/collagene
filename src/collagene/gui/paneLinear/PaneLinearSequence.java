@@ -2,6 +2,7 @@ package collagene.gui.paneLinear;
 
 import collagene.gui.ProjectWindow;
 import collagene.gui.resource.ImgResource;
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
 
@@ -33,7 +34,7 @@ public class PaneLinearSequence extends QWidget
 	
 	private ViewLinearSequence view;
 	
-	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
+	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 
 	
 	/**
@@ -64,13 +65,13 @@ public class PaneLinearSequence extends QWidget
 		setLayout(lay);
 
 		view.settings.signalSettingsChanged.connect(this,"updateview()");  //train wreck
-		view.signalUpdated.connect(this,"onViewUpdated(Object)");
+		view.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 		
 		updateview();
 		}
 	
 	
-	public void onViewUpdated(Object o)
+	public void onViewUpdated(CollageneEvent o)
 		{
 		signalUpdated.emit(o);
 		}

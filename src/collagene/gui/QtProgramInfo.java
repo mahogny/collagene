@@ -2,6 +2,7 @@ package collagene.gui;
 
 /**
  * 
+ * Information about the software
  * 
  * @author Johan Henriksson
  *

@@ -3,6 +3,7 @@ package collagene.gui.paneCircular;
 import collagene.gui.ProjectWindow;
 import collagene.gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import collagene.gui.resource.ImgResource;
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
 
@@ -33,7 +34,7 @@ public class PaneCircularSequence extends QWidget
 
 	private CircView view;
 	
-	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
+	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 	
 	
 	public PaneCircularSequence(ProjectWindow pw)
@@ -74,7 +75,7 @@ public class PaneCircularSequence extends QWidget
 		setLayout(lay);
 
 		view.settings.signalSettingsChanged.connect(this,"updatecirc()");  //train wreck
-		view.signalUpdated.connect(this,"onViewUpdated(Object)");
+		view.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 
 		view.movetoinstantaneous(
 				sliderpantopos(),
@@ -116,7 +117,7 @@ public class PaneCircularSequence extends QWidget
 			}
 		}
 	
-	public void onViewUpdated(Object o)
+	public void onViewUpdated(CollageneEvent o)
 		{
 		signalUpdated.emit(o);
 		updatecirc();

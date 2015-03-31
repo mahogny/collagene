@@ -2,6 +2,7 @@ package collagene.gui.paneRestriction;
 
 import java.util.LinkedList;
 
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
 
 /**
@@ -10,8 +11,13 @@ import collagene.restrictionEnzyme.RestrictionEnzyme;
  * @author Johan Henriksson
  *
  */
-public class EventSelectedRestrictionEnzyme
+public class EventSelectedRestrictionEnzyme extends CollageneEvent
 	{
+	public EventSelectedRestrictionEnzyme()
+		{
+		super(null);
+		}
+
 	public LinkedList<RestrictionEnzyme> enzymes=new LinkedList<RestrictionEnzyme>();
 	
 	

@@ -182,7 +182,7 @@ public class LinTrackAnnotation implements LinTrack
 		SeqAnnotation curAnnotation=getAnnotationAt(pos);
 		if(curAnnotation!=null)
 			{
-			view.signalUpdated.emit(new EventSelectedAnnotation(curAnnotation));
+			view.signalUpdated.emit(new EventSelectedAnnotation(view.getSequence(), curAnnotation));
 			return true;
 			}
 		else

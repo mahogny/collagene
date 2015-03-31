@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import collagene.gui.ProjectWindow;
 import collagene.gui.primer.MenuPrimer;
 import collagene.gui.qt.QTutil;
+import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSequenceModified;
 import collagene.gui.sequenceWindow.MenuAnnotation;
 import collagene.melting.CalcTmSanta98;
@@ -44,7 +45,7 @@ public class PaneSequenceInfo extends QScrollArea
 	private QLabel tfWeight=new QLabel();
 	
 	private ProjectWindow pw;
-	public QSignalEmitter.Signal1<Object> signalUpdated=new Signal1<Object>();
+	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	

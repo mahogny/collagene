@@ -1,5 +1,12 @@
 package collagene.seq;
 
+/**
+ * 
+ * Color used for sequences
+ * 
+ * @author Johan Henriksson
+ *
+ */
 public class SeqColor
 	{
 	public int r,g,b;
