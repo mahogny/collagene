@@ -1,0 +1,12 @@
+Package: collagene
+Version: VERSION
+Section: contrib/science
+Priority: optional
+Architecture: all
+Depends: DEPENDENCIES
+Installed-Size: SIZE
+Maintainer: Johan Henriksson <mahogny@areta.org>
+Homepage: http://www.collagene.org
+Description: tool for working with plasmids
+ This software helps you with routine tasks related to working with plasmids
+ e.g. viewing them, finding restriction sites and choosing primers

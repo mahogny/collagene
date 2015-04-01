@@ -1,0 +1,6 @@
+?package(collagene):\
+  needs="X11"\
+  section="Applications/Science"\
+  title="Collagene"\
+  icon="/usr/share/pixmaps/collagene.xpm"\
+  command="/usr/bin/collagene"

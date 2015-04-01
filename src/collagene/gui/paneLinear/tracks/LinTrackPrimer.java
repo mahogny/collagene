@@ -7,11 +7,9 @@ import java.util.LinkedList;
 import collagene.gui.paneCircular.CircView;
 import collagene.gui.paneLinear.ViewLinearSequence;
 import collagene.gui.primer.MenuPrimer;
-import collagene.gui.sequenceWindow.EventSelectedRegion;
 import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.Orientation;
-import collagene.seq.SequenceRange;
 
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;

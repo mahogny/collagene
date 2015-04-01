@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mime-type xmlns="http://www.freedesktop.org/standards/shared-mime-info" type="application/vnd.collagene">
+  <!--Created automatically by update-mime-database. DO NOT EDIT!-->
+  <comment>Collagene project</comment>
+  <generic-icon name="image-x-generic"/>
+  <glob pattern="*.collagene"/>
+</mime-type>

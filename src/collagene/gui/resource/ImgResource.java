@@ -110,7 +110,7 @@ public class ImgResource
 	
 
 	*/
-	public static QPixmap imgWindowIcon= getIcon("programlogo_256.png");
+	public static QPixmap imgWindowIcon= getIcon("logo_512.png");
 
 	public static QPixmap moveRight=getIcon("tango-go-next.png");
 	public static QPixmap moveLeft=getIcon("tango-go-previous.png");

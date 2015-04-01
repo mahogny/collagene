@@ -9,7 +9,6 @@ loc:
 
 jars: 
 	cd ../bin; jar cfvm ../collagene.jar ../src/MANIFEST.STARTQTCLIENT \
-	*/*.class \
 	*/*/*.class \
 	*/*/*/*.class \
 	*/*/*/*/*.class \
@@ -25,7 +24,6 @@ gitaddall:
 	*/*/*java \
 	*/*/*/*java \
 	*/*/*/*/*java \
-	*/*/*/*/*/*java \
 	*/*/*/*png
 
 ############################################################################################
@@ -36,7 +34,7 @@ macport: jars
 	rm -Rf ../release/mac
 	cp -r ../ports/mac ../release/mac
 	cp ../collagene.jar ../lib/*jar ../lib/mac/*.jar ../release/mac/collagene.app/
-#	cp translations/* ../release/mac/labstory.app/translations/
+#	cp translations/* ../release/mac/collagene.app/translations/
 	cd ../release/mac/; make
 
 
@@ -45,23 +43,25 @@ macport: jars
 ############################################################################################
 
 ubuntuport: jars
-	sudo rm -f ../release/labstory*deb
+	sudo rm -f ../release/collagene*deb
 	sudo java -cp bin ports.ubuntu.Main
-	sudo mv ../release/labstory*deb ../release/labstory.deb
+	sudo mv ../release/collagene*deb ../release/collagene.deb
 
 linuxport32: jars
 	mkdir -p ../release/linux32
-	rm -Rf ../release/linux32/labstory
-	cp -r ports/linux ../release/linux32/labstory
-	cp -r R labstory.jar labstoryPostload.jar lib/*jar lib/linux32/*jar ../release/linux32/labstory/
-	cp translations/* ../release/linux32/labstory/translations/
+	rm -Rf ../release/linux32/collagene
+	cd ..; cp -r ports/linux release/linux32/collagene
+	cd ..; cp -r collagene.jar lib/*jar lib/linux32/*jar release/linux32/collagene/
+	cd ../release/linux32; zip -r collagene_linux32 collagene; cp collagene_linux32.zip ../
+	#cd ..; cp translations/* ../release/linux32/collagene/translations/
 
 linuxport64: jars
 	mkdir -p ../release/linux64
-	rm -Rf ../release/linux64/labstory
-	cp -r ports/linux ../release/linux64/labstory
-	cp -r R labstory.jar labstoryPostload.jar lib/*jar lib/linux64/*jar ../release/linux64/labstory/
-	cp -r translations/* ../release/linux64/labstory/translations/
+	rm -Rf ../release/linux64/collagene
+	cd ..; cp -r ports/linux release/linux64/collagene
+	cd ..; cp -r collagene.jar lib/*jar lib/linux64/*jar release/linux64/collagene/
+	cd ../release/linux64; zip -r collagene_linux64 collagene; cp collagene_linux64.zip ../
+#	cp -r translations/* ../release/linux64/collagene/translations/
 
 linuxport: linuxport32 linuxport64 ubuntuport
 
@@ -93,24 +93,25 @@ winport: winportjre # winport32 winport64 winportjre
 
 release: macport linuxport winport #docs
 	mkdir -p ../release
-	rm -f ../release/labstory*zip 
-	cd ../release/linux64; zip -r ../labstory_linux64.zip  labstory
-	cd ../release/linux32; zip -r ../labstory_linux32.zip  labstory
+	rm -f ../release/collagene*zip 
+	cd ../release/linux64; zip -r ../collagene_linux64.zip  collagene
+	cd ../release/linux32; zip -r ../collagene_linux32.zip  collagene
 	cd ports; zip -r ../../release/docs.zip            documentation
-	cp -f org/ecobima/labnote/qtclient/version.txt ../release/qtversion.txt
+	#cp -f org/ecobima/labnote/qtclient/version.txt ../release/qtversion.txt
 
 cleanports:
-	cd ports; rm labstory.app/*.jar
+	cd ports; rm collagene.app/*.jar
 #	cd ports; rm linux/*.jar
 #	cd ports; rm win32/*.jar
 	cd ports; rm documentation/*
 
 
 upload:
-	cd ../release; scp *.dmg *.zip *.deb collagene_winjre.exe qtversion.txt mahogny@www.endrov.net:/home/mahogny/hp/other
+	cd ../release; scp *.dmg *.zip *.deb collagene_winjre.exe qtversion.txt 177655_mahogny@ssh.binero.se:/storage/content/55/177655/collagene.org/public_html/release/
+	#mahogny@www.endrov.net:/home/mahogny/hp/collagene/
 
 uploadwin:
-	cd ../release; scp *.exe 177655_mahogny@ssh.binero.se:/storage/content/55/177655/labstory.se/public_html/release/
+	cd ../release; scp *.exe 177655_mahogny@ssh.binero.se:/storage/content/55/177655/collagene.se/public_html/release/
 
 
 timestamp:
