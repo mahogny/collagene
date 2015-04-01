@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import collagene.gui.EventNewSequence;
 import collagene.gui.IndexUtil;
 import collagene.gui.ProjectWindow;
 import collagene.gui.QtProgramInfo;
 import collagene.gui.colors.ColorSet;
 import collagene.gui.paneCircular.PaneCircularSequence;
 import collagene.gui.paneInfo.PaneSequenceInfo;
-import collagene.gui.paneLinear.EventNewSequence;
 import collagene.gui.paneLinear.PaneLinearSequence;
 import collagene.gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import collagene.gui.paneRestriction.PaneEnzymeList;

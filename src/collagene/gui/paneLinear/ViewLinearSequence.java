@@ -12,7 +12,7 @@ import collagene.gui.paneLinear.tracks.LinTrackSequence;
 import collagene.gui.paneLinear.tracks.LinTrackTraces;
 import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSelectedRegion;
-import collagene.gui.sequenceWindow.SeqViewSettingsMenu;
+import collagene.gui.sequenceWindow.MenuSeqViewSettings;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
 
@@ -48,7 +48,7 @@ public class ViewLinearSequence extends QGraphicsView
 	
 	private QTimer timerAnimation=new QTimer();
 	
-	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
+	public MenuSeqViewSettings settings=new MenuSeqViewSettings();
 
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 

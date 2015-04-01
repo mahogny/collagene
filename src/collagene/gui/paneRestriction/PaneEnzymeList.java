@@ -12,7 +12,7 @@ import collagene.gui.digest.SimulatedDigestWindow;
 import collagene.gui.qt.QTutil;
 import collagene.gui.resource.ImgResource;
 import collagene.gui.sequenceWindow.CollageneEvent;
-import collagene.gui.sequenceWindow.SeqViewSettingsMenu;
+import collagene.gui.sequenceWindow.MenuSeqViewSettings;
 import collagene.gui.sequenceWindow.SequenceWindow;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
 import collagene.seq.AnnotatedSequence;
@@ -55,7 +55,7 @@ public class PaneEnzymeList extends QWidget
 	private QTableWidget tableAvailableEnzymes=new QTableWidget();
 
 	private QPushButton bMenu=new QPushButton(new QIcon(ImgResource.imgSettings),"");
-	private SeqViewSettingsMenu menuSettings=new SeqViewSettingsMenu();
+	private MenuSeqViewSettings menuSettings=new MenuSeqViewSettings();
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	//private QGroupBox layInfo2=new QGroupBox("");

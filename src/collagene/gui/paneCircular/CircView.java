@@ -16,7 +16,7 @@ import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSelectedAnnotation;
 import collagene.gui.sequenceWindow.EventSelectedRegion;
 import collagene.gui.sequenceWindow.MenuAnnotation;
-import collagene.gui.sequenceWindow.SeqViewSettingsMenu;
+import collagene.gui.sequenceWindow.MenuSeqViewSettings;
 import collagene.primer.Primer;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
 import collagene.seq.AnnotatedSequence;
@@ -95,7 +95,7 @@ public class CircView extends QGraphicsView
 	private Collection<QGraphicsEllipseItem> selectionItems=new LinkedList<QGraphicsEllipseItem>();
 	private SequenceRange selection=null;
 
-	public SeqViewSettingsMenu settings=new SeqViewSettingsMenu();
+	public MenuSeqViewSettings settings=new MenuSeqViewSettings();
 	
 	
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();

@@ -145,6 +145,12 @@ public class RestrictionEnzyme
 			}
 		return true;
 		}
+
+
+	public int getMotifSize()
+		{
+		return sequence.length();
+		}
 	
 	
 	}

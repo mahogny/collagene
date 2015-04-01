@@ -10,7 +10,6 @@ import java.util.List;
 import collagene.alignment.AnnotatedSequenceAlignment;
 import collagene.gui.anneal.AnnealWindow;
 import collagene.gui.cloneAssembler.CloneAssembler;
-import collagene.gui.paneLinear.EventNewSequence;
 import collagene.gui.qt.QTutil;
 import collagene.gui.resource.ImgResource;
 import collagene.gui.sequenceWindow.CollageneEvent;
