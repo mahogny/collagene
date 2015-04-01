@@ -21,7 +21,7 @@ public class Main
 		{
 		try
 			{
-			File releaseDir=new File("../release");
+			File releaseDir=new File("release");
 			if(!releaseDir.exists())
 				{
 				System.err.println("No release dir!");
@@ -40,13 +40,13 @@ public class Main
 			File fControlPostinst=new File(dControl,"postinst");
 			File fControlPostrm=new File(dControl,"postrm");
 			
-			File fUsrBinLabstory=new File(dUsrBin,"labstory");
+			File fUsrBinLabstory=new File(dUsrBin,"collagene");
 
-			File dCompiledBin=new File(".");
-			File dCompiledLib=new File(dCompiledBin,"libs");
+			File dCompiledBin=new File("bin");
+			File dCompiledLib=new File("lib");
 //			File dCompiledLibLinux=new File(dCompiledLib,"linux");
-			File dJarTarget=new File(dShare, "labstory");
-			File dTranslatonTarget=new File(new File(dShare, "labstory"),"translations");
+			File dJarTarget=new File(dShare, "collagene");
+			File dTranslatonTarget=new File(new File(dShare, "collagene"),"translations");
 
 			//Clean dirs
 			if(dPkg.exists())
@@ -78,11 +78,10 @@ public class Main
 				if(f.getName().endsWith(".jar"))
 					copyRecursive(f, new File(dJarTarget,f.getName()));
 	*/		
-			copyRecursive(new File(dCompiledBin.getParent(),"labstory.jar"), new File(dJarTarget,"labstory.jar"));
-			copyRecursive(new File(dCompiledBin.getParent(),"labstoryPostload.jar"), new File(dJarTarget,"labstoryPostload.jar"));
+			copyRecursive(new File(dCompiledBin.getParent(),"collagene.jar"), new File(dJarTarget,"collagene.jar"));
 			
 			//Copy translaton files
-			copyRecursive(new File(dCompiledBin, "translations"), dTranslatonTarget);
+//			copyRecursive(new File(dCompiledBin, "translations"), dTranslatonTarget);
 			
 			
 			setExec(fControlPostinst);
@@ -126,8 +125,8 @@ public class Main
 //			System.exit(-1);
 			
 			/////////////// Read information about software
-			Scanner scannerVersion = new Scanner(LabnoteUtil.readFileToString(new File(dCompiledBin,"org/ecobima/labnote/qtclient/version.txt")));
-			Scanner scannerTimestamp = new Scanner(LabnoteUtil.readFileToString(new File(dCompiledBin,"org/ecobima/labnote/qtclient/timestamp.txt")));
+			Scanner scannerVersion = new Scanner(LabnoteUtil.readFileToString(new File(dCompiledBin,"collagene/gui/version.txt")));
+			Scanner scannerTimestamp = new Scanner(LabnoteUtil.readFileToString(new File(dCompiledBin,"collagene/gui/timestamp.txt")));
 			String version=scannerVersion.nextLine()+"."+scannerTimestamp.nextLine();
 			scannerVersion.close();
 			scannerTimestamp.close();
@@ -150,7 +149,7 @@ public class Main
 
 			//////////// Make deb-file
 			System.out.println("Debianizing");
-			File outDeb=new File(releaseDir, "labstory-"+version+".deb");
+			File outDeb=new File(releaseDir, "collagene-"+version+".deb");
 //			String tempDebfile="/tmp/labstory";
 			if(outDeb.exists())
 				outDeb.delete();

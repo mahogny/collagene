@@ -44,7 +44,7 @@ macport: jars
 
 ubuntuport: jars
 	sudo rm -f ../release/collagene*deb
-	sudo java -cp bin ports.ubuntu.Main
+	cd ..; sudo java -cp bin port.ubuntu.Main
 	sudo mv ../release/collagene*deb ../release/collagene.deb
 
 linuxport32: jars
@@ -74,12 +74,11 @@ linuxport: linuxport32 linuxport64 ubuntuport
 winportjre: jars
 	rm -Rf ../release/winjre/
 	mkdir -p ../release/winjre/collagene
-	cp ports/win/starter/collagene_bundledjre.exe ../release/winjre/collagene/collagene.exe
-	cp ports/win/installer/* ../release/winjre/
-	cp collagene.jar lib/*jar lib/win32/*jar ../release/winjre/collagene/
-	cp -r R ../release/winjre/collagene/
-	cp -r translations ../release/winjre/collagene/
-	cp -r ../support_programs/jre ../release/winjre/
+	cd ..; cp ports/win/starter/collagene_bundledjre.exe release/winjre/collagene/collagene.exe
+	cd ..; cp ports/win/installer/* release/winjre/
+	cd ..; cp collagene.jar lib/*jar lib/win32/*jar release/winjre/collagene/
+	#cd ..; cp -r translations ../release/winjre/collagene/
+	cd ..; cp -r ../support_programs/jre release/winjre/
 	cd ../release/winjre; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" bundledjre.nsi
 	cd ../release/winjre; mv install.exe ../collagene_winjre.exe
 
@@ -97,7 +96,7 @@ release: macport linuxport winport #docs
 	cd ../release/linux64; zip -r ../collagene_linux64.zip  collagene
 	cd ../release/linux32; zip -r ../collagene_linux32.zip  collagene
 	cd ports; zip -r ../../release/docs.zip            documentation
-	#cp -f org/ecobima/labnote/qtclient/version.txt ../release/qtversion.txt
+	cd .. ; cp -f src/collagene/gui/version.txt release/qtversion.txt
 
 cleanports:
 	cd ports; rm collagene.app/*.jar
@@ -115,7 +114,7 @@ uploadwin:
 
 
 timestamp:
-	date +%s > org/ecobima/labnote/qtclient/timestamp.txt
+	cd ..; date +%s > bin/collagene/gui/timestamp.txt
 
 uploadbackup:
 	cd ../..; scp -r labnote3.git 177655_mahogny@ssh.binero.se:/storage/content/55/177655/
