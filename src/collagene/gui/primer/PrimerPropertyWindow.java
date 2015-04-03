@@ -3,6 +3,7 @@ package collagene.gui.primer;
 import collagene.gui.qt.QTutil;
 import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
+import collagene.sequtil.NucleotideUtil;
 
 import com.trolltech.qt.gui.QDialog;
 import com.trolltech.qt.gui.QGridLayout;
@@ -49,10 +50,11 @@ public class PrimerPropertyWindow extends QDialog
 	
 	public void actionOK()
 		{
-		if(!tfName.text().equals("") && !tfSequence.text().equals(""))
+		String seq=NucleotideUtil.normalize(tfSequence.text());
+		if(!tfName.text().equals("") && !seq.equals(""))
 			{
 			primer.name=tfName.text();
-			primer.sequence=tfSequence.text();
+			primer.sequence=seq;
 			wasOk=true;
 			close();
 			}

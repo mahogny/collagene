@@ -4,22 +4,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import collagene.gui.paneCircular.CircView;
 import collagene.gui.paneLinear.ViewLinearSequence;
 import collagene.gui.primer.MenuPrimer;
 import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.Orientation;
+import collagene.seq.SequenceRange;
+import collagene.sequtil.NucleotideUtil;
 
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
 import com.trolltech.qt.gui.QContextMenuEvent;
-import com.trolltech.qt.gui.QFont;
-import com.trolltech.qt.gui.QGraphicsPathItem;
 import com.trolltech.qt.gui.QGraphicsScene;
-import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QMouseEvent;
-import com.trolltech.qt.gui.QPainterPath;
 
 /**
  * 
@@ -30,7 +27,8 @@ import com.trolltech.qt.gui.QPainterPath;
  */
 public class LinTrackPrimer implements LinTrack
 	{
-	private HashMap<Primer, QRectF> primerPosition=new HashMap<Primer, QRectF>();
+	private HashMap<QRectF, Primer> primerPosition=new HashMap<QRectF, Primer>();
+	private LinkedList<EvalPrimer> listeval=new LinkedList<LinTrackPrimer.EvalPrimer>();
 
 	ViewLinearSequence view;
 	public LinTrackPrimer(ViewLinearSequence view)
@@ -40,98 +38,120 @@ public class LinTrackPrimer implements LinTrack
 	
 	public void initPlacing()
 		{
+		AnnotatedSequence seq=view.getSequence();
 		primerPosition.clear();
+		/*
+		if(seq.primers.isEmpty())
+			{
+			Primer p=new Primer();
+			p.sequence="ataTAAATTA";
+			p.name="apa";
+			p.targetPosition=40;
+			p.orientation=Orientation.FORWARD;
+			seq.primers.add(p);
+			}*/
+
+		//Pre-evaluate all primers
+		listeval.clear();
+		for(Primer p:seq.primers)
+			listeval.add(new EvalPrimer(p, seq));
 		}
 	
+	
+	/**
+	 * 
+	 * Evaluated primer
+	 * 
+	 */
+	public static class EvalPrimer
+		{
+		String corrsequence;
+		String rotsequence;
+		Primer p;
+		SequenceRange r;
+		public EvalPrimer(Primer p, AnnotatedSequence seq)
+			{
+			this.p=p;
+			
+			r=p.getRange();
+			corrsequence=seq.getSequence(r);
+			rotsequence=p.sequence;
+			
+			if(p.orientation==Orientation.REVERSE)
+				{
+				corrsequence=NucleotideUtil.complement(corrsequence);
+				rotsequence=NucleotideUtil.reverse(rotsequence);
+				}
+			}
+		
+		public int getLeftAnchor()
+			{
+			return r.from;
+			}
+		
+		public boolean corresponds(int i)
+			{
+			return corrsequence.charAt(i)==rotsequence.charAt(i);
+			}
+
+		public boolean overlaps(AnnotatedSequence seq, int cposLeft, int cposRight)
+			{
+			return r.intersects(seq, cposLeft, cposRight);
+			}
+
+		public int getRightAnchor()
+			{
+			return r.to;
+			}
+		
+		}
+	
+	
+
+	
+
+	/**
+	 * Place primers
+	 */
 	public int place(QGraphicsScene scene, int currentY, int cposLeft, int cposRight)
 		{
-		QFont font=new QFont();
-		font.setPointSize(10);
-		font.setItalic(true);
-
-		double charWidth=view.charWidth;
-		double charHeight=font.pointSizeF();
 		AnnotatedSequence seq=view.getSequence();
-		
-		//////////////////////////////////////////////// Place primers
-		int primerh=0;
 		LinkedList<QRectF> prevprimerplaced=new LinkedList<QRectF>();
-		double oneprimerh=charHeight*1.7;
-		for(Primer p:seq.primers)
+		double maxy=currentY;
+		for(EvalPrimer ep:listeval)
 			{
-			if(p.targetPosition>=cposLeft && p.targetPosition<=cposRight)
+			if(ep.overlaps(seq, cposLeft, cposRight))
 				{
-				int basey=currentY;
-
-				double x1;
-				double x2=view.mapCharToX(p.targetPosition-cposLeft);
-				double x3;
-				int arrowsize=5;
-				double texty=basey-3;
-				if(p.orientation==Orientation.FORWARD)
-					{
-					x1=x2-charWidth*p.sequence.length();
-					x3=x2-arrowsize;
-					}
-				else //REVERSE
-					{
-					x1=x2+charWidth*p.sequence.length();
-					x3=x2+arrowsize;
-					}
-		
-				
-				//Initial placement of text
-				QGraphicsTextItem ptext=new QGraphicsTextItem();
-				ptext.setPlainText(p.name);
-				ptext.setFont(font);
-				if(p.orientation==Orientation.FORWARD)
-					ptext.setPos(x2-ptext.boundingRect().width()-arrowsize,texty);
-				else
-					ptext.setPos(x2+arrowsize,texty);
+				QGraphicsLinPrimerItem it=new QGraphicsLinPrimerItem();
+				it.cposLeft=cposLeft;
+				it.charHeight=Math.max(5,view.charWidth*1.7); 
+				it.currentY=currentY;
+				it.view=view;
+				it.ep=ep;
+				scene.addItem(it);
 
 				//Find suitable height for primer
-				QRectF thisbb=CircView.textBR(ptext);
-				double minx=Math.min(x1, x2);
-				double maxx=Math.max(x1, x2);
-				if(thisbb.left()>minx)
-					thisbb.setLeft(minx);
-				if(thisbb.right()<maxx)
-					thisbb.setRight(maxx);
-				int curprimerh=1;
+				QRectF thisbb=it.boundingRect();
 				retryplace: for(;;)
 					{
 					for(QRectF oldr:prevprimerplaced)
 						{
 						if(oldr.intersects(thisbb))
 							{
-							thisbb.adjust(0, oneprimerh, 0, oneprimerh);
-							texty+=oneprimerh;
-							ptext.setY(texty);
-							basey+=oneprimerh;
-							curprimerh+=1;
+							it.currentY+=thisbb.height();
+							thisbb.adjust(0, thisbb.height(), 0, thisbb.height());
 							continue retryplace;
 							}
 						}
 					prevprimerplaced.add(thisbb);
 					break;
 					}
-				if(curprimerh>primerh)
-					primerh=curprimerh;
-				primerPosition.put(p, thisbb);
-				
-				//Add arrow
-				QPainterPath pp=new QPainterPath();
-				pp.moveTo(x1, basey);
-				pp.lineTo(x2, basey);
-				pp.lineTo(x3, basey+arrowsize);
-				QGraphicsPathItem path=new QGraphicsPathItem();
-				path.setPath(pp);			
-				scene.addItem(ptext);
-				scene.addItem(path);
+				if(thisbb.bottom()>maxy)
+					maxy=thisbb.bottom();
+				primerPosition.put(thisbb, ep.p);
 				}
 			}
-		currentY+=primerh*oneprimerh+2;
-		return currentY;
+		return (int)maxy;
 		}
 
 
@@ -140,9 +160,9 @@ public class LinTrackPrimer implements LinTrack
 	 */
 	private Primer getPrimerAt(QPointF pos)
 		{
-		for(Primer p:primerPosition.keySet())
-			if(primerPosition.get(p).contains(pos))
-				return p;
+		for(QRectF bb:primerPosition.keySet())
+			if(bb.contains(pos))
+				return primerPosition.get(bb);
 		return null;
 		}
 

@@ -41,6 +41,7 @@ public class MenuPrimer extends QMenu
 			{
 			String tm=tryCalcTm(new CalcTmSanta98(), primer);
 		
+			addAction(primer.name);
 			addAction("Sequence: "+primer.sequence);
 			addAction("Tm: "+tm);
 			addSeparator();

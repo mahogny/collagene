@@ -29,7 +29,6 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 
 	public int cposLeft;
 	public int currentY;
-	//public int curline;
 	public ViewLinearSequence view;
 	
 	LinTrackSequence track;

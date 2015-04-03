@@ -127,5 +127,9 @@ public class Primer
 		{
 		targetPosition+=shift;
 		}
+	public int getLength()
+		{
+		return sequence.length();
+		}
 	
 	}

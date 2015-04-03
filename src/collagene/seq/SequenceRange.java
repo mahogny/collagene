@@ -155,4 +155,13 @@ public class SequenceRange
 		from+=featureshift;
 		to+=featureshift;
 		}
+	
+	
+	public boolean intersects(AnnotatedSequence seq, int left, int right)
+		{
+		if(from>to)
+			return new SequenceRange(0,to).intersects(seq, left, right) || new SequenceRange(from,seq.getLength()).intersects(seq, left, right);
+		else
+			return from<right && to>left;
+		}
 	}
