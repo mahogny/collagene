@@ -12,7 +12,6 @@ import collagene.gui.digest.SimulatedDigestWindow;
 import collagene.gui.qt.QTutil;
 import collagene.gui.resource.ImgResource;
 import collagene.gui.sequenceWindow.CollageneEvent;
-import collagene.gui.sequenceWindow.MenuSeqViewSettings;
 import collagene.gui.sequenceWindow.SequenceWindow;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
 import collagene.seq.AnnotatedSequence;
@@ -55,7 +54,8 @@ public class PaneEnzymeList extends QWidget
 	private QTableWidget tableAvailableEnzymes=new QTableWidget();
 
 	private QPushButton bMenu=new QPushButton(new QIcon(ImgResource.imgSettings),"");
-	private MenuSeqViewSettings menuSettings=new MenuSeqViewSettings();
+	private MenuViewSettingsRestrictionSite menuSettings=new MenuViewSettingsRestrictionSite();
+	
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
 	//private QGroupBox layInfo2=new QGroupBox("");
@@ -95,7 +95,7 @@ public class PaneEnzymeList extends QWidget
 			LinkedList<RestrictionSite> sites=seq.restrictionSites.get(enz);
 			if(sites==null)
 				sites=new LinkedList<RestrictionSite>();
-			if(menuSettings.allowsRestrictionSiteCount(enz, sites.size()))
+			if(menuSettings.getSettings().allowsRestrictionSiteCount(enz, sites.size()))
 				{
 				tableAvailableEnzymes.setRowCount(currow+1);
 				QTableWidgetItem it=QTutil.createReadOnlyItem(enz.name);

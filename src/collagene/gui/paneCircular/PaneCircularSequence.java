@@ -2,6 +2,7 @@ package collagene.gui.paneCircular;
 
 import collagene.gui.ProjectWindow;
 import collagene.gui.paneRestriction.EventSelectedRestrictionEnzyme;
+import collagene.gui.paneRestriction.MenuViewSettingsRestrictionSite;
 import collagene.gui.resource.ImgResource;
 import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.seq.AnnotatedSequence;
@@ -36,6 +37,8 @@ public class PaneCircularSequence extends QWidget
 	
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 	
+	public MenuViewSettingsRestrictionSite menuSettingsRS=new MenuViewSettingsRestrictionSite();
+
 	
 	public PaneCircularSequence(ProjectWindow pw)
 		{
@@ -61,7 +64,7 @@ public class PaneCircularSequence extends QWidget
 
 		//private CircViewSettings menuSettings=new CircViewSettings();
 		QMenu menu=new QMenu();
-		menu.addMenu(view.settings);
+		menu.addMenu(menuSettingsRS);
 		
 		bSettings.setMenu(menu);
 		bShowAll.clicked.connect(this,"actionShowAll()");
@@ -74,7 +77,7 @@ public class PaneCircularSequence extends QWidget
 		lay.setMargin(0);
 		setLayout(lay);
 
-		view.settings.signalSettingsChanged.connect(this,"updatecirc()");  //train wreck
+		menuSettingsRS.signalSettingsChanged.connect(this,"updatecirc()");  //train wreck
 		view.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 
 		view.movetoinstantaneous(
@@ -141,6 +144,7 @@ public class PaneCircularSequence extends QWidget
 	private int sliderRotateMul=1000;
 	public void updatecirc()
 		{
+		view.settings=menuSettingsRS.getSettings();
 		view.moveto(
 				sliderpantopos(),
 				sliderzoomtoscale());

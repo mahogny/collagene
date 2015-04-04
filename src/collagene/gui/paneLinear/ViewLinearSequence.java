@@ -10,9 +10,11 @@ import collagene.gui.paneLinear.tracks.LinTrackAnnotation;
 import collagene.gui.paneLinear.tracks.LinTrackPrimer;
 import collagene.gui.paneLinear.tracks.LinTrackSequence;
 import collagene.gui.paneLinear.tracks.LinTrackTraces;
+import collagene.gui.paneLinear.tracks.QGraphicsLinSeqPositionItem;
+import collagene.gui.paneRestriction.ViewSettingsRestrictionEnzymes;
 import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSelectedRegion;
-import collagene.gui.sequenceWindow.MenuSeqViewSettings;
+import collagene.gui.sequenceWindow.ViewSettingsSequence;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
 
@@ -48,7 +50,8 @@ public class ViewLinearSequence extends QGraphicsView
 	
 	private QTimer timerAnimation=new QTimer();
 	
-	public MenuSeqViewSettings settings=new MenuSeqViewSettings();
+	public ViewSettingsRestrictionEnzymes settingsRS=new ViewSettingsRestrictionEnzymes();
+	public ViewSettingsSequence settingsSeq=new ViewSettingsSequence();
 
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 
@@ -57,17 +60,20 @@ public class ViewLinearSequence extends QGraphicsView
 	private boolean isSelecting=false;
 
 	public int charsPerLine;
-	public int widthInChars=-1; //-1 means to choose automatically. 
-	public double charWidth;// set externally =10;
+//	public int widthInChars=-1; //-1 means to choose automatically. 
+	public double charWidth;// set externally;
 	
 	private boolean isEditable=true;
-	public boolean showPositionRuler=true;
+//	public boolean showPositionRuler=true;
 	private double currentMovetopos=0;
-	private boolean isFullsizeMode=false;
+	//private boolean isFullsizeMode=false;
 
+	private int showWidthInChars;
+	
 	public ProjectWindow w;
 
 	public LinkedList<LinTrack> tracks=new LinkedList<LinTrack>();
+
 
 	
 	public AnnotatedSequence getSequence()
@@ -228,21 +234,38 @@ public class ViewLinearSequence extends QGraphicsView
 		scene.clear();
 		
 		//Note - it is good to have a separate scene builder class, for making PDFs
-		if(isFullsizeMode)
+		if(settingsSeq.fullsize)
 			{
 			//Adapt to width
-			widthInChars=seq.getLength();
+	    setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);
+			//widthInChars=seq.getLength();
 			setMinimumWidth(0);
 			charsPerLine=(int)(1.1*seq.getLength());
+			showWidthInChars=charsPerLine;
 			charWidth=width()/(double)charsPerLine;
 			}
 		else
 			{
 			//Update how many chars fit on each line
-			charsPerLine=widthInChars;
-			if(charsPerLine==-1)
-				charsPerLine=80; //Try and figure out optimum?
-			setMinimumWidth((int)mapCharToX(charsPerLine)+100);    
+			if(settingsSeq.charsPerLine==-1 || settingsSeq.charsPerLine==-2)
+				{
+				//Never fullsize here
+				charsPerLine=seq.getLength()+10;
+				showWidthInChars=100;
+				setMinimumWidth((int)mapCharToX(showWidthInChars)+50);
+				setMaximumWidth((int)mapCharToX(showWidthInChars)+50);
+				//charsPerLine=80; //Try and figure out optimum?
+		    setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOn);
+				}
+			else
+				{
+				charsPerLine=settingsSeq.charsPerLine;
+				showWidthInChars=charsPerLine;
+		    setHorizontalScrollBarPolicy(ScrollBarPolicy.ScrollBarAlwaysOff);
+				setMinimumWidth((int)mapCharToX(showWidthInChars)+50);
+				setMaximumWidth((int)mapCharToX(showWidthInChars)+50);
+				}
+			//charwidth set externally from pane. bad?
 			}
 
 
@@ -274,7 +297,7 @@ public class ViewLinearSequence extends QGraphicsView
 		
 		//Update view size
 		setSceneRect(0, 0, mapCharToX(charsPerLine)+30, currentY+50);
-		
+				
 		selectionItems.clear();
 		updateSelectionGraphics();
 		}	
@@ -443,14 +466,6 @@ public class ViewLinearSequence extends QGraphicsView
 			track.handleEvent(ob);
 		}
 
-
-	/**
-	 * Set if it should be in full size mode or not
-	 */
-	public void setFullsizeMode(boolean b)
-		{
-		isFullsizeMode=b;
-		}
 
 	public void setEditable(boolean b)
 		{

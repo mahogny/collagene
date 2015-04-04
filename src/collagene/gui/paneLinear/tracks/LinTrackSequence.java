@@ -88,7 +88,7 @@ public class LinTrackSequence implements LinTrack
 		for(RestrictionEnzyme enz:seq.restrictionSites.keySet())
 			{
 			Collection<RestrictionSite> sites=seq.restrictionSites.get(enz);
-			if(view.settings.allowsRestrictionSiteCount(enz,sites.size()) || selectedEnz.enzymes.contains(enz))
+			if(view.settingsRS.allowsRestrictionSiteCount(enz,sites.size()) || selectedEnz.enzymes.contains(enz))
 				{
 				for(RestrictionSite site:sites)
 					if(site.cuttingUpperPos>=cposLeft && site.cuttingUpperPos<=cposRight)

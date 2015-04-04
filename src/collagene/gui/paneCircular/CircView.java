@@ -11,12 +11,12 @@ import java.util.LinkedList;
 
 import collagene.gui.ProjectWindow;
 import collagene.gui.paneRestriction.EventSelectedRestrictionEnzyme;
+import collagene.gui.paneRestriction.ViewSettingsRestrictionEnzymes;
 import collagene.gui.qt.QTutil;
 import collagene.gui.sequenceWindow.CollageneEvent;
 import collagene.gui.sequenceWindow.EventSelectedAnnotation;
 import collagene.gui.sequenceWindow.EventSelectedRegion;
 import collagene.gui.sequenceWindow.MenuAnnotation;
-import collagene.gui.sequenceWindow.MenuSeqViewSettings;
 import collagene.primer.Primer;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
 import collagene.seq.AnnotatedSequence;
@@ -95,7 +95,7 @@ public class CircView extends QGraphicsView
 	private Collection<QGraphicsEllipseItem> selectionItems=new LinkedList<QGraphicsEllipseItem>();
 	private SequenceRange selection=null;
 
-	public MenuSeqViewSettings settings=new MenuSeqViewSettings();
+	public ViewSettingsRestrictionEnzymes settings=new ViewSettingsRestrictionEnzymes();
 	
 	
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();

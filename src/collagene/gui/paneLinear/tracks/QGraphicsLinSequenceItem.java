@@ -76,7 +76,7 @@ public class QGraphicsLinSequenceItem extends QGraphicsRectItem
 
 			painter.setPen(penOK);
 			painter.setFont(fontSequence);
-			if(view.settings.showSkyline)
+			if(view.settingsSeq.showSkyline)
 				{
 				double w=fontSequence.pointSizeF();
 				double h=fontSequence.pointSizeF()*1.5;

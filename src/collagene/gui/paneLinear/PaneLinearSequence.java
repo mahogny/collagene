@@ -1,8 +1,11 @@
 package collagene.gui.paneLinear;
 
 import collagene.gui.ProjectWindow;
+import collagene.gui.paneRestriction.MenuViewSettingsRestrictionSite;
 import collagene.gui.resource.ImgResource;
 import collagene.gui.sequenceWindow.CollageneEvent;
+import collagene.gui.sequenceWindow.MenuViewSettingsSequence;
+import collagene.gui.sequenceWindow.ViewSettingsSequence;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
 
@@ -13,6 +16,7 @@ import com.trolltech.qt.gui.QIcon;
 import com.trolltech.qt.gui.QLabel;
 import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QPushButton;
+import com.trolltech.qt.gui.QSizePolicy.Policy;
 import com.trolltech.qt.gui.QSlider;
 import com.trolltech.qt.gui.QVBoxLayout;
 import com.trolltech.qt.gui.QWidget;
@@ -31,9 +35,13 @@ public class PaneLinearSequence extends QWidget
 	private QSlider sliderZoom=new QSlider(Orientation.Horizontal);
 	private QPushButton bSettings=new QPushButton(new QIcon(ImgResource.imgSettings), "");
 	private QLabel labelZoom=ImgResource.label(ImgResource.search);
+	private QLabel labelEmpty=new QLabel("");
 	
 	private ViewLinearSequence view;
-	
+
+	public MenuViewSettingsRestrictionSite menuSettingsRS=new MenuViewSettingsRestrictionSite();
+	public MenuViewSettingsSequence menuSettingsSeq=new MenuViewSettingsSequence();
+
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
 
 	
@@ -48,13 +56,18 @@ public class PaneLinearSequence extends QWidget
 		sliderZoom.setValue(0);
 		sliderZoom.valueChanged.connect(this,"updateview()");
 		
+		labelEmpty.setSizePolicy(Policy.Expanding, Policy.Minimum);
+		
 		QHBoxLayout laycirc=new QHBoxLayout();
+		laycirc.addWidget(labelEmpty);
 		laycirc.addWidget(labelZoom);
 		laycirc.addWidget(sliderZoom);
 		laycirc.addWidget(bSettings);
 		laycirc.setMargin(0);
 
-		menuSettings.addMenu(view.settings);
+
+		menuSettings.addMenu(menuSettingsRS);
+		menuSettings.addMenu(menuSettingsSeq);
 		
 		bSettings.setMenu(menuSettings);
 
@@ -64,7 +77,8 @@ public class PaneLinearSequence extends QWidget
 		lay.setMargin(0);
 		setLayout(lay);
 
-		view.settings.signalSettingsChanged.connect(this,"updateview()");  //train wreck
+		menuSettingsRS.signalSettingsChanged.connect(this,"updateview()"); 
+		menuSettingsSeq.signalSettingsChanged.connect(this,"updateview()"); 
 		view.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 		
 		updateview();
@@ -79,8 +93,16 @@ public class PaneLinearSequence extends QWidget
 	
 	public void updateview()
 		{
+		view.settingsRS=menuSettingsRS.getSettings();
+		view.settingsSeq=menuSettingsSeq.getSettings();
 		view.charWidth=8+(sliderZoom.value()/(double)sliderZoom.maximum())*10;
 		setSequence(view.getSequence()); //cruel
+		
+		ViewSettingsSequence ss=menuSettingsSeq.getSettings();
+		sliderZoom.setVisible(!ss.fullsize);
+		labelZoom.setVisible(!ss.fullsize); 
+		labelEmpty.setVisible(ss.fullsize); 
+		//view.setFullsizeMode(ss.fullsize);
 		}
 
 	public void setSequence(AnnotatedSequence seq)
@@ -106,12 +128,9 @@ public class PaneLinearSequence extends QWidget
 		view.handleEvent(ob);
 		}
 	
-	
 	public void setFullsizeMode(boolean b)
 		{
-		sliderZoom.setVisible(!b); //or? just have a full size?
-		labelZoom.setVisible(!b); //or? just have a full size?
-		view.setFullsizeMode(b);
+		menuSettingsSeq.setFullsizeMode(b);
 		}
 
 

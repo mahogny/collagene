@@ -1,5 +1,6 @@
-package collagene.gui.paneLinear;
+package collagene.gui.paneLinear.tracks;
 
+import collagene.gui.paneLinear.ViewLinearSequence;
 import collagene.seq.AnnotatedSequence;
 
 import com.trolltech.qt.core.QPointF;
@@ -23,9 +24,9 @@ public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 	{
 	public AnnotatedSequence seq;
 	
-	int currentY;
-	int curline;
-	ViewLinearSequence view;
+	public int currentY;
+	public int curline;
+	public ViewLinearSequence view;
 
 	int fontsize=8;
 	
@@ -41,7 +42,7 @@ public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 		int currentY=this.currentY;
 		
 		//Draw positions next
-		if(view.showPositionRuler)
+		if(view.settingsSeq.showPositionRuler)
 			{
 			QPen pen=new QPen();
 			pen.setColor(QColor.fromRgb(0,0,0));
@@ -55,7 +56,9 @@ public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 			int skippos;
 			if(view.charsPerLine<=100)
 				skippos=20;
-			else if(view.charsPerLine<=200)
+			else if(view.charsPerLine<=160)
+				skippos=40;
+			else if(view.charsPerLine<=500)
 				skippos=50;
 			else if(view.charsPerLine<=1000)
 				skippos=100;
@@ -91,7 +94,7 @@ public class QGraphicsLinSeqPositionItem extends QGraphicsRectItem
 	public QRectF boundingRect()
 		{
 		double h=0;
-		if(view.showPositionRuler)
+		if(view.settingsSeq.showPositionRuler)
 			h+=10+fonth();
 		return new QRectF(0,currentY, 100000, h);
 		}
