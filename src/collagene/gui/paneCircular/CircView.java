@@ -20,7 +20,6 @@ import collagene.gui.sequenceWindow.MenuAnnotation;
 import collagene.primer.Primer;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
 import collagene.seq.AnnotatedSequence;
-import collagene.seq.Orientation;
 import collagene.seq.RestrictionSite;
 import collagene.seq.SeqAnnotation;
 import collagene.seq.SequenceRange;
@@ -38,12 +37,10 @@ import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QFontMetricsF;
 import com.trolltech.qt.gui.QGraphicsEllipseItem;
 import com.trolltech.qt.gui.QGraphicsLineItem;
-import com.trolltech.qt.gui.QGraphicsPathItem;
 import com.trolltech.qt.gui.QGraphicsScene;
 import com.trolltech.qt.gui.QGraphicsTextItem;
 import com.trolltech.qt.gui.QGraphicsView;
 import com.trolltech.qt.gui.QMouseEvent;
-import com.trolltech.qt.gui.QPainterPath;
 import com.trolltech.qt.gui.QPen;
 import com.trolltech.qt.gui.QResizeEvent;
 import com.trolltech.qt.gui.QSizePolicy;
@@ -51,6 +48,7 @@ import com.trolltech.qt.gui.QTransform;
 
 
 /**
+ * 
  * Display sequence as a circular plasmid
  * 
  * @author Johan Henriksson
@@ -365,65 +363,13 @@ public class CircView extends QGraphicsView
 		addsceneAnnotation();
 		
 		//Add all primers
-		QPen penPrimer=new QPen();
-		penPrimer.setColor(QColor.blue);
-		double fzoom=getFeatureZoom();
 		for(Primer p:seq.primers)
 			{
-			double pdist=plasmidRadius*0.015/fzoom;
-			double primerRadius=plasmidRadius;
-			if(p.orientation==Orientation.FORWARD)
-				primerRadius+=pdist;
-			else
-				primerRadius-=pdist;
-			
-			SequenceRange r=p.getRange().toNormalizedRange(seq);
-			
-			double rfrom=r.from/(double)seq.getLength();
-			double rto=  r.to  /(double)seq.getLength();
-			
-			int numstep=10;
-			QPainterPath poly=new QPainterPath();
-			//Reverse arrow
-			if(p.orientation==Orientation.REVERSE)
-				{
-				double primerRadius2=primerRadius-pdist;
-				double ang=rfrom+circPan+pdist/(primerRadius2*2*Math.PI);
-				double x=Math.cos(Math.PI*2*ang)*primerRadius2;
-				double y=Math.sin(Math.PI*2*ang)*primerRadius2;
-				poly.moveTo(x, y);
-				}
-			else
-				{
-				double ang=rfrom+circPan;
-				double x=Math.cos(Math.PI*2*ang)*primerRadius;
-				double y=Math.sin(Math.PI*2*ang)*primerRadius;
-				poly.moveTo(x, y);
-				}
-			//Midsegments
-			for(int i=0;i<=numstep;i++)
-				{
-				double ang=(rto-rfrom)*i/(double)numstep+circPan+rfrom;
-				double x=Math.cos(Math.PI*2*ang)*primerRadius;
-				double y=Math.sin(Math.PI*2*ang)*primerRadius;
-				poly.lineTo(x, y);
-				}
-			//Forward arrow
-			if(p.orientation==Orientation.FORWARD)
-				{
-				double primerRadius2=primerRadius+pdist;
-				double ang=rto+circPan-pdist/(primerRadius2*2*Math.PI);
-				double x=Math.cos(Math.PI*2*ang)*primerRadius2;
-				double y=Math.sin(Math.PI*2*ang)*primerRadius2;
-				poly.lineTo(x, y);
-				}
-			QGraphicsPathItem item=new QGraphicsPathItem();
-			item.setPath(poly);
-			item.setPen(penPrimer);
-			scene.addItem(item);
+			QGraphicsCircPrimer itemprim=new QGraphicsCircPrimer();
+			itemprim.view=this;
+			itemprim.p=p;
+			scene.addItem(itemprim);
 			}
-			
-		
 		
 		//Find restriction sites to draw
 		ArrayList<RestrictionSite> totSites=new ArrayList<RestrictionSite>(200);
