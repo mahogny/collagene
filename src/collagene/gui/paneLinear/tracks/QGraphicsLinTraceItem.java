@@ -7,6 +7,7 @@ import collagene.seq.AnnotatedSequence;
 
 import com.trolltech.qt.core.QPointF;
 import com.trolltech.qt.core.QRectF;
+import com.trolltech.qt.gui.QBrush;
 import com.trolltech.qt.gui.QColor;
 import com.trolltech.qt.gui.QFont;
 import com.trolltech.qt.gui.QGraphicsRectItem;
@@ -42,8 +43,9 @@ public class QGraphicsLinTraceItem extends QGraphicsRectItem
 		}
 
 	
-	public double mapPeakY(double level)
+	public double mapPeakY(int index, double level)
 		{
+		level/=trace.getLocalAverage(index);
 		double v=Math.min(dispHeight,level*scaleY);
 		double y=baseY-v;
 		return y;
@@ -65,13 +67,16 @@ public class QGraphicsLinTraceItem extends QGraphicsRectItem
 		{
 		int charsPerLine=view.charsPerLine;
 
-		SequenceTrace st=trace.trace;
+		SequenceTrace st=trace.getTrace();
 		
 		QFont fontMismatch=new QFont(fontSequence);
 		fontMismatch.setBold(true);
 		QPen penText=new QPen();
 //		QPen penMismatch=new QPen();
 	//	penMismatch.setColor(QColor.fromRgb(255, 0, 0));
+		
+		QBrush brushPhred=new QBrush(QColor.darkGray);
+		QBrush brushNone=new QBrush(QColor.transparent);
 		
 		QPen penBaseline=new QPen();
 		penBaseline.setColor(QColor.lightGray);
@@ -87,14 +92,20 @@ public class QGraphicsLinTraceItem extends QGraphicsRectItem
 		dispHeight=150;
 		baseY=currentY+20+dispHeight;
 		scaleX=st.getNumBases()/(double)lastPeakIndex;
-		scaleY=0.03;
+		scaleY=50;
 
+		double phredheight=20;
+		
+		double texty=currentY+fonth()+phredheight;
+		double phredy=currentY+phredheight;
+		
 		//Draw aligned text on top
 		painter.setFont(fontSequence);
+		painter.setBrush(brushPhred);
 		for(int i=0;i<charsPerLine;i++)
 			{
 			int index=cposLeft+i-trace.from;
-			if(index>=0 && index<trace.trace.getNumBases())
+			if(index>=0 && index<st.getNumBases())
 				{
 				int cpos=cposLeft + i;
 				if(cpos>=seq.getLength())
@@ -102,26 +113,31 @@ public class QGraphicsLinTraceItem extends QGraphicsRectItem
 				
 				SequenceTraceBaseCall cb=st.basecalls.get(index);
 
+				
 				//Draw base
-				double y1=currentY+fonth();
 				double x=view.mapCharToX(i);
+				double xrect1=x+1;
+				double xrect2=view.mapCharToX(i+1)-1;
 				painter.setPen(penText);
-				painter.drawText(new QPointF(x, y1), ""+cb.base);
+				painter.drawText(new QPointF(x, texty), ""+cb.base);
+
+				//Draw phred
+				painter.drawRect(new QRectF(xrect1,phredy,xrect2-xrect1,-cb.getProb()*phredheight/trace.maxProb));
 				
 				//Draw line down to peak
 				double x1=x+view.charWidth/3;
 				double x2=mapPeakX(cb.peakIndex);
-				double liney=mapPeakY(st.getMaxLevel(cb.peakIndex)-1);
+				double liney=mapPeakY(cb.peakIndex, st.getMaxLevel(cb.peakIndex))-1;
 				painter.setPen(penBaseline);
 				painter.drawLine(
-						new QPointF(x1,y1), 
+						new QPointF(x1,texty), 
 						new QPointF(x2,liney));
 				}
 			}
 		
 		//Colors for each base
 		QColor[] colorACGT=new QColor[]{
-				QColor.green,
+				QColor.darkGreen,
 				QColor.blue,
 				QColor.black,
 				QColor.red
@@ -132,6 +148,7 @@ public class QGraphicsLinTraceItem extends QGraphicsRectItem
 		painter.drawLine(
 				new QPointF(view.mapCharToX(seqletterFrom),baseY),
 				new QPointF(view.mapCharToX(seqletterTo),baseY));
+		painter.setBrush(brushNone);
 		for(int curcol=0;curcol<4;curcol++)
 			{
 			char[] letters=new char[]{'A','C','G','T'};
@@ -143,7 +160,7 @@ public class QGraphicsLinTraceItem extends QGraphicsRectItem
 			int levelto=Math.min((int)((traceletterTo+1)/scaleX),st.getLevelLength());
 			for(int i=levelfrom;i<levelto;i++)
 				{
-				double y=mapPeakY(level[i]);
+				double y=mapPeakY(i, level[i]);
 				double x=mapPeakX(i);
 				if(first)
 					path.moveTo(x,y);

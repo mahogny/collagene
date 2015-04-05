@@ -95,7 +95,7 @@ release: macport linuxport winport #docs
 	rm -f ../release/collagene*zip 
 	cd ../release/linux64; zip -r ../collagene_linux64.zip  collagene
 	cd ../release/linux32; zip -r ../collagene_linux32.zip  collagene
-	cd ports; zip -r ../../release/docs.zip            documentation
+	#cd ports; zip -r ../../release/docs.zip            documentation
 	cd .. ; cp -f src/collagene/gui/version.txt release/qtversion.txt
 
 cleanports:

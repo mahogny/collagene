@@ -7,12 +7,11 @@ package collagene.io.trace;
  */
 public class SequenceTraceBaseCall
 	{
-	//Probabilities: 0-8, with 9 being manually edited. Higher is better
 	public int peakIndex;
 	public int pA, pC, pG, pT;
 	public char base;
 	
-	public int getProbLetter()
+	public int getProb()
 		{
 		if(base=='A')
 			return pA;
@@ -25,5 +24,6 @@ public class SequenceTraceBaseCall
 		else
 			return 0;
 		}
+
 	
 	}

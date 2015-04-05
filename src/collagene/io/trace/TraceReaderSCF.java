@@ -1,10 +1,14 @@
 package collagene.io.trace;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.StringTokenizer;
+
+import collagene.util.ByteArray;
 
 /**
  * 
@@ -15,22 +19,20 @@ import java.util.StringTokenizer;
  * @author Johan Henriksson
  *
  */
-public class ScfFile
+public class TraceReaderSCF implements TraceReader
 	{
 	private static class Header
 		{
 		//note that all int should be unsigned int
-	  int magic_number;
+	  int magicNumber;
 	  int samples;          /* Number of elements in Samples matrix */
-	  int samples_offset;   /* Byte offset from start of file */
+	  int samplesOffset;   /* Byte offset from start of file */
 	  int bases;            /* Number of bases in Bases matrix */
-	  //int bases_left_clip;  /* OBSOLETE: No. bases in left clip (vector) */
-	  //int bases_right_clip; /* OBSOLETE: No. bases in right clip (qual) */
-	  int bases_offset;     /* Byte offset from start of file */
-	  int comments_size;    /* Number of bytes in Comment section */
-	  int comments_offset;  /* Byte offset from start of file */
+	  int basesOffset;     /* Byte offset from start of file */
+	  int commentsSize;    /* Number of bytes in Comment section */
+	  int commentsOffset;  /* Byte offset from start of file */
 	  String version;//[4];         /* "version.revision", eg '3' '.' '0' '0' */
-	  int sample_size;      /* Size of samples in bytes 1=8bits, 2=16bits*/
+	  int sampleSize;      /* Size of samples in bytes 1=8bits, 2=16bits*/
 	  //int code_set;         /* code set used (but ignored!)*/
 	  //int private_size;     /* No. of bytes of Private data, 0 if none */
 	  //int private_offset;   /* Byte offset from start of file */
@@ -39,23 +41,23 @@ public class ScfFile
 	  
 	  public void parse(DataInputStream is) throws IOException
 	  	{
-	  	magic_number=is.readInt();
+	  	magicNumber=is.readInt();
 	  	
 	  	long SCF_MAGIC=('.'<<24) + ('s'<<16) + ('c'<<8) + ('f');
-	  	if(magic_number!=SCF_MAGIC)
+	  	if(magicNumber!=SCF_MAGIC)
 	  		throw new IOException("Not an SCF file");
 	
 	  	
 	  	samples=is.readInt();
-	  	samples_offset=is.readInt();
+	  	samplesOffset=is.readInt();
 	  	bases=is.readInt();
 	  	/*bases_left_clip=*/is.readInt();
 	  	/*bases_right_clip=*/is.readInt();
-	  	bases_offset=is.readInt();
-	  	comments_size=is.readInt();
-	  	comments_offset=is.readInt();
+	  	basesOffset=is.readInt();
+	  	commentsSize=is.readInt();
+	  	commentsOffset=is.readInt();
 	  	version=readChars(is, 4);
-	  	sample_size=is.readInt();
+	  	sampleSize=is.readInt();
 	  	/*code_set=*/is.readInt();
 	  	/*private_size=*/is.readInt();
 	  	/*private_offset=*/is.readInt();
@@ -64,11 +66,11 @@ public class ScfFile
 	  	
 	  	if(version.startsWith("1."))
 	  		{
-	  		sample_size=1; //Default value
+	  		sampleSize=1; //Default value
 	  		}
 	
-			if(sample_size!=1 && sample_size!=2)
-				throw new IOException("Unsupported sample size: "+sample_size);
+			if(sampleSize!=1 && sampleSize!=2)
+				throw new IOException("Unsupported sample size: "+sampleSize);
 	
 	  	versionF=Double.parseDouble(version);
 	  	}
@@ -83,8 +85,7 @@ public class ScfFile
 	 */
 	private static void readBasecalls(SequenceTrace trace, DataInputStream is, Header h) throws IOException
 		{
-		is.skip(h.bases_offset);
-		System.out.println("#bases "+h.bases);
+		is.skip(h.basesOffset);
 		
 		if(h.versionF<2.9)
 			{
@@ -157,19 +158,32 @@ public class ScfFile
 	
 	
 	/**
-	 * Read a given file
+	 * 
 	 */
-	public static SequenceTrace readFile(File f) throws IOException
+	public SequenceTrace readFile(InputStream is2) throws IOException
 		{
 		SequenceTrace trace=new SequenceTrace();
+		ByteArray ba=new ByteArray();
 		
-		DataInputStream is=new DataInputStream(new FileInputStream(f));
+		byte[] b=new byte[10240];
+		for(;;)
+			{
+			int len=is2.read(b);
+			if(len==-1)
+				break;
+			ba.add(b,len);
+			if(ba.size()>4000000)
+				throw new IOException("File seems too large for an SCF file");
+			//could instead first read header. check magic byte. then read the rest
+			}
+		
+		DataInputStream is=new DataInputStream(new ByteArrayInputStream(ba.getArray(),0,ba.size()));
 		Header h=new Header();
 		h.parse(is);
 		is.close();
 
-		is=new DataInputStream(new FileInputStream(f));
-		is.skip(h.samples_offset);
+		is=new DataInputStream(new ByteArrayInputStream(ba.getArray(),0,ba.size()));
+		is.skip(h.samplesOffset);
 		if(h.versionF < 2.9)
 			{
 			//Old format with ACGT-tuples
@@ -177,7 +191,7 @@ public class ScfFile
 			trace.levelC=new int[h.samples];
 			trace.levelG=new int[h.samples];
 			trace.levelT=new int[h.samples];
-			if (h.sample_size==1)
+			if (h.sampleSize==1)
 				{
 				for(int i=0;i<h.samples;i++)
 					{
@@ -187,7 +201,7 @@ public class ScfFile
 					trace.levelT[i]=is.readByte();
 					}
 				}
-			else if(h.sample_size==2)
+			else if(h.sampleSize==2)
 				{
 				for(int i=0;i<h.samples;i++)
 					{
@@ -201,22 +215,22 @@ public class ScfFile
 		else
 			{
 			//New delta-compressed format
-			trace.levelA=deltaSamples2(readIntegral(is, h.samples, h.sample_size), false);
-			trace.levelC=deltaSamples2(readIntegral(is, h.samples, h.sample_size), false);
-			trace.levelG=deltaSamples2(readIntegral(is, h.samples, h.sample_size), false);
-			trace.levelT=deltaSamples2(readIntegral(is, h.samples, h.sample_size), false);
+			trace.levelA=deltaSamples2(readIntegral(is, h.samples, h.sampleSize), false);
+			trace.levelC=deltaSamples2(readIntegral(is, h.samples, h.sampleSize), false);
+			trace.levelG=deltaSamples2(readIntegral(is, h.samples, h.sampleSize), false);
+			trace.levelT=deltaSamples2(readIntegral(is, h.samples, h.sampleSize), false);
 			}
 		is.close();
 		
 
 		//Read basecalls
-		is=new DataInputStream(new FileInputStream(f));
+		is=new DataInputStream(new ByteArrayInputStream(ba.getArray(),0,ba.size()));
 		readBasecalls(trace, is, h);
 		is.close();
 		
-		is=new DataInputStream(new FileInputStream(f));
-		is.skip(h.comments_offset);
-		String comments=readChars(is, h.comments_size);
+		is=new DataInputStream(new ByteArrayInputStream(ba.getArray(),0,ba.size()));
+		is.skip(h.commentsOffset);
+		String comments=readChars(is, h.commentsSize);
 		is.close();
 		StringTokenizer stok=new StringTokenizer(comments,"\n");
 		while(stok.hasMoreTokens())
@@ -227,11 +241,19 @@ public class ScfFile
 				trace.properties.put(line.substring(0,ind), line.substring(ind+1));
 			}
 		
-		
-		System.out.println(comments);
-		
-		
-		
+		System.out.println(trace.properties);
+
+		return trace;
+		}
+	
+	/**
+	 * Read a given file
+	 */
+	public SequenceTrace readFile(File f) throws IOException
+		{
+		FileInputStream is=new FileInputStream(f);
+		SequenceTrace trace=readFile(is);
+		is.close();
 		
 		return trace;
 		}
@@ -281,7 +303,7 @@ public class ScfFile
 
 	public static void main(String[] args) throws IOException
 		{
-		SequenceTrace f=readFile(new File("/home/mahogny/Dropbox/ebi/_my protocols/retrovirus/sangerseq/pbabe/T205_data_pbabe.w2kseq1.scf"));
+		SequenceTrace f=new TraceReaderSCF().readFile(new File("/home/mahogny/Dropbox/ebi/_my protocols/retrovirus/sangerseq/pbabe/T205_data_pbabe.w2kseq1.scf"));
 //		System.out.println(f.properties);
 		System.out.println("B:"+f.getCalledSequence());
 		}

@@ -12,6 +12,7 @@ import collagene.io.collagene.ImportOneXML;
 import collagene.io.input.ImportFASTA;
 import collagene.io.input.ImportGenbank;
 import collagene.io.input.ImportRawSequence;
+import collagene.io.input.ImportSeqTrace;
 import collagene.io.input.ImportXDNA;
 import collagene.io.output.ExportFASTA;
 import collagene.io.output.ExportGenbank;
@@ -36,6 +37,7 @@ public class SequenceFileHandlers
 		listImporters.add(new ImportGenbank());
 		listImporters.add(new ImportXDNA());
 		listImporters.add(new ImportOneXML());
+		listImporters.add(new ImportSeqTrace());
 		listImporters.add(new ImportRawSequence());
 		
 		//Exporters
@@ -120,6 +122,12 @@ public class SequenceFileHandlers
 		FileOutputStream fw=new FileOutputStream(f);
 		exporter.save(fw, list);
 		fw.close();
+		}
+
+
+	public static String getImportExtensions()
+		{
+		return "*.seqfile *.gb *.fasta *.xdna *.scf"; //seqfile??
 		}
 	
 	

@@ -392,7 +392,7 @@ public class ProjectWindow extends QMainWindow
 		QFileDialog dia=new QFileDialog();
 		dia.setFileMode(FileMode.ExistingFiles);
 		dia.setDirectory(lastDirectory.getAbsolutePath());
-		dia.setNameFilter(tr("Sequence files (*.seqfile *.gb *.fasta *.xdna)"));
+		dia.setNameFilter(tr("Sequence files ("+SequenceFileHandlers.getImportExtensions()+")"));
 		if(dia.exec()!=0)
 			{
 			try
