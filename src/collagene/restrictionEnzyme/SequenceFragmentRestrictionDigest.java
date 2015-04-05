@@ -36,7 +36,7 @@ public class SequenceFragmentRestrictionDigest implements SequenceFragment
 	
 	private boolean goesAround()
 		{
-		return getUpperFrom()>getUpperTo();
+		return getUpperFrom()>=getUpperTo();
 		}
 	
 	public int getUpperLength()
@@ -44,7 +44,10 @@ public class SequenceFragmentRestrictionDigest implements SequenceFragment
 		SequenceRange r=new SequenceRange();
 		r.from=getUpperFrom();
 		r.to=getUpperTo();
-		return r.getSize(origseq);
+		if(r.from==r.to)
+			return origseq.getLength();
+		else
+			return r.getSize(origseq);
 		}
 
 	
@@ -63,11 +66,16 @@ public class SequenceFragmentRestrictionDigest implements SequenceFragment
 
 		int featureshift=0;
 
+		System.out.println("goes around! "+goesAround());
 		if(goesAround())
 			{
 			//Pull out upper and lower rang separately
 			SequenceRange rangeUpper=new SequenceRange(fromSite.cuttingUpperPos, toSite.cuttingUpperPos);
 			SequenceRange rangeLower=new SequenceRange(fromSite.cuttingLowerPos, toSite.cuttingLowerPos);
+			if(rangeUpper.from==rangeUpper.to)
+				rangeUpper.to+=newseq.getLength();
+			if(rangeLower.from==rangeLower.to)
+				rangeLower.to+=newseq.getLength();
 			String supper=origseq.getSequence(rangeUpper);
 			String slower=origseq.getSequenceLower(rangeLower);
 

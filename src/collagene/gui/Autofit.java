@@ -45,16 +45,16 @@ public class Autofit
 		int maxlength=-1;
 		int maxind=-1;
 		for(int ind:scores.keySet())
-			if(scores.get(ind).matchLength()>maxlength)
+			if(scores.get(ind).getMatchLength()>maxlength)
 				{
-				maxlength=scores.get(ind).matchLength();
+				maxlength=scores.get(ind).getMatchLength();
 				maxind=ind; 
 				}
 		
 		SeqAnnotation ann=new SeqAnnotation();
 		PairwiseAlignment bestal=scores.get(maxind);
-		ann.range.from=bestal.startOfA();
-		ann.range.to=bestal.endOfA();
+		ann.range.from=bestal.getStartOfA();
+		ann.range.to=bestal.getEndOfA();
 		if(maxind==1 || maxind==3) //??
 			ann.orientation=Orientation.FORWARD;
 		else
@@ -67,7 +67,7 @@ public class Autofit
 	private PairwiseAlignment getal(AnnotatedSequence reference)
 		{
 		PairwiseAlignment al=new PairwiseAlignment();
-		al.isLocalA=true; //Later: try to fit all of B? or?
+		al.isLocalAlignment=true; //Later: try to fit all of B? or?
 		return al;
 		}
 	

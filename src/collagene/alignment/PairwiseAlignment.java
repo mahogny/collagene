@@ -3,6 +3,7 @@ package collagene.alignment;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import collagene.alignment.emboss.EmbossCost;
 import collagene.sequtil.NucleotideUtil;
 
 /**
@@ -16,8 +17,11 @@ import collagene.sequtil.NucleotideUtil;
  */
 public class PairwiseAlignment
 	{
-	public boolean isLocalA=true;
-	public boolean isLocalB=true;
+	public boolean isLocalAlignment=true;
+	public boolean canGoOutside=false;
+	public boolean includeAllA=false;
+	private boolean printMatrix=false;
+	
 	public AlignmentCostTable costtable=new AlignmentCostTable();
 	
 	public double penaltySkip   = -10;
@@ -25,8 +29,10 @@ public class PairwiseAlignment
 
 	public double bestCost;
 	
-	private static int TRAJ_LEFT=3, TRAJ_UP=1, TRAJ_MATCH=2, TRAJ_END=6;
+	private static byte TRAJ_LEFT=3, TRAJ_UP=1, TRAJ_MATCH=2, TRAJ_END=6;
 
+
+	
 	public String alignedSequenceA;
 	public String alignedSequenceB;
 
@@ -43,7 +49,7 @@ public class PairwiseAlignment
 		//Arrays are [a][b]
 		double cost[][];
 		int numskip[][];  // for extension costs
-		int traj[][];     // for simplicity, keep track of directions. strictly speaking not needed
+		byte traj[][];    // for simplicity, keep track of directions. strictly speaking not needed
 
 		//Convert strings into indices
 		int[] indA=costtable.indexOfChars(seqA);
@@ -51,7 +57,7 @@ public class PairwiseAlignment
 		
 		//Fill in borders
 		cost=new double[indA.length+1][indB.length+1];
-		traj=new int[indA.length+1][indB.length+1];
+		traj=new byte[indA.length+1][indB.length+1];
 		numskip=new int[indA.length+1][indB.length+1];
 
 		//TODO bug: numskip, depends on left/up. or?
@@ -59,13 +65,15 @@ public class PairwiseAlignment
 		//Fill in main table upper/left border
 		for(int i=0;i<seqA.length();i++)
 			{
-			if(!isLocalA)
+			numskip[i+1][0]=Math.max(0,i-1);
+			if(!canGoOutside)
 				cost[i+1][0]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
 			traj[i+1][0]=TRAJ_UP;
 			}
 		for(int i=0;i<seqB.length();i++)
 			{
-			if(!isLocalB)
+			numskip[0][i+1]=Math.max(0,i-1);
+			if(!canGoOutside)
 				cost[0][i+1]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
 			traj[0][i+1]=TRAJ_LEFT;
 			}
@@ -83,7 +91,15 @@ public class PairwiseAlignment
 				double costFromUp    = (numskip[mati-1][matj]==0 ? penaltySkip : penaltyExtend) + cost[mati-1][matj];
 				double costFromLeft  = (numskip[mati][matj-1]==0 ? penaltySkip : penaltyExtend) + cost[mati][matj-1];
 				double costFromMatch = costtable.cost[indA[i]][indB[j]] + cost[mati-1][matj-1];
-
+				if(canGoOutside)
+					{
+					if(i==seqA.length()-1)
+						costFromLeft=cost[mati][matj-1];
+					if(j==seqB.length()-1)
+						costFromUp=cost[mati-1][matj];
+					}
+				
+				
 				//Pick the smallest cost
 				if(costFromUp>costFromLeft)
 					{
@@ -117,7 +133,7 @@ public class PairwiseAlignment
 					}
 				
 				//The restart condition for local alignment
-				if((isLocalA || isLocalB) && cost[mati][matj]<0)
+				if((isLocalAlignment) && cost[mati][matj]<0)
 					{
 					traj[mati][matj]=TRAJ_END;
 					cost[mati][matj]=0;
@@ -130,7 +146,7 @@ public class PairwiseAlignment
 		int besti=0, bestj=0;
 		int fromi=0;
 		int fromj=0;
-		if(!isLocalA)
+		if(!isLocalAlignment)
 			{
 			fromi=seqA.length();
 			fromj=seqB.length();
@@ -139,8 +155,6 @@ public class PairwiseAlignment
 			{
 			for(int j=fromj;j<seqB.length()+1;j++)
 				{
-//				System.out.print("@ "+i+","+j+"   "+cost[i][j]+"\t");
-//				System.out.print(cost[i][j]+"\t");
 				if(cost[i][j]>bestcost)
 					{
 					bestcost=cost[i][j];
@@ -148,9 +162,44 @@ public class PairwiseAlignment
 					bestj=j;
 					}
 				}
-			System.out.println();
 			}
-		System.out.println("best cost "+bestcost);
+		
+		//Print matrix if requested
+		if(printMatrix)
+			{
+			System.out.println();
+			System.out.print("\t\t");
+			for(int j=0;j<seqB.length();j++)
+				System.out.print(seqB.charAt(j)+"\t");
+			System.out.println();
+			for(int i=0;i<seqA.length()+1;i++)
+				{
+				if(i==0)
+					System.out.print("\t");
+				else
+					System.out.print(seqA.charAt(i-1)+"\t");
+				for(int j=0;j<seqB.length()+1;j++)
+					System.out.print(trajToString(traj[i][j])+"\t");
+				System.out.println();
+				}
+			System.out.println();
+			System.out.print("\t\t");
+			for(int j=0;j<seqB.length();j++)
+				System.out.print(seqB.charAt(j)+"\t");
+			System.out.println();
+			for(int i=0;i<seqA.length()+1;i++)
+				{
+				if(i==0)
+					System.out.print("\t");
+				else
+					System.out.print(seqA.charAt(i-1)+"\t");
+				for(int j=0;j<seqB.length()+1;j++)
+					System.out.print(cost[i][j]+"\t");
+				System.out.println();
+				}
+			System.out.println("best cost "+bestcost+"  from  "+besti+"  "+bestj);
+			}
+
 		this.bestCost=bestcost;
 		
 		//Traverse back to find alignment
@@ -161,10 +210,8 @@ public class PairwiseAlignment
 
 		int mati=besti;
 		int matj=bestj;
-//		System.out.println("traj "+mati+"   "+matj+"   "+traj[mati][matj]);
 		while(!(mati==0 && matj==0)) //correct?
 			{
-	//		System.out.println("traj "+mati+"   "+matj+"   "+traj[mati][matj]);
 			if(traj[mati][matj]==TRAJ_MATCH)
 				{
 				sbA.append(seqA.charAt(mati-1));
@@ -206,7 +253,7 @@ public class PairwiseAlignment
 
 		//If the alignment is only partially local, add missing letters for the other sequence.
 		//It went from (besti,bestj) to (mati,matj)
-		if(!isLocalA)
+		if(includeAllA)
 			{
 			//Include the full A
 			alignedSequenceA=seqA.substring(0,mati) + alignedSequenceA + seqA.substring(besti,seqA.length());
@@ -223,8 +270,6 @@ public class PairwiseAlignment
 				}
 			}
 		
-		//TODO
-		
 		}
 	
 	
@@ -234,9 +279,23 @@ public class PairwiseAlignment
 		{
 		
 		PairwiseAlignment al=new PairwiseAlignment();
-		
+		al.costtable=EmbossCost.tableBlosum62;
+		al.isLocalAlignment=false;
+		al.canGoOutside=true;
+		al.penaltySkip=-10;
+		al.printMatrix=true;
 //		al.align("aabccca", "abcccbbb");
-		al.align("attcccacct".toUpperCase(), "ttccccct".toUpperCase());
+//		al.align("attcccacct".toUpperCase(), "ttccccct".toUpperCase());
+
+		//Problematic case for regular global alignment
+		String seq1="AAGCCACTACCT";
+		String seq2= "AGCCAC";
+		System.out.println(seq1.length());
+		System.out.println(seq2.length());
+		seq1=NucleotideUtil.normalize(seq1);
+		seq2=NucleotideUtil.normalize(seq2);
+	
+		al.align(seq1, seq2);
 
 		System.out.println(al.alignedSequenceA);
 		System.out.println(al.alignedSequenceB);
@@ -248,21 +307,28 @@ public class PairwiseAlignment
 
 
 
-
-	public int matchLength()
+	/**
+	 * Get the length of the match
+	 */
+	public int getMatchLength()
 		{
 		return alignedSequenceA.length();
 		}
 
 
 
-
-	public int startOfB()
+	/**
+	 * Get the start index of B
+	 */
+	public int getStartOfB()
 		{
 		return alignedIndexB.get(0);
 		}
 
-	public int endOfB()
+	/**
+	 * Get the end index of B
+	 */
+	public int getEndOfB()
 		{
 		return alignedIndexB.get(alignedIndexB.size()-1);
 		}
@@ -270,13 +336,36 @@ public class PairwiseAlignment
 
 
 
-	public int startOfA()
+	/**
+	 * Get the start index of A
+	 */
+	public int getStartOfA()
 		{
 		return alignedIndexA.get(0);
 		}
 
-	public int endOfA()
+	/**
+	 * Get the end index of A
+	 */
+	public int getEndOfA()
 		{
 		return alignedIndexA.get(alignedIndexA.size()-1);
+		}
+	
+	/**
+	 * Format trajectory as string
+	 */
+	public String trajToString(int t)
+		{
+		if(t==TRAJ_LEFT)
+			return "LEFT";
+		else if(t==TRAJ_MATCH)
+			return "MATCH";
+		else if(t==TRAJ_UP)
+			return "UP";
+		else if(t==TRAJ_END)
+			return "END";
+		else
+			return "N/A";
 		}
 	}

@@ -25,8 +25,9 @@ public class AnnotatedSequenceAlignment
 
 	public AlignmentCostTable costtable=EmbossCost.tableBlosum62;
 
-	public boolean isLocalA=false;
-	public boolean isLocalB=true;
+	public boolean isLocal=false;
+	public boolean canGoOutside=true;
+	public boolean includeAllA=false;
 	
 	public void align(AnnotatedSequence seqA, AnnotatedSequence seqB)
 		{
@@ -39,11 +40,12 @@ public class AnnotatedSequenceAlignment
 		
 		PairwiseAlignment alB=new PairwiseAlignment();
 		PairwiseAlignment alC=new PairwiseAlignment();
-		alB.isLocalA=isLocalA;
-		alC.isLocalA=isLocalA;
-		alB.isLocalB=isLocalB;
-		alC.isLocalB=isLocalB;
-		
+		alB.isLocalAlignment=isLocal;
+		alC.isLocalAlignment=isLocal;
+		alB.canGoOutside=canGoOutside;
+		alC.canGoOutside=canGoOutside;
+		alB.includeAllA=includeAllA;
+		alC.includeAllA=includeAllA;
 		
 		alB.costtable=costtable;
 		alC.costtable=costtable;
@@ -71,12 +73,12 @@ public class AnnotatedSequenceAlignment
 	
 		alSeqA=new AnnotatedSequence(seqA);
 		alSeqA.setSequence(bestal.alignedSequenceA);
-		if(!isLocalA)
+		if(!isLocal)
 			alSeqA.isCircular=seqA.isCircular;
 		
 		alSeqB=new AnnotatedSequence(seqB);
 		alSeqB.setSequence(bestal.alignedSequenceB);
-		if(!isLocalB)
+		if(!isLocal)
 			alSeqB.isCircular=seqB.isCircular;
 		
 		shiftFeatures(alSeqA, computeCumulativeGaps(moveFeaturesByGaps(bestal.alignedSequenceA)));

@@ -123,7 +123,6 @@ public class FitAnnotationWindow extends QDialog
 		LinkedList<OneAnnotation> list=new LinkedList<FitAnnotationWindow.OneAnnotation>();
 		for(QModelIndex ind:tableAnnot.selectionModel().selectedRows())
 			list.add((OneAnnotation)tableAnnot.item(ind.row(),0).data(Qt.ItemDataRole.UserRole));
-		System.out.println(list);
 		
 		
 		AnnotatedSequence seqA=sw.getSequence();
@@ -131,7 +130,7 @@ public class FitAnnotationWindow extends QDialog
 			{
 			//Get sequence normalized to forward orientation
 			AnnotatedSequence seqB=new AnnotatedSequence();
-			Orientation or=Orientation.FORWARD;
+			Orientation orientation=Orientation.FORWARD;
 			SeqAnnotation prevannot=new SeqAnnotation();
 			prevannot.color=ColorSet.colorset.getRandomColor();
 			prevannot.name=annot.seq.name;
@@ -142,7 +141,7 @@ public class FitAnnotationWindow extends QDialog
 					seq=NucleotideUtil.revcomplement(seq);
 				seqB.setSequence(seq);
 				if(annot.annot.orientation==Orientation.NOTORIENTED)
-					or=Orientation.NOTORIENTED;
+					orientation=Orientation.NOTORIENTED;
 				prevannot=annot.annot;
 				}
 			else
@@ -152,22 +151,25 @@ public class FitAnnotationWindow extends QDialog
 			
 			
 			AnnotatedSequenceAlignment al=new AnnotatedSequenceAlignment();
-			al.isLocalA=true;
-			al.isLocalB=false;
+			al.isLocal=false;
+			al.canGoOutside=true;
 			al.align(seqA, seqB);
 
 			if(al.rotateB)
-				or=Orientation.reverse(or);
+				orientation=Orientation.reverse(orientation);
 
 			int posFirst=firstCharOfSeq(al.alSeqB.getSequence());
 			int posLast=lastCharOfSeq(al.alSeqB.getSequence());
 			
 			SeqAnnotation newannot=new SeqAnnotation();
-			newannot.orientation=or;
+			newannot.orientation=orientation;
 			newannot.range=new SequenceRange(al.bestal.alignedIndexA.get(posFirst), al.bestal.alignedIndexA.get(posLast));
 			newannot.color=prevannot.color;
 			newannot.name=prevannot.name;
 			newannot.desc=prevannot.desc;
+			
+			System.out.println(al.bestal.alignedSequenceA+"!");
+			System.out.println(al.bestal.alignedSequenceB+"!");
 			
 			System.out.println("cost: "+al.bestal.bestCost); //TODO compute best possible cost?
 			sw.getSequence().addAnnotation(newannot);

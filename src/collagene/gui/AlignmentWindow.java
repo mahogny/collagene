@@ -22,8 +22,8 @@ public class AlignmentWindow extends QDialog
 	private QPushButton bCancel=new QPushButton(tr("Cancel"));
 
 	
-	private QCheckBox cbLocalA=new QCheckBox();
-	private QCheckBox cbLocalB=new QCheckBox();
+	private QCheckBox cbLocal=new QCheckBox();
+	private QCheckBox cbCanGoOutside=new QCheckBox();
 	AnnotatedSequence seqA, seqB;
 	
 	public AlignmentWindow(AnnotatedSequence seqA, AnnotatedSequence seqB)
@@ -34,13 +34,13 @@ public class AlignmentWindow extends QDialog
 		QLayout lay=QTutil.layoutVertical(
 				QTutil.withLabel(tr("Sequence A: "), new QLabel(seqA.name)),
 				QTutil.withLabel(tr("Sequence B: "), new QLabel(seqB.name)),
-				QTutil.withLabel(tr("Align A locally: "), cbLocalA),
-				QTutil.withLabel(tr("Align B locally: "), cbLocalB),
+				QTutil.withLabel(tr("Align locally: "), cbLocal),
+				QTutil.withLabel(tr("No penalty for partial overlap: "), cbCanGoOutside),
 				QTutil.layoutHorizontal(bOk,bCancel)
 				);
 		
-		cbLocalA.setChecked(false);
-		cbLocalB.setChecked(true);
+		cbLocal.setChecked(false);
+		cbCanGoOutside.setChecked(false);
 		setLayout(lay);
 		
 		bOk.clicked.connect(this,"actionOK()");
@@ -63,8 +63,8 @@ public class AlignmentWindow extends QDialog
 	public AnnotatedSequenceAlignment performAlignment()
 		{
 		AnnotatedSequenceAlignment al=new AnnotatedSequenceAlignment();
-		al.isLocalA=cbLocalA.isChecked();
-		al.isLocalB=cbLocalB.isChecked();
+		al.isLocal=cbLocal.isChecked();
+		al.canGoOutside=cbCanGoOutside.isChecked();
 		al.align(seqA, seqB);
 		return al;
 		}
