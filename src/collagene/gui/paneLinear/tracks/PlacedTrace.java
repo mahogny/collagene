@@ -63,6 +63,11 @@ public class PlacedTrace
 		{
 		return avglevel[i];
 		}
+
+	public void rotate()
+		{
+		setTrace(trace.rotated());
+		}
 	
 	
 	}

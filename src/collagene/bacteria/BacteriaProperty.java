@@ -19,11 +19,12 @@ public class BacteriaProperty
 	
 	
 	
-	public ArrayList<BacteriaProperty> strains=new ArrayList<BacteriaProperty>();
+	public static ArrayList<BacteriaProperty> strains=new ArrayList<BacteriaProperty>();
 	
-	public void readFile()
+	public static void readFile()
 		{
 		//Should find a good source of strains, then decide on a format
+		strains.add(new BacteriaProperty());
 		}
 	
 	}

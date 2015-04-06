@@ -1,12 +1,7 @@
 package collagene.alignment;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import collagene.alignment.emboss.EmbossCost;
-import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
-import collagene.seq.SeqAnnotation;
 import collagene.sequtil.NucleotideUtil;
 
 /**
@@ -81,8 +76,8 @@ public class AnnotatedSequenceAlignment
 		if(!isLocal)
 			alSeqB.isCircular=seqB.isCircular;
 		
-		shiftFeatures(alSeqA, computeCumulativeGaps(moveFeaturesByGaps(bestal.alignedSequenceA)));
-		shiftFeatures(alSeqB, computeCumulativeGaps(moveFeaturesByGaps(bestal.alignedSequenceB))); 
+		GapListUtil.shiftFeaturesAddingGaps(alSeqA, GapListUtil.computeCumulativeGaps(GapListUtil.computeGaps(bestal.alignedSequenceA)));
+		GapListUtil.shiftFeaturesAddingGaps(alSeqB, GapListUtil.computeCumulativeGaps(GapListUtil.computeGaps(bestal.alignedSequenceB))); 
 				//This will be wrong!!! need to take first index into account
 		
 		alSeqAwithB=new AnnotatedSequence(alSeqA);
@@ -96,71 +91,6 @@ public class AnnotatedSequenceAlignment
 		}
 
 	
-	/**
-	 * Shift features according to shift map
-	 */
-	public void shiftFeatures(AnnotatedSequence seq, TreeMap<Integer, Integer> mapCumulative)
-		{
-		for(SeqAnnotation annot:seq.annotations)
-			{
-			annot.range.from+=getShiftAt(mapCumulative, annot.range.from);
-			annot.range.to+=getShiftAt(mapCumulative, annot.range.to);
-			}
-		for(Primer p:seq.primers)
-			p.targetPosition+=getShiftAt(mapCumulative, p.targetPosition);
-		//Best to just recompute restriction sites
-		}
-	
-	/**
-	 * Get the shift for a position, given shift map
-	 */
-	private int getShiftAt(TreeMap<Integer, Integer> mapCumulative, int pos)
-		{
-		SortedMap<Integer, Integer> before=mapCumulative.headMap(pos);
-		if(before.isEmpty())
-			return 0;
-		else
-			return before.get(before.lastKey());
-		}
-	
-	/**
-	 * Compute cumulative shift map
-	 */
-	public TreeMap<Integer, Integer> computeCumulativeGaps(TreeMap<Integer, Integer> mapInserts)
-		{
-		TreeMap<Integer, Integer> mapCumulative=new TreeMap<Integer, Integer>(); //Position, length
-		int lastshift=0;
-		for(int pos:mapInserts.keySet())
-			{
-			int ins=mapInserts.get(pos);
-			lastshift+=ins;
-			mapCumulative.put(pos, lastshift);
-			}
-		return mapCumulative;
-		}
-	
-	/**
-	 * Compute insert positions and lengths
-	 */
-	public TreeMap<Integer, Integer> moveFeaturesByGaps(String s)
-		{
-		TreeMap<Integer, Integer> mapInserts=new TreeMap<Integer, Integer>(); //Position, length
-		for(int i=0;i<s.length();)
-			{
-			char c=s.charAt(i);
-			if(c=='_')
-				{
-				int j=i;
-				while(s.charAt(j)=='_' && j<s.length())
-					j++;
-				mapInserts.put(i, j-i);
-				i=j;
-				}
-			else
-				i++;
-			}
-		return mapInserts;
-		}
 	
 	
 	public static void main(String[] args)

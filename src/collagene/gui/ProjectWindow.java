@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import collagene.alignment.AlignTraces;
 import collagene.alignment.AnnotatedSequenceAlignment;
 import collagene.gui.anneal.AnnealWindow;
 import collagene.gui.cloneAssembler.CloneAssembler;
@@ -20,6 +21,9 @@ import collagene.io.SequenceFileHandlers;
 import collagene.io.SequenceImporter;
 import collagene.io.collagene.CollageneXML;
 import collagene.io.input.ImportAddgene;
+import collagene.io.trace.SequenceTrace;
+import collagene.io.trace.TraceIO;
+import collagene.io.trace.TraceReader;
 import collagene.restrictionEnzyme.NEBparser;
 import collagene.restrictionEnzyme.RestrictionEnzymeSet;
 import collagene.seq.AnnotatedSequence;
@@ -97,6 +101,7 @@ public class ProjectWindow extends QMainWindow
 		QPushButton bAlign=new QPushButton(tr("Align"));
 		QPushButton bLigate=new QPushButton(tr("Ligate"));
 		QPushButton bNewCloning=new QPushButton(tr("Perform cloning"));
+		QPushButton bAssembleTraces=new QPushButton(tr("Assemble from traces"));
 		
 		setMenuBar(menubar);
 		QMenu mfile=menubar.addMenu("File");
@@ -125,6 +130,7 @@ public class ProjectWindow extends QMainWindow
 		bAlign.clicked.connect(this,"actionAlign()");
 		bLigate.clicked.connect(this,"actionLigate()");
 		bNewCloning.clicked.connect(this,"actionNewClone()");
+		bAssembleTraces.clicked.connect(this,"actionAssembleTraces()");
 		
 		QVBoxLayout lay=new QVBoxLayout();
 		lay.addWidget(wtree);
@@ -134,6 +140,7 @@ public class ProjectWindow extends QMainWindow
 		lay.addWidget(bAlign);
 		lay.addWidget(bLigate);
 		lay.addWidget(bNewCloning);
+		lay.addWidget(bAssembleTraces);
 		lay.setMargin(2);
 		lay.setSpacing(2);
 		
@@ -638,6 +645,65 @@ public class ProjectWindow extends QMainWindow
 				new CloneAssembler();
 		
 		}
+	
+	public void actionAssembleTraces()
+		{
+		LinkedList<AnnotatedSequence> seqs=getSelectedSequences();
+		if(seqs.size()==1)
+			{
+			try
+				{
+				LinkedList<SequenceTrace> traces=loadSCF();
+				if(!traces.isEmpty())
+					{
+					AnnotatedSequence inseq=seqs.iterator().next();
+					AlignTraces align=new AlignTraces();
+					align.build(inseq, traces);
+					
+					align.refseq.name=inseq.name+"+traces";
+					addSequenceToProject(align.refseq); 
+					}
+				}
+			catch (IOException e)
+				{
+				QTutil.showNotice(this, e.getMessage());
+				e.printStackTrace();
+				}
+			}
+		else
+			QTutil.showNotice(this, tr("Select 1 sequence as reference"));
+		}
+
+	
+	
+	public LinkedList<SequenceTrace> loadSCF() throws IOException
+		{
+		LinkedList<SequenceTrace> list=new LinkedList<SequenceTrace>();
+		QFileDialog dia=new QFileDialog();
+		dia.setFileMode(FileMode.ExistingFiles);
+		dia.setDirectory(lastDirectory.getAbsolutePath());
+		dia.setNameFilter(tr("Sequence traces (*.scf)"));
+		if(dia.exec()!=0)
+			{
+			for(String sf:dia.selectedFiles())
+				{
+				File f=new File(sf);
+				lastDirectory=f.getParentFile();
+				TraceReader importer=TraceIO.getReader(f);
+				if(importer!=null)
+					{
+					FileInputStream fis=new FileInputStream(f);
+					SequenceTrace t=importer.readFile(fis);
+					fis.close();
+					list.add(t);
+					}
+				else
+					QTutil.showNotice(this, tr("Unknown file format"));
+				}
+			}		
+		return list;
+		}
+
 	
 	/**
 	 * Entry point

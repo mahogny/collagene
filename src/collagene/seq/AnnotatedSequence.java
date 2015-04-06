@@ -3,6 +3,7 @@ package collagene.seq;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import collagene.bacteria.BacteriaProperty;
 import collagene.gui.paneLinear.tracks.PlacedTrace;
 import collagene.primer.Primer;
 import collagene.restrictionEnzyme.RestrictionEnzyme;
@@ -34,6 +35,7 @@ public class AnnotatedSequence
 	public HashMap<RestrictionEnzyme,LinkedList<RestrictionSite>> restrictionSites=new HashMap<RestrictionEnzyme, LinkedList<RestrictionSite>>();
 	public LinkedList<Primer> primers=new LinkedList<Primer>();
 	public LinkedList<PlacedTrace> traces=new LinkedList<PlacedTrace>();
+	public BacteriaProperty bacteria=new BacteriaProperty();
 	
 	
 	/**

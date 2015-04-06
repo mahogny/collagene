@@ -24,8 +24,6 @@ public class PairwiseAlignment
 	
 	public AlignmentCostTable costtable=new AlignmentCostTable();
 	
-	public double penaltySkip   = -10;
-	public double penaltyExtend = -0.5;  //taken from http://www.ebi.ac.uk/Tools/psa/emboss_needle/
 
 	public double bestCost;
 	
@@ -67,14 +65,14 @@ public class PairwiseAlignment
 			{
 			numskip[i+1][0]=Math.max(0,i-1);
 			if(!canGoOutside)
-				cost[i+1][0]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
+				cost[i+1][0]=costtable.penaltySkip+Math.max(0,i-1)*costtable.penaltyExtend;
 			traj[i+1][0]=TRAJ_UP;
 			}
 		for(int i=0;i<seqB.length();i++)
 			{
 			numskip[0][i+1]=Math.max(0,i-1);
 			if(!canGoOutside)
-				cost[0][i+1]=penaltySkip+Math.max(0,i-1)*penaltyExtend;
+				cost[0][i+1]=costtable.penaltySkip+Math.max(0,i-1)*costtable.penaltyExtend;
 			traj[0][i+1]=TRAJ_LEFT;
 			}
 		cost[0][0]=0;
@@ -88,8 +86,8 @@ public class PairwiseAlignment
 				int matj=j+1;
 				
 				//Compute costs
-				double costFromUp    = (numskip[mati-1][matj]==0 ? penaltySkip : penaltyExtend) + cost[mati-1][matj];
-				double costFromLeft  = (numskip[mati][matj-1]==0 ? penaltySkip : penaltyExtend) + cost[mati][matj-1];
+				double costFromUp    = (numskip[mati-1][matj]==0 ? costtable.penaltySkip : costtable.penaltyExtend) + cost[mati-1][matj];
+				double costFromLeft  = (numskip[mati][matj-1]==0 ? costtable.penaltySkip : costtable.penaltyExtend) + cost[mati][matj-1];
 				double costFromMatch = costtable.cost[indA[i]][indB[j]] + cost[mati-1][matj-1];
 				if(canGoOutside)
 					{
@@ -282,7 +280,6 @@ public class PairwiseAlignment
 		al.costtable=EmbossCost.tableBlosum62;
 		al.isLocalAlignment=false;
 		al.canGoOutside=true;
-		al.penaltySkip=-10;
 		al.printMatrix=true;
 //		al.align("aabccca", "abcccbbb");
 //		al.align("attcccacct".toUpperCase(), "ttccccct".toUpperCase());

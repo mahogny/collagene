@@ -19,6 +19,9 @@ public class AlignmentCostTable
 	public double cost[][];
 	public String letters;
 
+	public double penaltySkip   = -10;
+	public double penaltyExtend = -0.5;  //taken from http://www.ebi.ac.uk/Tools/psa/emboss_needle/
+
 	public AlignmentCostTable()
 		{
 		setDNA(5, -2);
