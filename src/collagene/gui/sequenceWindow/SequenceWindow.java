@@ -14,7 +14,6 @@ import collagene.gui.colors.ColorSet;
 import collagene.gui.paneCircular.PaneCircularSequence;
 import collagene.gui.paneInfo.PaneSequenceInfo;
 import collagene.gui.paneLinear.PaneLinearSequence;
-import collagene.gui.paneRestriction.EventSelectedRestrictionEnzyme;
 import collagene.gui.paneRestriction.PaneEnzymeList;
 import collagene.gui.primer.FitPrimerWindow;
 import collagene.gui.primer.PrimerPropertyWindow;
@@ -43,7 +42,6 @@ import com.trolltech.qt.gui.QDesktopServices;
 import com.trolltech.qt.gui.QHBoxLayout;
 import com.trolltech.qt.gui.QIcon;
 import com.trolltech.qt.gui.QLabel;
-import com.trolltech.qt.gui.QLineEdit;
 import com.trolltech.qt.gui.QMainWindow;
 import com.trolltech.qt.gui.QMenu;
 import com.trolltech.qt.gui.QMenuBar;
@@ -70,7 +68,6 @@ public class SequenceWindow extends QMainWindow
 	private PaneEnzymeList viewEnz;
 	private PaneSequenceInfo viewInfo;
 	private PaneLinearSequence viewOverviewLinear;
-	private QLineEdit tfSearch=new QLineEdit();
 	private QStatusBar statusbar=new QStatusBar();
 	private QLabel labelTm=new QLabel("");
 	private QLabel labelGC=new QLabel("");
@@ -81,7 +78,6 @@ public class SequenceWindow extends QMainWindow
 	private ProjectWindow projwindow;
 	
 	private AnnotatedSequence seq=new AnnotatedSequence();
-	public SequenceSearcher currentSearchString=null;
 	
 	
 	public void actionSelectAll()
@@ -384,14 +380,6 @@ public class SequenceWindow extends QMainWindow
 			viewCircular.setSelection(range);
 			updateStatusbar();
 			}
-		else if(ob instanceof EventSelectedRestrictionEnzyme)
-			{
-			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
-			viewLinear.handleEvent(ob);
-			viewOverviewLinear.handleEvent(ob);
-			viewCircular.setRestrictionEnzyme(enz);
-			viewEnz.setRestrictionEnzyme(enz);
-			}
 		else
 			{
 			if(ob instanceof EventSelectedAnnotation)
@@ -403,6 +391,8 @@ public class SequenceWindow extends QMainWindow
 
 			viewLinear.handleEvent(ob);
 			viewOverviewLinear.handleEvent(ob);
+			viewCircular.handleEvent(ob);
+			viewEnz.handleEvent(ob);
 			}
 		}
 	
@@ -531,25 +521,13 @@ public class SequenceWindow extends QMainWindow
 		viewCircular.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 		viewInfo.signalUpdated.connect(this,"onViewUpdated(CollageneEvent)");
 
-		QPushButton bSearchNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
-		QPushButton bSearchPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
-		tfSearch.textChanged.connect(this,"actionSearch()");
-		tfSearch.returnPressed.connect(this,"actionSearchNext()");
-		bSearchNext.clicked.connect(this,"actionSearchNext()");
-		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
 	
 		QPushButton bPrimerNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bPrimerPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
 		bPrimerNext.clicked.connect(this,"actionPrimerNext()");
 		bPrimerPrev.clicked.connect(this,"actionPrimerPrev()");
 
-		QHBoxLayout laySearch=new QHBoxLayout();
-		laySearch.addWidget(new QLabel(tr("Search:")));
-		laySearch.addWidget(tfSearch);
-		laySearch.addWidget(bSearchPrev);
-		laySearch.addWidget(bSearchNext);
-		laySearch.setMargin(0);
-		laySearch.setSpacing(0);
+		SequenceWindowSeqSearch laySearch=new SequenceWindowSeqSearch(this);
 
 		QHBoxLayout layPrimer=new QHBoxLayout();
 		layPrimer.addWidget(new QLabel("  "+tr("Go to primer:")));
@@ -874,42 +852,6 @@ public class SequenceWindow extends QMainWindow
 			}
 		}
 
-	/**
-	 * Action: Perform a new search
-	 */
-	public void actionSearch()
-		{
-		if(tfSearch.text().length()==0)
-			currentSearchString=null;
-		else
-			currentSearchString=new SequenceSearcher(getSequence(), tfSearch.text().toUpperCase());
-		emitNewSelection(SequenceRange.getNoRange());
-		actionSearchNext();
-		}
-	
-	/**
-	 * Action: Go to next search position
-	 */
-	public void actionSearchNext()
-		{
-		if(currentSearchString!=null)
-			{
-			SequenceRange r=currentSearchString.next(getSelection());
-			emitNewSelection(r);
-			}
-		}
-
-	/**
-	 * Action: Go to next search position
-	 */
-	public void actionSearchPrev()
-		{
-		if(currentSearchString!=null)
-			{
-			SequenceRange r=currentSearchString.prev(getSelection());
-			emitNewSelection(r);
-			}
-		}
 
 	/**
 	 * Action: Add primer in forward direction

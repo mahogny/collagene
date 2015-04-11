@@ -403,5 +403,15 @@ public class PaneEnzymeList extends QWidget
 		else
 			return new LinkedList<RestrictionSite>();
 		}
+
+
+	public void handleEvent(CollageneEvent ob)
+		{
+		if(ob instanceof EventSelectedRestrictionEnzyme)
+			{
+			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
+			setRestrictionEnzyme(enz);
+			}
+		}
 	
 	}

@@ -23,8 +23,8 @@ public class CalcTmSanta98 implements CalcTm
 	private HashMap<String, Double> mapdH=new HashMap<String, Double>();
 	private HashMap<String, Double> mapdS=new HashMap<String, Double>();
 
-	double dHsym=-0;
-	double dSsym=-1.4;
+	private double dHsym=-0;
+	private double dSsym=-1.4;
 
 	private double initGCdH = 0.1*1000;
 	private double initGCdS = -2.8;
@@ -33,12 +33,6 @@ public class CalcTmSanta98 implements CalcTm
 	private double initATdS = 4.1;
 	
 	//TODO for degenerate bases, give options of highest, lowest and average
-	
-	/*
-	private double symdH=0;          not used... hm
-	private double symdS=-1.4;
-	*/
-	
 	
 	public double concNa;   //[M] or other monovalent
 	public double concMg2;  //[M] or other divalent
@@ -49,12 +43,8 @@ public class CalcTmSanta98 implements CalcTm
 	
 	private void reg(String seq1,String seq2,double dH, double dS)
 		{
-//		String revseq1=""+seq1.charAt(1)+seq1.charAt(0);
-//		String revseq2=""+seq2.charAt(1)+seq2.charAt(0);
 		regs(seq1,seq2,dH,dS);
 		regs(seq2,seq1,dH,dS);
-//		regs(revseq1,revseq2,dH,dS);
-//		regs(revseq2,revseq1,dH,dS);
 		}
 	private void reg(String seq1,double dH, double dS)
 		{
@@ -69,17 +59,17 @@ public class CalcTmSanta98 implements CalcTm
 	public CalcTmSanta98()
 		{
 		reg("AA", -7.9, -22.2);
-		reg("AC", -8.4, -22.4); //hm 
-		reg("AG", -7.8, -21.0); //hm
+		reg("AC", -8.4, -22.4); 
+		reg("AG", -7.8, -21.0); 
 		reg("AT", -7.2, -20.4);
 		
 		reg("CA", -8.5, -22.7);
-		reg("CC", -8.0, -19.9); //hm
-		reg("CG", -10.6,-27.2); // different
+		reg("CC", -8.0, -19.9); 
+		reg("CG", -10.6,-27.2); 
 		reg("CT", -7.8, -21.0);
 		
 		reg("GA", -8.2, -22.2);
-		reg("GC", -9.8, -24.4); //hm
+		reg("GC", -9.8, -24.4); 
 		reg("GG", -8.0, -29.9);
 		reg("GT", -8.4, -22.4);
 		
@@ -88,7 +78,7 @@ public class CalcTmSanta98 implements CalcTm
 		reg("TG", -8.5, -22.7);
 		reg("TT", -7.9, -22.2);
 				
-		setDefaultsPrimer3();
+		setDefaultsCollagene();
 		}
 	
 	
@@ -148,7 +138,6 @@ public class CalcTmSanta98 implements CalcTm
 		int N=seq1.length()-1;  
 		double concMonovalent=concNa;
 		concMonovalent += divalentToMonovalent(concMg2, concDntp);
-		System.out.println("conc mono "+concMonovalent);
 		//double saltCorrectionH=(0.175*Math.log(concMonovalent)-0.2)*1000;
 		double saltCorrectionS=0.368*N*Math.log(concMonovalent);              
 		//dH += saltCorrectionH; //primer3 does not
@@ -161,10 +150,7 @@ public class CalcTmSanta98 implements CalcTm
 		double R=1.9872;
 		double Tm;
 		if(isSymmetric(seq1))
-			{
 			Tm = dH / (dS + R*Math.log(concDNA)) - 273.15;
-			System.out.println("vhee");
-			}
 		else
 			Tm = dH / (dS + R*Math.log(concDNA/4)) - 273.15;
 		
@@ -217,23 +203,8 @@ public class CalcTmSanta98 implements CalcTm
 			{
 			CalcTmSanta98 m=new CalcTmSanta98();
 //			System.out.println(m.calcTm("CGTTGA", "GCAACT"));
-			System.out.println(m.calcTm(
-					"CGTTGACGTTGACGTTGA", 
-					"GCAACTGCAACTGCAACT"));
-			/*
-			System.out.println(m.calcTm(
-				"CG", 
-				"GC"));
-	
-			System.out.println(m.calcTm(
-					"AT", 
-					"TA"));
-*/
-				/*
-			System.out.println(m.calcTm(
-					"C", 
-					"G"));
-					*/
+			System.out.println(m.calcTm("CGTTGACGTTGAC"));
+			System.out.println(m.calcTm("CGTTGACTTTTTTTTAAAATTTTTTTTT"));
 			}
 
 		catch (TmException e)
@@ -242,11 +213,23 @@ public class CalcTmSanta98 implements CalcTm
 			}
 		}
 	
+	public void setDefaultsCollagene()
+		{
+		/*
+		concMg2=500e-9;
+		concNa=100e-3;
+		concDntp=0;*/
+		setDefaultsPrimer3();
+		concDNA=500e-9; //from neb tmcalc
+		concMg2=500e-9; //invented
+		//fits reasonably with Q5 enzyme. phusion less so!
+		//there should be a favourite enzyme-setting
+		}
 	
 	public void setDefaultsPrimer3()
 		{
 		concDNA=50e-9;
-		concMg2=0;
+		concMg2=0e-9;
 		concNa=50e-3;
 		concDntp=0;
 		}

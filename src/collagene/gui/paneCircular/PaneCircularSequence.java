@@ -164,9 +164,18 @@ public class PaneCircularSequence extends QWidget
 		}
 
 
-	public void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
+	private void setRestrictionEnzyme(EventSelectedRestrictionEnzyme enz)
 		{
 		view.selectedEnz=enz;
 		updatecirc();
+		}
+
+	public void handleEvent(CollageneEvent ob)
+		{
+		if(ob instanceof EventSelectedRestrictionEnzyme)
+			{
+			EventSelectedRestrictionEnzyme enz=(EventSelectedRestrictionEnzyme)ob;
+			setRestrictionEnzyme(enz);
+			}		
 		}
 	}
