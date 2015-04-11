@@ -95,7 +95,6 @@ public class SequenceWindow extends QMainWindow
 		updateStatusbar();
 		}
 	
-	
 	public void blastNCBI()
 		{
 		String sel=getSelectionSequence();
@@ -477,9 +476,7 @@ public class SequenceWindow extends QMainWindow
 		QMenuBar menubar=new QMenuBar();
 
 		
-		QMenu mseq=menubar.addMenu(tr("Sequence"));
-		QMenu mannotation=menubar.addMenu(tr("Annotation"));
-		
+		QMenu mseq=menubar.addMenu(tr("Sequence"));		
 		mseq.addAction(tr("Select everything"), this, "actionSelectAll()");
 		mseq.addSeparator();
 		mseq.addAction(tr("BLAST (NCBI)"), this, "blastNCBI()");
@@ -491,17 +488,23 @@ public class SequenceWindow extends QMainWindow
 		mseq.addSeparator();
 		mseq.addAction(tr("Close"), this, "close()");
 
+		QMenu mannotation=menubar.addMenu(tr("Annotation"));
 		mannotation.addAction(tr("Add annotation"), this, "addAnnotation()");
 		mannotation.addAction(tr("Autofit annotation"), this, "actionAutofitAnnotation()");
 		mannotation.addSeparator();
 		mannotation.addAction(tr("Find ORFs"), this, "actionFindORFs()");
 		mannotation.addAction(tr("Remove unnamed ORFs"), this, "actionRemoveORFs()");
-		mannotation.addSeparator();
-		mannotation.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerFWD()");
-		mannotation.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerREV()");
-		mannotation.addAction(tr("Copy primer sequences"),this,"actionPrimerClipboard()");
-		mannotation.addAction(tr("Fit existing primer"),this,"actionFitExistingPrimer()");
-		mannotation.addAction(tr("Find good primer location in selection"),this,"actionFindPrimer()");
+		
+		
+		QMenu mprimer=menubar.addMenu(tr("Primers"));
+		mprimer.addAction(tr("Add forward primer for selection"),this,"actionAddPrimerForward()");
+		mprimer.addAction(tr("Add reverse primer for selection"),this,"actionAddPrimerReverse()");
+		mprimer.addSeparator();
+		mprimer.addAction(tr("Find good forward primer location in selection"),this,"actionFindPrimerForward()");
+		mprimer.addAction(tr("Find good reverse primer location in selection"),this,"actionFindPrimerReverse()");
+		mprimer.addSeparator();
+		mprimer.addAction(tr("Copy primer sequences"),this,"actionPrimerClipboard()");
+		mprimer.addAction(tr("Fit existing primer"),this,"actionFitExistingPrimer()");
 		
 		QMenu mCopy=menubar.addMenu(tr("Copy"));
 		mCopy.addAction(tr("Copy upper 5-3' as-is"), this, "copyUpperOrig()");
@@ -534,8 +537,7 @@ public class SequenceWindow extends QMainWindow
 		tfSearch.returnPressed.connect(this,"actionSearchNext()");
 		bSearchNext.clicked.connect(this,"actionSearchNext()");
 		bSearchPrev.clicked.connect(this,"actionSearchPrev()");
-
-		
+	
 		QPushButton bPrimerNext=new QPushButton(new QIcon(ImgResource.moveRight),"");
 		QPushButton bPrimerPrev=new QPushButton(new QIcon(ImgResource.moveLeft),"");
 		bPrimerNext.clicked.connect(this,"actionPrimerNext()");
@@ -912,7 +914,7 @@ public class SequenceWindow extends QMainWindow
 	/**
 	 * Action: Add primer in forward direction
 	 */
-	public void actionAddPrimerFWD()
+	public void actionAddPrimerForward()
 		{
 		SequenceRange r=getSelection();
 		if(r!=null)
@@ -928,7 +930,7 @@ public class SequenceWindow extends QMainWindow
 	/**
 	 * Action: Add primer in reverse direction
 	 */
-	public void actionAddPrimerREV()
+	public void actionAddPrimerReverse()
 		{
 		SequenceRange r=getSelection();
 		if(r!=null)
@@ -995,12 +997,12 @@ public class SequenceWindow extends QMainWindow
 	/**
 	 * Find primer in selection
 	 */
-	public void actionFindPrimer()
+	public void actionFindPrimer(Orientation orientation)
 		{
 		if(getSelection()!=null)
 			{
 			PrimerFinder f=new PrimerFinder();
-			f.run(getSequence(), getSelection());
+			f.run(getSequence(), getSelection(), orientation);
 			
 			if(!f.primerCandidates.isEmpty())
 				{
@@ -1012,6 +1014,15 @@ public class SequenceWindow extends QMainWindow
 			}
 		}
 	
+	public void actionFindPrimerForward()
+		{
+		actionFindPrimer(Orientation.FORWARD);
+		}
+	public void actionFindPrimerReverse()
+		{
+		actionFindPrimer(Orientation.REVERSE);
+		}
+
 	
 	protected void closeEvent(QCloseEvent arg__1)
 		{

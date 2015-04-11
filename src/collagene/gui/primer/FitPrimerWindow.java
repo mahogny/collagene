@@ -10,6 +10,7 @@ import collagene.gui.ProjectWindow;
 import collagene.gui.qt.QTutil;
 import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
+import collagene.sequtil.NucleotideUtil;
 
 import com.trolltech.qt.core.Qt;
 import com.trolltech.qt.gui.QDialog;
@@ -96,7 +97,7 @@ public class FitPrimerWindow extends QDialog
 			{
 			Primer p=list.get(row);
 			QTableWidgetItem itName=QTutil.createReadOnlyItem(p.name);
-			QTableWidgetItem itSeq=QTutil.createReadOnlyItem(p.sequence);
+			QTableWidgetItem itSeq=QTutil.createReadOnlyItem(NucleotideUtil.format3(p.sequence));
 			tablePrimers.setItem(row, 0, itName);
 			tablePrimers.setItem(row, 1, itSeq);
 			itName.setData(Qt.ItemDataRole.UserRole, p);
@@ -125,7 +126,7 @@ public class FitPrimerWindow extends QDialog
 		if(!tfName.text().equals("") && !tfSequence.text().equals(""))
 			{
 			primer.name=tfName.text();
-			primer.sequence=tfSequence.text();
+			primer.sequence=NucleotideUtil.normalize(tfSequence.text());
 			wasOk=true;
 			close();
 			}

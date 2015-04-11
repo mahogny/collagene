@@ -139,4 +139,21 @@ public class NucleotideUtil
 		{
 		return letterUpper==complement(letterLower);
 		}
+
+	public static String format3(String sequence)
+		{
+		StringBuilder sb=new StringBuilder();
+		int i=0;
+		while(i<sequence.length())
+			{
+			if(i!=0)
+				sb.append(' ');
+			for(int j=0;j<3 && i<sequence.length();j++)
+				{
+				sb.append(sequence.charAt(i));
+				i++;
+				}
+			}
+		return sb.toString();
+		}
 	}

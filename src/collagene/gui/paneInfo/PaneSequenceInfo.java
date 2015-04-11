@@ -15,6 +15,7 @@ import collagene.primer.Primer;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SeqAnnotation;
 import collagene.seq.SequenceRange;
+import collagene.sequtil.NucleotideUtil;
 
 import com.trolltech.qt.QSignalEmitter;
 import com.trolltech.qt.core.Qt.CheckState;
@@ -99,10 +100,12 @@ public class PaneSequenceInfo extends QScrollArea
 		public void setPrimer(Primer p)
 			{
 			primer=p;
-			String tm=MenuPrimer.tryCalcTm(new CalcTmSanta98(), p);
+			String tm=MenuPrimer.tryCalcTm(new CalcTmSanta98(), p.sequence);
+			String partmatch=p.getFirstMatchingSequencePart(seq);
+			boolean fullmatch=partmatch.length()==p.length();
 			SequenceRange range=p.getRange();
 			lName.setText(primer.name+", "+primer.length()+" bp ("+range.from+".."+range.to+"), Tm: "+tm);
-			lSequence.setText(primer.sequence);
+			lSequence.setText(NucleotideUtil.format3(primer.sequence)+(fullmatch?"":" (First matching part: ..."+NucleotideUtil.format3(partmatch)+")"));
 			} 
 		
 		

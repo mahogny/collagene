@@ -13,6 +13,7 @@ import collagene.primer.Primer;
 import collagene.primer.PrimerPairInfo;
 import collagene.restrictionEnzyme.SequenceFragmentPCR;
 import collagene.seq.AnnotatedSequence;
+import collagene.sequtil.NucleotideUtil;
 
 import com.trolltech.qt.gui.QAction;
 import com.trolltech.qt.gui.QMenu;
@@ -39,11 +40,21 @@ public class MenuPrimer extends QMenu
 		
 		if(showInfo)
 			{
-			String tm=tryCalcTm(new CalcTmSanta98(), primer);
-		
+			String seqmatch=primer.getFirstMatchingSequencePart(seq);
+			System.out.println("-"+seqmatch);
+			String tmPartial=tryCalcTm(new CalcTmSanta98(), seqmatch);
+			String tmFull=tryCalcTm(new CalcTmSanta98(), primer.sequence);
+			boolean primerFullmatch=seqmatch.length()==primer.getLength();
+			
 			addAction(primer.name);
-			addAction("Sequence: "+primer.sequence);
-			addAction("Tm: "+tm);
+			addAction("Sequence: "+NucleotideUtil.format3(primer.sequence));
+			if(primerFullmatch)
+				addAction("Tm: "+tmFull);
+			else
+				{
+				addAction("Tm: "+tmFull + " (when fully matching)");
+				addAction("Tm: "+tmPartial+ " (first matching part)");
+				}
 			addSeparator();
 			}
 		
@@ -113,12 +124,12 @@ public class MenuPrimer extends QMenu
 			}
 		}
 
-	public static String tryCalcTm(CalcTm tmc, Primer p)
+	public static String tryCalcTm(CalcTm tmc, String seq)
 		{
 		String tm="?";
 		try
 			{
-			tm=MenuPrimer.formatTemp(tmc.calcTm(p.sequence));
+			tm=MenuPrimer.formatTemp(tmc.calcTm(seq));
 			}
 		catch (TmException e)
 			{

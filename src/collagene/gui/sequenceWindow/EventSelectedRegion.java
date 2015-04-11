@@ -10,6 +10,7 @@ public class EventSelectedRegion extends CollageneEvent
 	public EventSelectedRegion(AnnotatedSequence seq, SequenceRange range)
 		{
 		super(seq);
-		this.range = new SequenceRange(range);
+		if(range!=null)
+			this.range = new SequenceRange(range);
 		}
 	}

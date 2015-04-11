@@ -23,11 +23,16 @@ public class CalcTmSanta98 implements CalcTm
 	private HashMap<String, Double> mapdH=new HashMap<String, Double>();
 	private HashMap<String, Double> mapdS=new HashMap<String, Double>();
 
-	private double initGCdH=0.1;
-	private double initGCdS=-2.8;
+	double dHsym=-0;
+	double dSsym=-1.4;
+
+	private double initGCdH = 0.1*1000;
+	private double initGCdS = -2.8;
 	
-	private double initATdH=2.1;
-	private double initATdS=4.1;
+	private double initATdH = 2.3*1000; 
+	private double initATdS = 4.1;
+	
+	//TODO for degenerate bases, give options of highest, lowest and average
 	
 	/*
 	private double symdH=0;          not used... hm
@@ -44,14 +49,17 @@ public class CalcTmSanta98 implements CalcTm
 	
 	private void reg(String seq1,String seq2,double dH, double dS)
 		{
-		String revseq1=""+seq1.charAt(1)+seq1.charAt(0);
-		String revseq2=""+seq2.charAt(1)+seq2.charAt(0);
+//		String revseq1=""+seq1.charAt(1)+seq1.charAt(0);
+//		String revseq2=""+seq2.charAt(1)+seq2.charAt(0);
 		regs(seq1,seq2,dH,dS);
 		regs(seq2,seq1,dH,dS);
-		regs(revseq1,revseq2,dH,dS);
-		regs(revseq2,revseq1,dH,dS);
+//		regs(revseq1,revseq2,dH,dS);
+//		regs(revseq2,revseq1,dH,dS);
 		}
-
+	private void reg(String seq1,double dH, double dS)
+		{
+		reg(seq1,NucleotideUtil.complement(seq1), dH, dS);
+		}
 	private void regs(String seq1,String seq2,double dH, double dS)
 		{
 		mapdH.put(seq1+"/"+seq2, dH*1000);
@@ -60,17 +68,26 @@ public class CalcTmSanta98 implements CalcTm
 	
 	public CalcTmSanta98()
 		{
-		reg("AA","TT",-7.9, -22.2);
-		reg("AT","TA",-7.2, -20.4);
-		reg("TA","AT",-7.2, -21.3);
-		reg("CA","GT",-8.5, -22.7);
-		reg("GT","CA",-8.4, -22.4);
-		reg("CT","GA",-7.8, -21.0);
-		reg("GA","CT",-8.2, -22.2);
-		reg("CG","GC",-10.6,-27.2);
-		reg("GC","CG",-9.8, -24.4);
-		reg("GG","CC",-8.0, -19.9);
+		reg("AA", -7.9, -22.2);
+		reg("AC", -8.4, -22.4); //hm 
+		reg("AG", -7.8, -21.0); //hm
+		reg("AT", -7.2, -20.4);
 		
+		reg("CA", -8.5, -22.7);
+		reg("CC", -8.0, -19.9); //hm
+		reg("CG", -10.6,-27.2); // different
+		reg("CT", -7.8, -21.0);
+		
+		reg("GA", -8.2, -22.2);
+		reg("GC", -9.8, -24.4); //hm
+		reg("GG", -8.0, -29.9);
+		reg("GT", -8.4, -22.4);
+		
+		reg("TA", -7.2, -21.3);
+		reg("TC", -8.2, -22.2);
+		reg("TG", -8.5, -22.7);
+		reg("TT", -7.9, -22.2);
+				
 		setDefaultsPrimer3();
 		}
 	
@@ -80,18 +97,36 @@ public class CalcTmSanta98 implements CalcTm
 		double dH=0;
 		double dS=0;
 
+		if(isSymmetric(seq1))
+			{
+			dH += dHsym;
+			dS += dSsym;
+			}
+
 		//Starting penalty for helix initialization
-		if(seq1.startsWith("AT") || seq1.startsWith("TA"))
+		if(seq1.startsWith("A") || seq1.startsWith("T"))
 			{
-			dS+=initATdS;
-			dH+=initATdH;
+			dS += initATdS;
+			dH += initATdH;
 			}
-		if(seq1.startsWith("GC") || seq1.startsWith("CG"))
+		else if(seq1.startsWith("C") || seq1.startsWith("G"))
 			{
-			dS+=initGCdS;
-			dH+=initGCdH;
+			dS += initGCdS;
+			dH += initGCdH;
 			}
-		
+
+		//Ending penalty for helix initialization
+		if(seq1.endsWith("A") || seq1.endsWith("T"))
+			{
+			dS += initATdS;
+			dH += initATdH;
+			}
+		else if(seq1.endsWith("C") || seq1.endsWith("G"))
+			{
+			dS += initGCdS;
+			dH += initGCdH;
+			}
+
 		//Pair-wise contributions
 		seq1=seq1.toUpperCase();
 		seq2=seq2.toUpperCase();
@@ -109,24 +144,42 @@ public class CalcTmSanta98 implements CalcTm
 			dS+=partdS;
 			}
 		
-	
 		//Monovalent salt correction
 		int N=seq1.length()-1;  
 		double concMonovalent=concNa;
 		concMonovalent += divalentToMonovalent(concMg2, concDntp);
-		dS +=  0.368*N*Math.log(concMonovalent); 
+		System.out.println("conc mono "+concMonovalent);
+		//double saltCorrectionH=(0.175*Math.log(concMonovalent)-0.2)*1000;
+		double saltCorrectionS=0.368*N*Math.log(concMonovalent);              
+		//dH += saltCorrectionH; //primer3 does not
+		dS += saltCorrectionS;
 
 		//Consider adding correction according to Owczarzy, see NEB
 		
+
 		//Correction for symmetry, and final calculation
-		double R=1.987;
+		double R=1.9872;
 		double Tm;
 		if(isSymmetric(seq1))
+			{
 			Tm = dH / (dS + R*Math.log(concDNA)) - 273.15;
+			System.out.println("vhee");
+			}
 		else
 			Tm = dH / (dS + R*Math.log(concDNA/4)) - 273.15;
+		
 		return Tm;
 		}
+	
+	public double correctOwczarzy(String seq,double Tm)
+		{
+		//note, needs more corrections. depends on other ions as well
+		double fgc=NucleotideUtil.countGC(seq)/(double)seq.length();
+		double lm=Math.log(concNa);
+		double v=1/Tm + (4.29*fgc-3.95)*lm*1e-5 + 9.4*lm*lm*1e-6;
+		return 1.0/v;
+		}
+	
 	
 	double divalentToMonovalent(double divalent, double dntp)
 		{
@@ -144,7 +197,7 @@ public class CalcTmSanta98 implements CalcTm
 	 */
 	private boolean isSymmetric(String s)
 		{
-		for(int i=0;i<s.length()/2;i++)
+		for(int i=0;i<s.length();i++)
 			{
 			char c=s.charAt(i);
 			char b=s.charAt(s.length()-i-1);
@@ -163,11 +216,26 @@ public class CalcTmSanta98 implements CalcTm
 		try
 			{
 			CalcTmSanta98 m=new CalcTmSanta98();
-			System.out.println(m.calcTm("CGTTGA", "GCAACT"));
+//			System.out.println(m.calcTm("CGTTGA", "GCAACT"));
 			System.out.println(m.calcTm(
 					"CGTTGACGTTGACGTTGA", 
 					"GCAACTGCAACTGCAACT"));
+			/*
+			System.out.println(m.calcTm(
+				"CG", 
+				"GC"));
+	
+			System.out.println(m.calcTm(
+					"AT", 
+					"TA"));
+*/
+				/*
+			System.out.println(m.calcTm(
+					"C", 
+					"G"));
+					*/
 			}
+
 		catch (TmException e)
 			{
 			e.printStackTrace();
@@ -178,14 +246,14 @@ public class CalcTmSanta98 implements CalcTm
 	public void setDefaultsPrimer3()
 		{
 		concDNA=50e-9;
-		concMg2=1.5e-3;
+		concMg2=0;
 		concNa=50e-3;
-		concDntp=0.6e-3;
+		concDntp=0;
 		}
 	
 	public void setDefaultsBenchling()
 		{
-		concDNA=250e-9;
+		concDNA=250e-9; 
 		concMg2=0e-3;
 		concNa=50e-3;
 		concDntp=0e-3;

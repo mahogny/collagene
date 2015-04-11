@@ -8,14 +8,14 @@
 ;General
 
   ;Name and file
-  Name "Labstory"
+  Name "Collagene"
   OutFile "install.exe"
 
   ;Default installation folder
-  InstallDir "$LOCALAPPDATA\Labstory"
+  InstallDir "$LOCALAPPDATA\Collagene"
 
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\Labstory" ""
+  InstallDirRegKey HKCU "Software\Collagene" ""
 
   ;Request application privileges for Windows Vista
   RequestExecutionLevel user
@@ -61,12 +61,12 @@ Section "Dummy Section" SecDummy
 ;  CreateDirectory $INSTDIR
 ;  CopyFiles files\*.* $INSTDIR
 
-  File /r "labstory\*.*"  
+  File /r "collagene\*.*"  
   
-  CreateShortCut "$SMPROGRAMS\Labstory.lnk" "$INSTDIR\labstory.exe"
+  CreateShortCut "$SMPROGRAMS\Collagene.lnk" "$INSTDIR\collagene.exe"
   
   ;Store installation folder
-  WriteRegStr HKCU "Software\Labstory" "" $INSTDIR
+  WriteRegStr HKCU "Software\Collagene" "" $INSTDIR
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -89,14 +89,10 @@ SectionEnd
 
 Section "Uninstall"
 
-
-;  Delete "$INSTDIR\labstory"
   Delete "$INSTDIR\*.*"
-
-;  Delete "$INSTDIR\Uninstall.exe"
 
   RMDir "$INSTDIR"
 
-  DeleteRegKey /ifempty HKCU "Software\Labstory"
+  DeleteRegKey /ifempty HKCU "Software\Collagene"
 
 SectionEnd

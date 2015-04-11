@@ -8,6 +8,7 @@ import collagene.seq.AnnotatedSequence;
 import collagene.seq.Orientation;
 import collagene.seq.SeqColor;
 import collagene.seq.SequenceRange;
+import collagene.sequtil.NucleotideUtil;
 
 /**
  * 
@@ -18,9 +19,6 @@ import collagene.seq.SequenceRange;
  */
 public class Primer
 	{
-
-	
-	
 	public String name="";
 	public String sequence="";
 	public Orientation orientation=Orientation.FORWARD;
@@ -131,5 +129,36 @@ public class Primer
 		{
 		return sequence.length();
 		}
+
+	
+	
+	/**
+	 * Get the sequence this primer overlaps, reoriented to fit primer
+	 */
+	public String getSequenceOnSeqence(AnnotatedSequence seq)
+		{
+		SequenceRange r2=getRange();
+		if(orientation==Orientation.FORWARD)
+			return seq.getSequence(r2);
+		else if(orientation==Orientation.REVERSE)
+			return NucleotideUtil.reverse(seq.getSequenceLower(r2));
+		else
+			throw new RuntimeException("no orientation");
+		}
+
+	
+	
+	/**
+	 * Get the first matching part of the sequence vs what it overlaps. Used to compute the real Tm
+	 */
+	public String getFirstMatchingSequencePart(AnnotatedSequence seq)
+		{
+		String getseq=getSequenceOnSeqence(seq);
+		int i=sequence.length();
+		while(i>0 && getseq.charAt(i-1)==sequence.charAt(i-1))
+			i--;
+		return getseq.substring(i);
+		}
+	
 	
 	}
