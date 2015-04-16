@@ -3,8 +3,10 @@ package collagene.gui.sequenceWindow;
 import java.util.LinkedList;
 
 import collagene.gui.IndexUtil;
+import collagene.gui.QtProgramInfo;
 import collagene.gui.colors.QColorCombo;
 import collagene.gui.qt.QTutil;
+import collagene.gui.resource.ImgResource;
 import collagene.seq.Orientation;
 import collagene.seq.SeqAnnotation;
 
@@ -69,6 +71,9 @@ public class AnnotationWindow extends QDialog
 		
 		bOk.clicked.connect(this,"actionOK()");
 		bCancel.clicked.connect(this,"actionCancel()");
+		
+		setWindowTitle(QtProgramInfo.programName + " - "+tr("Edit annotation"));
+		ImgResource.setWindowIcon(this);
 		}
 	
 	public boolean wasOk=false;

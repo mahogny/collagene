@@ -19,7 +19,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleIconFile</key>
-	<string>labstory.icns</string>
+	<string>collagene.icns</string>
 	<key>CFBundleTypeRole</key>          
 	<string>Editor</string>
 	<key>CFBundleTypeExtensions</key>

@@ -345,7 +345,7 @@ public class SequenceWindow extends QMainWindow
 		viewOverviewLinear.setSequence(seq);
 		viewEnz.setSequence(seq);
 		viewInfo.setSequence(seq);
-		setWindowTitle(QtProgramInfo.programName+" - "+seq.name);
+		setWindowTitle(QtProgramInfo.programName + " - "+seq.name);
 		projwindow.updateView();
 		}
 
@@ -585,6 +585,7 @@ public class SequenceWindow extends QMainWindow
 		tabw.addTab(viewInfo, tr("Summary"));
 
 		setCentralWidget(tabw);
+		ImgResource.setWindowIcon(this);
 		}
 
 	/**

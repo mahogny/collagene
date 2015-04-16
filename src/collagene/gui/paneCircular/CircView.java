@@ -527,7 +527,12 @@ public class CircView extends QGraphicsView
 			{
 			QGraphicsCircSeqAnnotationItem it=mapAnnot.get(annot);
 			if(it.pointWithin(p))
+				{
+				//System.out.println("got annot "+it);
 				return annot;
+				}
+		//	else
+			//	System.out.println("not "+it);
 			}
 		return null;
 		}
@@ -685,8 +690,7 @@ public class CircView extends QGraphicsView
 		}
 
 
-	public void movetoinstantaneous(double pan,
-			double zoom)
+	public void movetoinstantaneous(double pan,double zoom)
 		{
 		targetCircPan=circPan=pan;
 		targetCircZoom=circZoom=zoom;

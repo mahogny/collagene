@@ -3,7 +3,9 @@ package collagene.gui.sequenceWindow;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
+import collagene.gui.QtProgramInfo;
 import collagene.gui.qt.QTutil;
+import collagene.gui.resource.ImgResource;
 import collagene.seq.AnnotatedSequence;
 import collagene.seq.SequenceRange;
 import collagene.sequtil.sdm.CommonProteinSequence;
@@ -80,6 +82,8 @@ public class SDMWindow extends QDialog
 		tfSequence.textEdited.connect(this,"actionSeqChanged()");
 		bOk.setDefault(true);
 		setMinimumWidth(500);
+		setWindowTitle(QtProgramInfo.programName + " - "+tr("Site directed mutagenesis"));
+		ImgResource.setWindowIcon(this);
 		}
 	
 	public void actionSeqChanged()

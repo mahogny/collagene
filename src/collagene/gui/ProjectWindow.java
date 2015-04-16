@@ -149,7 +149,10 @@ public class ProjectWindow extends QMainWindow
 		setCentralWidget(w);
 		
 		updateView();
-		
+
+		setWindowTitle(QtProgramInfo.programName);
+		ImgResource.setWindowIcon(this);
+
 		resize(300, 480);
 		show();
 		}
