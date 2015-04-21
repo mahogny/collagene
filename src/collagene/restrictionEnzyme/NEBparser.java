@@ -58,7 +58,23 @@ public class NEBparser
 					
 					RestrictionEnzyme enz=new RestrictionEnzyme();
 					enz.name=els.get(0).getChildText("a");
-
+					for(Element ee:els.get(1).getChildren())
+						{
+						if(ee.getName().equals("img"))
+							{
+							String alt=ee.getAttributeValue("alt");
+							if(alt.equals("cpg"))
+								enz.affectedBy.add("CpG");
+							/*else if(alt.contains("timesaver"))
+								enz.affectedBy.add("timesaver");*/
+							else if(alt.contains("dam"))
+								{
+								enz.affectedBy.add("dam"); //source does not tell which!!! need a different source
+								enz.affectedBy.add("dcm");
+								}
+							}
+						}
+					
 					enz.url="https://www.neb.com"+els.get(0).getChild("a").getAttributeValue("href");
 					String seq=els.get(2).getText().trim();
 					if(seq.equals(""))

@@ -63,6 +63,9 @@ public class AnnotatedSequence
 		{
 //		setSequence("atcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
 		setSequence("atcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaattaatcgacacacacaaaaaggacccgggaattatataaatta".toUpperCase());
+		bacteria.set("dam", true);
+		bacteria.set("dcm", true);
+		bacteria.set("ecoki", true);
 		}
 	
 	/**

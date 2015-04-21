@@ -181,9 +181,10 @@ public class PaneSequenceInfo extends QScrollArea
 		{
 		BacteriaProperty prop=new BacteriaProperty();
 		QLineEdit tfName=new QLineEdit();
-		QCheckBox cbDam=new QCheckBox(tr("Dam"));
-		QCheckBox cbDcm=new QCheckBox(tr("Dcm"));
-		QCheckBox cbEcoKI=new QCheckBox(tr("EcoKI"));
+		QCheckBox cbDam=new QCheckBox(tr("Dam+"));
+		QCheckBox cbDcm=new QCheckBox(tr("Dcm+"));
+		QCheckBox cbEcoKI=new QCheckBox(tr("EcoKI+"));
+		QCheckBox cbCpG=new QCheckBox(tr("CpG+"));
 		
 		public PaneBacteria()
 			{
@@ -194,6 +195,7 @@ public class PaneSequenceInfo extends QScrollArea
 			lay.addWidget(cbDam);
 			lay.addWidget(cbDcm);
 			lay.addWidget(cbEcoKI);
+			lay.addWidget(cbCpG);
 			lay.setMargin(0);
 
 			QHBoxLayout hlay=new QHBoxLayout();
@@ -204,22 +206,25 @@ public class PaneSequenceInfo extends QScrollArea
 
 			BacteriaProperty p=seq.bacteria;
 			tfName.setText(p.name);
-			cbDam.setChecked(p.isDam);
-			cbDcm.setChecked(p.isDcm);
-			cbEcoKI.setChecked(p.isEcoKI);
+			cbDam.setChecked(p.isDam());
+			cbDcm.setChecked(p.isDcm());
+			cbEcoKI.setChecked(p.isEcoKI());
+			cbCpG.setChecked(p.isCpG());
 			
 			tfName.editingFinished.connect(this,"edited()");
 			cbDam.toggled.connect(this,"edited()");
 			cbDcm.toggled.connect(this,"edited()");
 			cbEcoKI.toggled.connect(this,"edited()");
+			cbCpG.toggled.connect(this,"edited()");
 			}
 		
 		public BacteriaProperty getProp()
 			{
 			BacteriaProperty p=new BacteriaProperty();
-			p.isDam=cbDam.isChecked();
-			p.isDcm=cbDcm.isChecked();
-			p.isEcoKI=cbEcoKI.isChecked();
+			p.set("Dam",cbDam.isChecked());
+			p.set("Dcm",cbDcm.isChecked());
+			p.set("EcoKI",cbEcoKI.isChecked());
+			p.set("CpG",cbCpG.isChecked());
 			p.name=tfName.text();
 			return p;
 			}

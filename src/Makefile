@@ -82,8 +82,17 @@ winportjre: jars
 	cd ../release/winjre; "/home/mahogny/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" bundledjre.nsi
 	cd ../release/winjre; mv install.exe ../collagene_winjre.exe
 
+winportzip: jars
+	rm -Rf ../release/collagene_win
+	mkdir -p ../release/collagene_win
+	cd ..; cp ports/win/starter/collagene_bundledjre.exe release/collagene_win/collagene.exe
+	cd ..; cp ports/win/installer/* release/collagene_win/
+	cd ..; cp collagene.jar lib/*jar lib/win32/*jar release/collagene_win/
+	cd ..; cp -r ../support_programs/jre/* release/collagene_win/
+	cd ../release/; zip -r collagene_win collagene_win
 
-winport: winportjre # winport32 winport64 winportjre
+
+winport: winportzip # winportjre # winport32 winport64 winportjre
 
 
 ############################################################################################
@@ -106,7 +115,7 @@ cleanports:
 
 
 upload:
-	cd ../release; scp *.dmg *.zip *.deb collagene_winjre.exe qtversion.txt 177655_mahogny@ssh.binero.se:/storage/content/55/177655/collagene.org/public_html/release/
+	cd ../release; scp *.dmg *.zip *.deb qtversion.txt 177655_mahogny@ssh.binero.se:/storage/content/55/177655/collagene.org/public_html/release/
 	#mahogny@www.endrov.net:/home/mahogny/hp/collagene/
 
 uploadwin:

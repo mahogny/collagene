@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import collagene.sequtil.DegenerateBases;
 
@@ -39,6 +40,8 @@ public class RestrictionEnzyme
 	 * Incubation temperature
 	 */
 	public Double tempIncubation;
+	
+	public TreeSet<String> affectedBy=new TreeSet<String>();
 	
 	/**
 	 * Efficiencies in different buffers

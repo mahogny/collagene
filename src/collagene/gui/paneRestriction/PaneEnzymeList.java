@@ -64,6 +64,7 @@ public class PaneEnzymeList extends QWidget
 	
 	private QLabel labTempIncubation=new QLabel();
 	private QLabel labTempInactivation=new QLabel();
+	private QLabel labAffected=new QLabel();
 	private ProjectWindow projwindow;
 
 	public QSignalEmitter.Signal1<CollageneEvent> signalUpdated=new Signal1<CollageneEvent>();
@@ -152,6 +153,7 @@ public class PaneEnzymeList extends QWidget
 		lay.addLayout(laysite);
 		lay.addWidget(labTempIncubation);
 		lay.addWidget(labTempInactivation);
+		lay.addWidget(labAffected);
 		lay.addWidget(bufOne);
 
 		lay.addWidget(bDigest);
@@ -222,6 +224,13 @@ public class PaneEnzymeList extends QWidget
 			labTempIncubation.setText("Incubation: "+formatTemp(enz.tempIncubation));
 
 			lEnzName.linkActivated.connect(this,"actionGoWebsite()");
+			
+			String aff=tr("Affected by:");
+			for(String s:enz.affectedBy)
+				aff+=" "+s;
+			if(enz.affectedBy.isEmpty())
+				aff+=" "+tr("-");
+			labAffected.setText(aff);
 			
 			bufOne.fill(enz.bufferEfficiency);
 			}
