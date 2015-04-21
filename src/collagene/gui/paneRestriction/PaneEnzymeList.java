@@ -164,6 +164,7 @@ public class PaneEnzymeList extends QWidget
 		
 		
 		
+		lEnzName.linkActivated.connect(this,"actionGoWebsite()");
 		tableAvailableEnzymes.selectionModel().selectionChanged.connect(this,"actionSelectedEnzyme()");
 		bDigest.clicked.connect(this,"actionDigest()");
 
@@ -223,7 +224,6 @@ public class PaneEnzymeList extends QWidget
 			labTempInactivation.setText("Inactivation: "+formatTemp(enz.tempInactivation));
 			labTempIncubation.setText("Incubation: "+formatTemp(enz.tempIncubation));
 
-			lEnzName.linkActivated.connect(this,"actionGoWebsite()");
 			
 			String aff=tr("Affected by:");
 			for(String s:enz.affectedBy)

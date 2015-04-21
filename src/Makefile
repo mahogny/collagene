@@ -4,8 +4,7 @@ loc:
 	wc -l \
 	*/*/*java \
 	*/*/*/*java \
-	*/*/*/*/*java \
-	*/*/*/*/*/*java
+	*/*/*/*/*java
 
 jars: 
 	cd ../bin; jar cfvm ../collagene.jar ../src/MANIFEST.STARTQTCLIENT \
